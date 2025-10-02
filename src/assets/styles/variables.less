@@ -1,0 +1,30 @@
+.flex-common(@direction: row, @justify: flex-start, @align: stretch) {
+  display: flex;
+  flex-direction: @direction;
+  justify-content: @justify;
+  align-items: @align;
+}
+
+.col-flex(@center: false) {
+  .flex-common(column, if(@center = center, center, flex-start), if(@center = center, center, stretch));
+}
+
+.row-flex(@center: false) {
+  .flex-common(row, if(@center = center, center, flex-start), if(@center = center, center, stretch));
+}
+
+// lightMode
+@lightMode-mainPage-bgColor: #f8f9fb;
+@lightMode-nav-bgColor: #e7ecef;
+@lightMode-nav-bgItemColor: #ffffff;
+@lightMode-nav-textColor: #333;
+@lightMode-nav-activeColor: #0088ff;
+@lightMode-nav-hoverColor: #f0f0f0;
+@lightMode-header-bgColor: #ffffff;
+@lightMode-music-playingTextColor: #0088ff;
+@lightMode-music-playingBgColor: #0000000a;
+@lightMode-playBar-btnBg: rgba(0, 0, 0, 0.055);
+@lightMode-playBar-btnHoverBg: rgba(0, 0, 0, 0.096);
+
+// nav
+@nav-borderRadius: 10px;
