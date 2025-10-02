@@ -4,79 +4,30 @@ import { usePlaylistStore } from '@/stores/playlistStore'
 
 const playlistStore = usePlaylistStore()
 const musicItemRefs = ref<HTMLElement[]>([])
-const currentModeIndex = ref(0)
-const modeSwitchRefs = ref<HTMLElement[]>([])
 
 /**
  * 清空播放列表
  */
 function clearPlaylist() {
-  const audioElement = document.querySelector('audio')
-  if (audioElement) {
-    audioElement.src = ''
-    playlistStore.isPlaying = false
+  const audio = document.querySelector('audio')
+  if (audio) {
+    audio.pause()
+    audio.currentTime = 0
+    audio.src = ''
+    audio.load()
   }
-
+  playlistStore.isPlaying = false
   playlistStore.clearPlaylist()
 }
 
 /**
  * 从播放列表中移除指定歌曲
- * @param index 要移除的歌曲索引
+ * @param musicId 要移除的歌曲ID
  */
-function handleRemove(index: number) {
-  const audioElement = document.querySelector('audio')
-
-  // 如果要删除的是当前正在播放的歌曲且是最后一首歌
-  if (index === playlistStore.currentPlayingIndex && playlistStore.playlist.length === 1) {
-    if (audioElement) {
-      audioElement.pause()
-      audioElement.currentTime = 0
-    }
+function handleRemove(musicId: string | undefined) {
+  if (musicId) {
+    playlistStore.removeFromPlaylist(musicId)
   }
-
-  playlistStore.removeFromPlaylist(index)
-}
-
-// 播放模式配置
-const iconList = [
-  {
-    icon: '&#xe727;',
-    title: '单曲循环',
-    mode: 'loop',
-  },
-  {
-    icon: '&#xe734;',
-    title: '随机播放',
-    mode: 'random',
-  },
-  {
-    icon: '&#xea22;',
-    title: '列表播放',
-    mode: 'list',
-  },
-]
-
-/**
- * 切换播放模式
- */
-function switchMode() {
-  currentModeIndex.value = (currentModeIndex.value + 1) % iconList.length
-  playlistStore.playMode = iconList[currentModeIndex.value].mode
-}
-
-/**
- * 查找当前正在播放的音乐项
- * @returns 正在播放的元素或null
- */
-function findPlayingItem(): HTMLElement | null {
-  const items = musicItemRefs.value
-  for (const item of items) {
-    if (item.classList.contains('playing')) {
-      return item
-    }
-  }
-  return null
 }
 
 /**
@@ -84,31 +35,29 @@ function findPlayingItem(): HTMLElement | null {
  */
 function scrollToPlayingItem() {
   nextTick(() => {
-    findPlayingItem()?.scrollIntoView({
-      behavior: 'auto',
-      block: 'nearest',
-    })
+    const index = playlistStore.playlist.findIndex(
+      (music) => music.id === playlistStore.currentPlayingId,
+    )
+    const el = musicItemRefs.value[index]
+    if (el) {
+      el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      })
+    }
   })
 }
 
-// 监听播放列表或当前播放索引变化，自动滚动到正在播放的项
-watch([() => playlistStore.playlist, () => playlistStore.currentPlayingIndex], () => {
-  scrollToPlayingItem()
-})
-
-// 监听播放模式变化，同步更新界面显示
+// 监听播放列表或当前播放索引变化，自动滚动
 watch(
-  () => playlistStore.playMode,
-  (newMode) => {
-    const index = iconList.findIndex((item) => item.mode === newMode)
-    if (index !== -1) {
-      currentModeIndex.value = index
-    }
+  () => [playlistStore.playlist, playlistStore.currentPlayingId],
+  () => {
+    scrollToPlayingItem()
   },
-  { immediate: true },
+  { flush: 'post' }, // 确保 DOM 更新后执行
 )
 
-// 组件挂载时滚动到正在播放的项
+// 组件挂载时滚动到当前播放项
 onMounted(() => {
   scrollToPlayingItem()
 })
@@ -116,58 +65,72 @@ onMounted(() => {
 
 <template>
   <div class="my-playlists">
-    <div class="empty-playlist" v-if="playlistStore.isPlayingListEmpty">
+    <!-- 播放列表为空 -->
+    <div v-if="playlistStore.isPlayingListEmpty" class="empty-playlist">
       <p>播放列表为空</p>
     </div>
-    <div class="has-playlist" v-else>
+
+    <!-- 播放列表非空 -->
+    <div v-else class="has-playlist">
+      <!-- 控制按钮 -->
       <div class="controls-btn">
         <button
           class="mode-switch"
-          @click="switchMode"
-          :data-mode="iconList[currentModeIndex].mode"
-          ref="modeSwitchRefs"
+          @click="playlistStore.cyclePlayMode"
+          :aria-label="`切换播放模式：${playlistStore.playModeLabel}`"
         >
-          <span v-html="iconList[currentModeIndex].icon" class="iconfont"></span>
-          {{ iconList[currentModeIndex].title }}
+          <span class="iconfont" v-html="playlistStore.playModeIcon" aria-hidden="true"></span>
+          {{ playlistStore.playModeLabel }}
         </button>
-        <button class="clear-list" @click="clearPlaylist">清空列表</button>
+
+        <button class="clear-list" @click="clearPlaylist" aria-label="清空播放列表">
+          清空列表
+        </button>
       </div>
-      <div class="my-playlists-container">
+
+      <!-- 带动画的播放列表 -->
+      <TransitionGroup name="fade" tag="div" class="my-playlists-container">
         <div
           v-for="(music, index) in playlistStore.playlist"
-          :key="index"
-          class="music-item-wrapper"
+          :key="music.id"
+          class="music-item"
+          :class="{ playing: music.id === playlistStore.currentPlayingId }"
+          @click="playlistStore.setCurrentPlaying(music)"
+          :ref="
+            (el) => {
+              if (el) musicItemRefs[index] = el as HTMLElement
+            }
+          "
         >
-          <!-- 音乐项 -->
-          <div
-            class="music-item"
-            @click="playlistStore.setCurrentPlaying(music, index)"
-            :class="{ playing: index === playlistStore.currentPlayingIndex }"
-            ref="musicItemRefs"
-          >
-            <!-- 专辑图 -->
-            <div class="left">
-              <div class="cover">
-                <img :src="String(music.cover)" class="music-cover" />
-              </div>
-            </div>
-            <!-- 音乐信息 -->
-            <div class="info">
-              <div class="title">{{ music.title }}</div>
-              <div class="artist">
-                {{ music.artist }} -
-                {{ music.album }}
-              </div>
-            </div>
-            <!-- 删除按钮 -->
-            <div class="right">
-              <button class="remove-btn iconfont" @click.stop="handleRemove(index)">
-                &#xe721;
-              </button>
+          <!-- 专辑图 -->
+          <div class="left">
+            <div class="cover">
+              <img
+                :src="String(music.cover)"
+                :alt="`专辑封面：${music.album}`"
+                class="music-cover"
+              />
             </div>
           </div>
+
+          <!-- 音乐信息 -->
+          <div class="info">
+            <div class="title">{{ music.title }}</div>
+            <div class="artist">{{ music.artist }} - {{ music.album }}</div>
+          </div>
+
+          <!-- 删除按钮 -->
+          <div class="right">
+            <button
+              class="remove-btn iconfont"
+              @click.stop="handleRemove(music.id)"
+              :aria-label="`删除歌曲：${music.title}`"
+            >
+              &#xe721;
+            </button>
+          </div>
         </div>
-      </div>
+      </TransitionGroup>
     </div>
   </div>
 </template>
@@ -178,36 +141,72 @@ onMounted(() => {
   right: 0;
   bottom: 50px;
   width: 350px;
-  background-color: rgb(255, 255, 255);
-  box-shadow: -4px -2px 20px 0px rgba(0, 0, 0, 0.03);
+  max-height: 600px;
+  background-color: #fff;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px 0 0 12px;
+  overflow: hidden;
+  z-index: 999;
 
   .my-playlists-container {
-    .col-flex();
+    display: flex;
+    flex-direction: column;
     gap: 3px;
     max-height: 510px;
-    overflow: auto;
-    position: relative;
+    overflow-y: auto;
+    padding: 10px 0;
   }
 }
 
 .music-item {
-  .row-flex();
+  display: flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  position: relative;
+  padding: 8px 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
 
   &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+
     .title {
       color: @lightMode-music-playingTextColor;
     }
   }
 }
 
+/* 动画效果 */
+.fade-move,
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateX(-12px);
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.fade-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+/* 专辑图 */
 .left .cover {
   width: 70px;
   height: 70px;
   overflow: hidden;
+  border-radius: 4px;
 
   img {
     width: 100%;
@@ -216,63 +215,108 @@ onMounted(() => {
   }
 }
 
+/* 删除按钮 */
 .right {
   margin-left: auto;
-  margin-right: 10px;
+  margin-right: 8px;
 
   button {
-    font-size: 28px;
+    font-size: 24px;
+    color: #999;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #f00;
+    }
   }
 }
 
+/* 音乐信息 */
 .info {
-  .col-flex();
-  gap: 5px;
-}
-
-.artist {
-  font-size: 13px;
-}
-
-.playing {
-  background-color: rgba(133, 133, 133, 0.24);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0; /* 防止文本溢出 */
 
   .title {
-    color: @lightMode-music-playingTextColor;
+    font-size: 15px;
+    font-weight: 400;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
+  .artist {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* 当前播放样式 */
+.playing {
+  background-color: rgba(133, 133, 133, 0.24);
 
   .title,
   .artist {
     font-weight: 500;
   }
+
+  .title {
+    color: @lightMode-music-playingTextColor;
+  }
 }
 
+/* 空状态 */
 .empty-playlist {
-  .row-flex(center);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100px;
 
   p {
     font-size: 18px;
+    color: #999;
   }
 }
 
+/* 控制按钮 */
 .controls-btn {
-  .row-flex();
-  height: 50px;
-  padding: 5px;
+  display: flex;
   gap: 10px;
+  padding: 8px 12px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
 
   button {
-    .row-flex(center);
-    gap: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     flex: 1;
-    font-size: 15px !important;
+    padding: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
     background-color: #90e0ef;
-    border-radius: 5px;
-    transition: all 0.2s ease-in-out;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s ease;
 
     .iconfont {
       font-size: 17px;
+    }
+
+    &:hover {
+      background-color: #00b4d8;
+      color: white;
     }
   }
 }

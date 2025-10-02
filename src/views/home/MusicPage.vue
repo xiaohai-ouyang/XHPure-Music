@@ -7,9 +7,9 @@
     <div class="music-item-box">
       <div
         class="music-item"
-        :class="{ isPlaying: currentPlayingIndex === index }"
-        v-for="(music, index) in useMusicMetaStore().musicList"
-        :key="index"
+        :class="{ isPlaying: currentPlayingId === music.id }"
+        v-for="music in useMusicMetaStore().musicList"
+        :key="music.id"
         @click="handleMusicClick(music)"
       >
         <div class="left">
@@ -100,7 +100,7 @@ audio {
 </style>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { parseMusicFile } from '@/utils/musicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
@@ -112,7 +112,7 @@ interface WindowWithDirectoryPicker extends Window {
 }
 
 const loading = ref(false)
-const currentPlayingIndex = ref<number | null>(null)
+const currentPlayingId = computed(() => playlistStore.currentPlayingId)
 
 function handleMusicClick(music: MusicInfo) {
   playlistStore.addToPlaylist(music)
@@ -125,6 +125,7 @@ function showError(msg: string, err?: unknown) {
 
 interface MusicInfo {
   [key: string]: unknown
+  id?: string
 }
 
 async function handleMusicFile(entry: FileSystemFileHandle) {

@@ -1,32 +1,71 @@
+// stores/playlistStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+
+// 假设 MusicInfo 已定义
 import type { MusicInfo } from './musicMetaStores'
 
+// 播放模式类型
+export type PlayMode = 'list' | 'loop' | 'random'
+
+// 播放模式配置
+const PLAY_MODES: PlayMode[] = ['list', 'random', 'loop']
+const MODE_ICONS: Record<PlayMode, string> = {
+  list: '&#xea22;',
+  random: '&#xe734;',
+  loop: '&#xe727;',
+}
+const MODE_LABELS: Record<PlayMode, string> = {
+  list: '列表播放',
+  random: '随机播放',
+  loop: '单曲循环',
+}
+
 export const usePlaylistStore = defineStore('playlist', () => {
+  // 状态
   const playlist = ref<MusicInfo[]>([])
+  const currentPlayingId = ref<string | null>(null)
   const isPlaying = ref(false)
-  const currentPlaying = ref<MusicInfo | null>(null)
-  const currentPlayingIndex = ref<number | null>(null)
-  const isPlayingListEmpty = computed(() => !playlist.value.length)
-  const playMode = ref('list')
-  let msg = ''
+  const playMode = ref<PlayMode>('list')
+
+  // 计算属性
+  const isPlayingListEmpty = computed(() => playlist.value.length === 0)
+
+  const currentPlaying = computed(() => {
+    if (currentPlayingId.value === null) return null
+    return playlist.value.find(music => music.id === currentPlayingId.value) || null
+  })
+
+  const playModeIcon = computed(() => MODE_ICONS[playMode.value])
+  const playModeLabel = computed(() => MODE_LABELS[playMode.value])
 
   /**
-   * 添加歌曲到播放列表（去重处理）
-   * @param music 要添加的音乐信息
+   * 添加歌曲到播放列表（去重）
    */
   function addToPlaylist(music: MusicInfo) {
-    const existsIndex = playlist.value.findIndex((item) => item.url === music.url)
-
-    // 检查是否已存在
+    // 确保音乐有ID
+    const musicWithId = ensureMusicHasId(music)
+    
+    const existsIndex = playlist.value.findIndex((item) => item.url === musicWithId.url)
     if (existsIndex !== -1) {
-      // 如果歌曲已存在，直接播放它
-      setCurrentPlaying(music, existsIndex)
+      setCurrentPlaying(musicWithId)
       return
     }
 
-    playlist.value.push(music)
-    setCurrentPlaying(music, playlist.value.length - 1)
+    playlist.value.push(musicWithId)
+    setCurrentPlaying(musicWithId)
+  }
+
+  /**
+   * 设置当前播放歌曲（通过音乐对象）
+   */
+  function setCurrentPlaying(music: MusicInfo | null) {
+    if (music === null || !music.id) {
+      currentPlayingId.value = null
+      return
+    }
+    
+    currentPlayingId.value = music.id
   }
 
   /**
@@ -34,157 +73,158 @@ export const usePlaylistStore = defineStore('playlist', () => {
    */
   function clearPlaylist() {
     playlist.value = []
-    setCurrentPlaying(null, null)
-    msg = '播放列表已清空'
+    currentPlayingId.value = null
+    isPlaying.value = false
   }
 
   /**
-   * 从播放列表移除指定索引的歌曲
-   * @param index 要移除的歌曲索引
+   * 从播放列表中移除歌曲
    */
-  function removeFromPlaylist(index: number) {
+  function removeFromPlaylist(musicId: string) {
+    const index = playlist.value.findIndex(music => music.id === musicId)
+    if (index < 0 || index >= playlist.value.length) return
+
+    const wasCurrent = musicId === currentPlayingId.value
+
     playlist.value.splice(index, 1)
 
-    // 当前播放的歌曲被移除
-    if (currentPlayingIndex.value === index) {
-      // 播放列表为空
-      if (playlist.value.length === 0) {
-        setCurrentPlaying(null, null)
-      } else {
-        // 选择下一首（如果当前是最后一首则回退到前一首）
-        const nextIndex = index < playlist.value.length ? index : index - 1
-        setCurrentPlaying(playlist.value[nextIndex], nextIndex)
+    if (playlist.value.length === 0) {
+      currentPlayingId.value = null
+      isPlaying.value = false
+    } else if (wasCurrent) {
+      // 播放被删除的歌曲：跳转到合理位置
+      const nextIndex = index >= playlist.value.length ? index - 1 : index
+      if (playlist.value[nextIndex]) {
+        setCurrentPlaying(playlist.value[nextIndex])
       }
-    }
-    // 移除的歌曲在当前播放歌曲之前，更新索引
-    else if (currentPlayingIndex.value !== null && currentPlayingIndex.value > index) {
-      currentPlayingIndex.value--
     }
   }
 
   /**
-   * 设置当前播放的歌曲和索引
-   * @param music 要设置的歌曲（可为null）
-   * @param index 要设置的索引（可为null）
-   */
-  function setCurrentPlaying(music: MusicInfo | null, index: number | null) {
-    // 处理清空当前播放
-    if (music === null && index === null) {
-      currentPlaying.value = null
-      currentPlayingIndex.value = null
-      return
-    }
-
-    // 通过索引查找歌曲
-    if (music === null && index !== null) {
-      if (index >= 0 && index < playlist.value.length) {
-        music = playlist.value[index]
-      } else {
-        // 索引无效时使用最后一首
-        index = playlist.value.length - 1
-        music = playlist.value[index]
-      }
-    }
-
-    // 通过歌曲对象查找索引
-    else if (index === null && music !== null) {
-      const foundIndex = playlist.value.findIndex((item) => item.url === music!.url)
-      if (foundIndex !== -1) {
-        index = foundIndex
-      } else {
-        // 未找到歌曲时使用最后一首
-        index = playlist.value.length - 1
-        music = playlist.value[index]
-      }
-    }
-
-    // 确保有有效歌曲
-    if (!music || index === null) {
-      // 播放列表为空则清空当前播放
-      if (playlist.value.length === 0) {
-        currentPlaying.value = null
-        currentPlayingIndex.value = null
-        return
-      }
-      // 使用最后一首歌曲
-      index = playlist.value.length - 1
-      music = playlist.value[index]
-    }
-
-    currentPlaying.value = music
-    currentPlayingIndex.value = index
-  }
-
-  /**
-   * 播放下一首歌曲
+   * 播放下一首
    */
   function playNext() {
-    if (currentPlayingIndex.value === null) return
+    if (isPlayingListEmpty.value || currentPlayingId.value === null) return
 
-    if (playlist.value.length <= 1) {
-      setCurrentPlaying(currentPlaying.value, currentPlayingIndex.value)
-      return
-    }
+    const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
+    if (currentIndex === -1) return
+
+    let nextIndex: number
 
     if (playMode.value === 'random') {
-      makeItRandom()
-      return
+      nextIndex = makeRandomIndex()
+    } else {
+      // 'list' 和 'loop'：顺序播放，到末尾时根据模式决定是否循环
+      if (currentIndex < playlist.value.length - 1) {
+        nextIndex = currentIndex + 1
+      } else {
+        nextIndex = playMode.value === 'loop' ? 0 : currentIndex
+      }
     }
 
-    // 计算下一首索引（循环播放）
-    const nextIndex =
-      currentPlayingIndex.value < playlist.value.length - 1 ? currentPlayingIndex.value + 1 : 0
-
-    setCurrentPlaying(playlist.value[nextIndex], nextIndex)
+    if (playlist.value[nextIndex]) {
+      setCurrentPlaying(playlist.value[nextIndex])
+    }
   }
 
   /**
-   * 播放上一首歌曲
+   * 播放上一首
    */
   function playPrevious() {
-    if (currentPlayingIndex.value === null) return
-    if (playlist.value.length <= 1) {
-      setCurrentPlaying(currentPlaying.value, currentPlayingIndex.value)
-      return
-    }
+    if (isPlayingListEmpty.value || currentPlayingId.value === null) return
+
+    const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
+    if (currentIndex === -1) return
+
+    let prevIndex: number
 
     if (playMode.value === 'random') {
-      makeItRandom()
-      return
+      prevIndex = makeRandomIndex()
+    } else {
+      if (currentIndex > 0) {
+        prevIndex = currentIndex - 1
+      } else {
+        prevIndex = playMode.value === 'loop' ? playlist.value.length - 1 : currentIndex
+      }
     }
 
-    // 计算上一首索引（循环播放）
-    const prevIndex =
-      currentPlayingIndex.value > 0 ? currentPlayingIndex.value - 1 : playlist.value.length - 1
-
-    setCurrentPlaying(playlist.value[prevIndex], prevIndex)
+    if (playlist.value[prevIndex]) {
+      setCurrentPlaying(playlist.value[prevIndex])
+    }
   }
 
   /**
-   * 随机播放下一首歌曲（避免重复播放当前歌曲）
+   * 生成一个不同于当前的随机索引
    */
-  function makeItRandom() {
+  function makeRandomIndex(): number {
+    if (playlist.value.length <= 1) {
+      const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
+      return currentIndex === -1 ? 0 : currentIndex
+    }
+
     let randomIndex: number
+    const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
     do {
       randomIndex = Math.floor(Math.random() * playlist.value.length)
-    } while (randomIndex === currentPlayingIndex.value && playlist.value.length > 1)
+    } while (randomIndex === currentIndex)
 
-    setCurrentPlaying(playlist.value[randomIndex], randomIndex)
+    return randomIndex
+  }
+
+  /**
+   * 切换播放模式（循环切换）
+   */
+  function cyclePlayMode() {
+    const currentIndex = PLAY_MODES.indexOf(playMode.value)
+    const nextIndex = (currentIndex + 1) % PLAY_MODES.length
+    playMode.value = PLAY_MODES[nextIndex]
+  }
+
+  /**
+   * 确保音乐信息包含ID
+   */
+  function ensureMusicHasId(music: MusicInfo): MusicInfo {
+    if (music.id) {
+      return music
+    }
+    
+    return {
+      ...music,
+      id: generateUUID()
+    }
+  }
+
+  /**
+   * 生成UUID
+   */
+  function generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0
+      const v = c === 'x' ? r : (r & 0x3) | 0x8
+      return v.toString(16)
+    })
   }
 
   return {
+    // state
     playlist,
-    currentPlaying,
-    currentPlayingIndex,
+    currentPlayingId,
     isPlaying,
-    isPlayingListEmpty,
-    msg,
     playMode,
+
+    // getters
+    isPlayingListEmpty,
+    currentPlaying,
+    playModeIcon,
+    playModeLabel,
+
+    // actions
     addToPlaylist,
-    removeFromPlaylist,
     setCurrentPlaying,
-    playPrevious,
-    playNext,
+    removeFromPlaylist,
     clearPlaylist,
+    playNext,
+    playPrevious,
+    cyclePlayMode,
   }
 })
