@@ -77,9 +77,6 @@ export const usePlaylistStore = defineStore('playlist', () => {
     isPlaying.value = false
   }
 
-  /**
-   * 从播放列表中移除歌曲
-   */
   function removeFromPlaylist(musicId: string) {
     const index = playlist.value.findIndex((music) => music.id === musicId)
     if (index < 0 || index >= playlist.value.length) return
@@ -92,7 +89,6 @@ export const usePlaylistStore = defineStore('playlist', () => {
       currentPlayingId.value = null
       isPlaying.value = false
     } else if (wasCurrent) {
-      // 播放被删除的歌曲：跳转到合理位置
       const nextIndex = index >= playlist.value.length ? index - 1 : index
       if (playlist.value[nextIndex]) {
         setCurrentPlaying(playlist.value[nextIndex])
@@ -100,9 +96,6 @@ export const usePlaylistStore = defineStore('playlist', () => {
     }
   }
 
-  /**
-   * 播放下一首
-   */
   function playNext() {
     if (isPlayingListEmpty.value || currentPlayingId.value === null) return
 
@@ -127,9 +120,6 @@ export const usePlaylistStore = defineStore('playlist', () => {
     }
   }
 
-  /**
-   * 播放上一首
-   */
   function playPrevious() {
     if (isPlayingListEmpty.value || currentPlayingId.value === null) return
 
