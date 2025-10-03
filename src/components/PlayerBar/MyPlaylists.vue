@@ -65,14 +65,11 @@ onMounted(() => {
 
 <template>
   <div class="my-playlists">
-    <!-- 播放列表为空 -->
     <div v-if="playlistStore.isPlayingListEmpty" class="empty-playlist">
       <p>播放列表为空</p>
     </div>
 
-    <!-- 播放列表非空 -->
     <div v-else class="has-playlist">
-      <!-- 控制按钮 -->
       <div class="controls-btn">
         <button
           class="mode-switch"
@@ -89,7 +86,6 @@ onMounted(() => {
         </button>
       </div>
 
-      <!-- 带动画的播放列表 -->
       <TransitionGroup name="fade" tag="div" class="my-playlists-container">
         <div
           v-for="(music, index) in playlistStore.playlist"
@@ -103,18 +99,15 @@ onMounted(() => {
             }
           "
         >
-          <!-- 专辑图 -->
           <div class="cover">
             <img :src="String(music.cover)" :alt="`专辑封面：${music.album}`" class="music-cover" />
           </div>
 
-          <!-- 音乐信息 -->
           <div class="info">
             <div class="title">{{ music.title }}</div>
             <div class="artist">{{ music.artist }} - {{ music.album }}</div>
           </div>
 
-          <!-- 删除按钮 -->
           <div class="remove-btn">
             <button
               class="iconfont"
