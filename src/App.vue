@@ -1,4 +1,49 @@
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
+import { useThemeStore } from './stores/themeStore'
+import { useGlobalShortcutKey } from './composable/globalShortcutKey'
+import { usePlaylistStore } from './stores/playlistStore'
+
+const playlistStore = usePlaylistStore()
+const audioRef = ref<HTMLAudioElement | null>(null)
+
+document.title = '椒盐音乐'
+useGlobalShortcutKey()
+onMounted(() => {
+  useThemeStore().initTheme()
+})
+
+watch(
+  () => playlistStore.currentPlaying,
+  async () => {
+    if (!audioRef.value) return
+
+    try {
+      if (!playlistStore.currentPlaying) {
+        return
+      }
+
+      const musicUrl = playlistStore.currentPlaying.url
+      if (!musicUrl) {
+        return
+      }
+
+      audioRef.value.src = musicUrl
+      await audioRef.value.play()
+    } catch (error) {
+      console.error('播放音频时出错:', error)
+    }
+  },
+)
+</script>
+
 <template>
+  <audio
+    ref="audioRef"
+    @play="playlistStore.isPlaying = true"
+    @pause="playlistStore.isPlaying = false"
+    @ended="playlistStore.playNext"
+  />
   <router-view></router-view>
 </template>
 
@@ -41,15 +86,3 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 </style>
-
-<script setup lang="ts">
-import { onMounted } from 'vue'
-import { useThemeStore } from './stores/themeStore'
-import { useGlobalShortcutKey } from './composable/globalShortcutKey'
-useGlobalShortcutKey()
-document.title = '椒盐音乐'
-
-onMounted(() => {
-  useThemeStore().initTheme()
-})
-</script>
