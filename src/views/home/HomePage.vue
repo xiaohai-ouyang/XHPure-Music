@@ -21,6 +21,7 @@ import { usePageStatusStore } from '@/stores/pageStatusStores'
 const mainContainer = ref<HTMLElement | null>(null)
 const pageStore = usePageStatusStore()
 const pageWidth = ref<number | null>(null)
+
 let resizeObserver: ResizeObserver | null = null
 
 function observeContainer() {

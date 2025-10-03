@@ -125,6 +125,10 @@ function togglePlay() {
       </div>
     </div>
 
+    <button class="to-playback-btn" @click="usePageStatusStore().isPlayBackExpand = true">
+      点击展开播放页
+    </button>
+
     <div class="right">
       <div class="controls">
         <button class="controls-btn" @click="playPrevious" aria-label="上一首">
@@ -263,6 +267,18 @@ i {
 @keyframes scrolling {
   to {
     transform: translateX(calc(-100% - 50px));
+  }
+}
+
+.to-playback-btn {
+  margin-left: auto;
+  height: 80%;
+  padding: 10px;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: @lightMode-playBar-btnHoverBg;
   }
 }
 </style>

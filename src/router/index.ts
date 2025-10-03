@@ -1,5 +1,5 @@
+// router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
-import { usePageStatusStore } from '@/stores/pageStatusStores'
 
 const routes = [
   {
@@ -52,6 +52,13 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/playback',
+    component: () => import('@views/home/PlaybackPage.vue'),
+    meta: {
+      title: '播放页',
+    },
+  },
 ]
 
 const router = createRouter({
@@ -60,15 +67,6 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  // 动态设置页面标题
-  const title = to.meta.title as string | undefined
-  if (title) {
-    const pageStore = usePageStatusStore()
-    pageStore.currentPageTitle = title
-  } else {
-    const pageStore = usePageStatusStore()
-    pageStore.currentPageTitle = '默认标题'
-  }
   next()
 })
 
