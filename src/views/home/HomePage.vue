@@ -58,6 +58,6 @@ onUnmounted(() => {
 .main-page {
   padding: 35px 0 50px 0;
   height: 100vh;
-  overflow: auto;
+  overflow: hidden;
 }
 </style>

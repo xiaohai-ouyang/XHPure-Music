@@ -76,8 +76,9 @@ onMounted(() => {
       <div class="controls-btn">
         <button
           class="mode-switch"
+          :class="playlistStore.playMode"
           @click="playlistStore.cyclePlayMode"
-          :aria-label="`切换播放模式：${playlistStore.playModeLabel}`"
+          :aria-label="`${playlistStore.playModeLabel}`"
         >
           <span class="iconfont" v-html="playlistStore.playModeIcon" aria-hidden="true"></span>
           {{ playlistStore.playModeLabel }}
@@ -103,14 +104,8 @@ onMounted(() => {
           "
         >
           <!-- 专辑图 -->
-          <div class="left">
-            <div class="cover">
-              <img
-                :src="String(music.cover)"
-                :alt="`专辑封面：${music.album}`"
-                class="music-cover"
-              />
-            </div>
+          <div class="cover">
+            <img :src="String(music.cover)" :alt="`专辑封面：${music.album}`" class="music-cover" />
           </div>
 
           <!-- 音乐信息 -->
@@ -120,11 +115,11 @@ onMounted(() => {
           </div>
 
           <!-- 删除按钮 -->
-          <div class="right">
+          <div class="remove-btn">
             <button
-              class="remove-btn iconfont"
+              class="iconfont"
               @click.stop="handleRemove(music.id)"
-              :aria-label="`删除歌曲：${music.title}`"
+              :aria-label="`${music.id}`"
             >
               &#xe721;
             </button>
@@ -144,28 +139,22 @@ onMounted(() => {
   max-height: 600px;
   background-color: #fff;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
-  border-radius: 12px 0 0 12px;
   overflow: hidden;
   z-index: 999;
 
   .my-playlists-container {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    max-height: 510px;
+    .col-flex();
+    max-height: 516px;
     overflow-y: auto;
-    padding: 10px 0;
   }
 }
 
 .music-item {
-  display: flex;
-  align-items: center;
+  .row-flex(center);
   gap: 5px;
   cursor: pointer;
   padding: 8px 10px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
+  transition: all 0.1s ease-in-out;
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
@@ -176,7 +165,6 @@ onMounted(() => {
   }
 }
 
-/* 动画效果 */
 .fade-move,
 .fade-enter-active,
 .fade-leave-active {
@@ -201,8 +189,7 @@ onMounted(() => {
   width: 100%;
 }
 
-/* 专辑图 */
-.left .cover {
+.cover {
   width: 70px;
   height: 70px;
   overflow: hidden;
@@ -215,8 +202,7 @@ onMounted(() => {
   }
 }
 
-/* 删除按钮 */
-.right {
+.remove-btn {
   margin-left: auto;
   margin-right: 8px;
 
@@ -234,12 +220,12 @@ onMounted(() => {
   }
 }
 
-/* 音乐信息 */
 .info {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 0; /* 防止文本溢出 */
+  min-width: 0;
+  max-width: 200px;
 
   .title {
     font-size: 15px;
@@ -248,6 +234,7 @@ onMounted(() => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: all 0.1s ease-in-out;
   }
 
   .artist {
@@ -259,7 +246,6 @@ onMounted(() => {
   }
 }
 
-/* 当前播放样式 */
 .playing {
   background-color: rgba(133, 133, 133, 0.24);
 
@@ -273,11 +259,8 @@ onMounted(() => {
   }
 }
 
-/* 空状态 */
 .empty-playlist {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  .col-flex(center);
   height: 100px;
 
   p {
@@ -286,38 +269,47 @@ onMounted(() => {
   }
 }
 
-/* 控制按钮 */
 .controls-btn {
-  display: flex;
   gap: 10px;
-  padding: 8px 12px;
+  padding: 5px 12px;
   background-color: #f8f8f8;
   border-bottom: 1px solid #eee;
 
   button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 6px;
     flex: 1;
     padding: 8px;
     font-size: 15px;
     font-weight: 500;
-    border: none;
-    border-radius: 6px;
-    background-color: #90e0ef;
-    color: #000;
+    border-radius: 5px;
+    color: white;
     cursor: pointer;
     transition: all 0.2s ease;
+  }
 
-    .iconfont {
-      font-size: 17px;
-    }
+  .iconfont {
+    font-size: 17px;
+  }
 
-    &:hover {
-      background-color: #00b4d8;
-      color: white;
-    }
+  .clear-list {
+    background-color: #000814;
+  }
+
+  &,
+  button {
+    .row-flex(center);
+  }
+
+  .loop {
+    background-color: #e63946;
+  }
+
+  .random {
+    background-color: #8338ec;
+  }
+
+  .list {
+    background-color: #0088ff;
   }
 }
 </style>
