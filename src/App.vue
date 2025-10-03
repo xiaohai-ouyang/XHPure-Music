@@ -23,13 +23,6 @@ button {
 
 body {
   font-family: MiSans;
-  scrollbar-width: none;
-  -webkit-scrollbar: none;
-
-  ::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
 }
 
 @font-face {

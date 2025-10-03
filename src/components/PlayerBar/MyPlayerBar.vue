@@ -7,7 +7,6 @@ import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
 
 const playlistStore = usePlaylistStore()
 const audioElement = ref<HTMLAudioElement | null>(null)
-const isPlaylistShow = ref(false)
 
 function replaySingle() {
   audioElement.value?.pause()
@@ -98,44 +97,61 @@ function togglePlay() {
     <div class="left">
       <div class="cover">
         <img
-          :src="(usePlaylistStore().currentPlaying?.cover as string) || defaultCover"
+          :src="(playlistStore.currentPlaying?.cover as string) || defaultCover"
+          alt="专辑封面"
           class="music-cover"
         />
       </div>
-      <div class="info" v-if="usePlaylistStore().currentPlaying">
-        <div class="title">{{ usePlaylistStore().currentPlaying?.title }}</div>
+      <div class="info">
+        <div class="title">{{ playlistStore.currentPlaying?.title || '暂无播放' }}</div>
         <div class="artist">
-          {{ usePlaylistStore().currentPlaying?.artist }} -
-          {{ usePlaylistStore().currentPlaying?.album }}
+          {{ playlistStore.currentPlaying?.artist || '未知艺术家' }}
         </div>
       </div>
     </div>
-    <div class="right">
-      <div class="controls-btn">
-        <button class="prev-btn" @click="playPrevious">
-          <i class="iconfont">&#xe722;</i>
-        </button>
-        <button class="play-btn" @click="togglePlay">
-          <i class="iconfont" v-if="playlistStore.isPlaying">&#xe67b;</i>
-          <i class="iconfont" v-else>&#xe63d;</i>
-        </button>
-        <button class="next-btn" @click="playNext">
-          <i class="iconfont">&#xe72a;</i>
-        </button>
-      </div>
 
-      <button class="playlist-btn" @click="isPlaylistShow = !isPlaylistShow">
+    <div class="controls">
+      <button class="controls-btn" @click="playPrevious" aria-label="上一首">
+        <i class="iconfont">&#xe722;</i>
+      </button>
+      <button class="controls-btn play-pause" @click="togglePlay" aria-label="播放/暂停">
+        <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
+        <i class="iconfont" v-else>&#xe67b;</i>
+      </button>
+      <button class="controls-btn" @click="playNext" aria-label="下一首">
+        <i class="iconfont">&#xe72a;</i>
+      </button>
+    </div>
+
+    <div class="right">
+      <button class="playlist-btn" @click="usePageStatusStore().togglePlaylist">
         <i class="iconfont">&#xe716;</i>
         <span class="playlist-count">播放列表</span>
       </button>
     </div>
-    <my-play-list v-if="isPlaylistShow" @close="isPlaylistShow = false" />
+    <Transition name="list">
+      <my-play-list
+        v-show="usePageStatusStore().isPlaylistShow"
+        @close="usePageStatusStore().isPlaylistShow = false"
+      />
+    </Transition>
   </div>
 
   <audio ref="audioElement" />
 </template>
 
 <style scoped lang="less">
+.list-enter-active,
+.list-leave-active {
+  max-height: 600px;
+  transition: max-height 0.3s;
+}
+
+.list-enter-from,
+.list-leave-to {
+  max-height: 0;
+}
+
 .player-bar,
 .right {
   .row-flex();
@@ -191,13 +207,17 @@ i {
 }
 
 .right {
-  margin-left: auto;
   align-items: center;
   margin-right: 10px;
 }
 
 .controls-btn {
   .row-flex(center);
+}
+
+.controls {
+  .row-flex(center);
+  margin-left: auto;
   gap: 5px;
   margin-right: 10px;
 }
