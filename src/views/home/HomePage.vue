@@ -12,15 +12,16 @@
 </template>
 
 <script setup lang="ts">
-import myHeader from '@components/Header/MyHeader.vue'
-import myNav from '@components/Nav/MyNav.vue'
-import myPlayerBar from '@components/PlayerBar/MyPlayerBar.vue'
+import myHeader from '@components/Header/myHeader.vue'
+import myNav from '@components/Nav/myNav.vue'
+import myPlayerBar from '@components/PlayerBar/myPlayerBar.vue'
 import { onMounted, ref, onUnmounted } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 
 const mainContainer = ref<HTMLElement | null>(null)
 const pageStore = usePageStatusStore()
 const pageWidth = ref<number | null>(null)
+
 let resizeObserver: ResizeObserver | null = null
 
 function observeContainer() {
