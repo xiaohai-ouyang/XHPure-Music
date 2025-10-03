@@ -33,7 +33,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   const currentPlaying = computed(() => {
     if (currentPlayingId.value === null) return null
-    return playlist.value.find(music => music.id === currentPlayingId.value) || null
+    return playlist.value.find((music) => music.id === currentPlayingId.value) || null
   })
 
   const playModeIcon = computed(() => MODE_ICONS[playMode.value])
@@ -45,7 +45,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
   function addToPlaylist(music: MusicInfo) {
     // 确保音乐有ID
     const musicWithId = ensureMusicHasId(music)
-    
+
     const existsIndex = playlist.value.findIndex((item) => item.url === musicWithId.url)
     if (existsIndex !== -1) {
       setCurrentPlaying(musicWithId)
@@ -64,7 +64,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
       currentPlayingId.value = null
       return
     }
-    
+
     currentPlayingId.value = music.id
   }
 
@@ -81,7 +81,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * 从播放列表中移除歌曲
    */
   function removeFromPlaylist(musicId: string) {
-    const index = playlist.value.findIndex(music => music.id === musicId)
+    const index = playlist.value.findIndex((music) => music.id === musicId)
     if (index < 0 || index >= playlist.value.length) return
 
     const wasCurrent = musicId === currentPlayingId.value
@@ -106,7 +106,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
   function playNext() {
     if (isPlayingListEmpty.value || currentPlayingId.value === null) return
 
-    const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
+    const currentIndex = playlist.value.findIndex((music) => music.id === currentPlayingId.value)
     if (currentIndex === -1) return
 
     let nextIndex: number
@@ -133,7 +133,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
   function playPrevious() {
     if (isPlayingListEmpty.value || currentPlayingId.value === null) return
 
-    const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
+    const currentIndex = playlist.value.findIndex((music) => music.id === currentPlayingId.value)
     if (currentIndex === -1) return
 
     let prevIndex: number
@@ -158,12 +158,12 @@ export const usePlaylistStore = defineStore('playlist', () => {
    */
   function makeRandomIndex(): number {
     if (playlist.value.length <= 1) {
-      const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
+      const currentIndex = playlist.value.findIndex((music) => music.id === currentPlayingId.value)
       return currentIndex === -1 ? 0 : currentIndex
     }
 
     let randomIndex: number
-    const currentIndex = playlist.value.findIndex(music => music.id === currentPlayingId.value)
+    const currentIndex = playlist.value.findIndex((music) => music.id === currentPlayingId.value)
     do {
       randomIndex = Math.floor(Math.random() * playlist.value.length)
     } while (randomIndex === currentIndex)
@@ -187,10 +187,10 @@ export const usePlaylistStore = defineStore('playlist', () => {
     if (music.id) {
       return music
     }
-    
+
     return {
       ...music,
-      id: generateUUID()
+      id: generateUUID(),
     }
   }
 

@@ -30,9 +30,15 @@
 audio {
   display: none;
 }
+
 .music-cover {
   width: 130px;
   height: 130px;
+}
+
+.jiaoyan-music {
+  height: 100%;
+  overflow-y: auto;
 }
 
 .music-item-box {
