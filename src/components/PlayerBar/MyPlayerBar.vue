@@ -2,11 +2,11 @@
 import defaultCover from '@assets/images/defaultCover-lightMode.png'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
-import { ref, watch } from 'vue'
-import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
+import { ref } from 'vue'
+import myPlayList from '@/components/PlayerBar/myPlaylists.vue'
 
 const playlistStore = usePlaylistStore()
-const audioElement = ref<HTMLAudioElement | null>(null)
+
 const infoRef = ref<HTMLElement | null>(null)
 
 function autoScroll(event: MouseEvent) {
@@ -20,83 +20,16 @@ function autoScroll(event: MouseEvent) {
   }
 }
 
-function replaySingle() {
-  audioElement.value?.pause()
-  audioElement.value?.load()
-  audioElement.value?.play()
-}
-
-function playPrevious() {
-  if (playlistStore.playlist.length === 1) {
-    replaySingle()
-  }
-  playlistStore.playPrevious()
-}
-
-function playNext() {
-  if (playlistStore.playlist.length === 1) {
-    replaySingle()
-  }
-  playlistStore.playNext()
-}
-
-watch(
-  () => playlistStore.currentPlaying,
-  (music) => {
-    if (!audioElement.value) return
-    if (music?.url) {
-      audioElement.value.src = music.url
-      audioElement.value.play()
-      playlistStore.isPlaying = true
-    } else {
-      audioElement.value.src = ''
-      audioElement.value?.pause()
-      playlistStore.isPlaying = false
-    }
-  },
-  { deep: true },
-)
-
-watch(
-  () => audioElement.value,
-  (newAudioElement) => {
-    if (newAudioElement) {
-      newAudioElement.addEventListener('pause', () => {
-        playlistStore.isPlaying = false
-      })
-
-      newAudioElement.addEventListener('play', () => {
-        playlistStore.isPlaying = true
-      })
-
-      newAudioElement.addEventListener('ended', () => {
-        if (playlistStore.playMode === 'loop') {
-          if (playlistStore.currentPlaying?.url) {
-            newAudioElement.src = playlistStore.currentPlaying.url
-            newAudioElement.play()
-          }
-        } else {
-          playlistStore.playNext()
-        }
-      })
-
-      if (playlistStore.currentPlaying?.url) {
-        newAudioElement.src = playlistStore.currentPlaying.url
-        newAudioElement.play()
-        playlistStore.isPlaying = true
-      }
-    }
-  },
-  { once: true },
-)
-
-function togglePlay() {
-  if (!audioElement.value) return
+function togglePlayPause() {
+  const audioElement = document.querySelector('audio')
+  if (!audioElement) return
 
   if (playlistStore.isPlaying) {
-    audioElement.value.pause()
+    audioElement.pause()
   } else {
-    audioElement.value.play()
+    audioElement.play().catch((error) => {
+      console.error('播放失败:', error)
+    })
   }
 }
 </script>
@@ -131,14 +64,14 @@ function togglePlay() {
 
     <div class="right">
       <div class="controls">
-        <button class="controls-btn" @click="playPrevious" aria-label="上一首">
+        <button class="controls-btn" @click="playlistStore.playPrevious" aria-label="上一首">
           <i class="iconfont">&#xe722;</i>
         </button>
-        <button class="controls-btn play-pause" @click="togglePlay" aria-label="播放/暂停">
+        <button class="controls-btn play-pause" @click="togglePlayPause" aria-label="播放/暂停">
           <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
-        <button class="controls-btn" @click="playNext" aria-label="下一首">
+        <button class="controls-btn" @click="playlistStore.playNext" aria-label="下一首">
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
@@ -154,8 +87,6 @@ function togglePlay() {
       />
     </Transition>
   </div>
-
-  <audio ref="audioElement" />
 </template>
 
 <style scoped lang="less">

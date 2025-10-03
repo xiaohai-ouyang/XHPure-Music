@@ -24,9 +24,12 @@ const MODE_LABELS: Record<PlayMode, string> = {
 export const usePlaylistStore = defineStore('playlist', () => {
   // 状态
   const playlist = ref<MusicInfo[]>([])
-  const currentPlayingId = ref<string | null>(null)
   const isPlaying = ref(false)
   const playMode = ref<PlayMode>('list')
+  const currentPlayingId = ref<string | null>(null)
+
+  const currentPlayingTime = ref(null)
+  const currentPlayingDuration = ref(null)
 
   // 计算属性
   const isPlayingListEmpty = computed(() => playlist.value.length === 0)
@@ -204,6 +207,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
     currentPlayingId,
     isPlaying,
     playMode,
+    currentPlayingTime,
+    currentPlayingDuration,
 
     // getters
     isPlayingListEmpty,
