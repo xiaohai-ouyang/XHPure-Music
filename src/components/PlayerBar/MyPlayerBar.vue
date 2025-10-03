@@ -129,16 +129,29 @@ function togglePlay() {
         <span class="playlist-count">播放列表</span>
       </button>
     </div>
-    <my-play-list
-      v-if="usePageStatusStore().isPlaylistShow"
-      @close="usePageStatusStore().isPlaylistShow = false"
-    />
+    <Transition name="list">
+      <my-play-list
+        v-show="usePageStatusStore().isPlaylistShow"
+        @close="usePageStatusStore().isPlaylistShow = false"
+      />
+    </Transition>
   </div>
 
   <audio ref="audioElement" />
 </template>
 
 <style scoped lang="less">
+.list-enter-active,
+.list-leave-active {
+  max-height: 600px;
+  transition: max-height 0.3s;
+}
+
+.list-enter-from,
+.list-leave-to {
+  max-height: 0;
+}
+
 .player-bar,
 .right {
   .row-flex();
