@@ -7,6 +7,18 @@ import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
 
 const playlistStore = usePlaylistStore()
 const audioElement = ref<HTMLAudioElement | null>(null)
+const infoRef = ref<HTMLElement | null>(null)
+
+function autoScroll(event: MouseEvent) {
+  const target = event.target as HTMLElement
+  target.classList.remove('scrolling')
+
+  if (target.scrollWidth > target.clientWidth) {
+    setTimeout(() => {
+      target.classList.add('scrolling')
+    }, 100)
+  }
+}
 
 function replaySingle() {
   audioElement.value?.pause()
@@ -78,9 +90,6 @@ watch(
   { once: true },
 )
 
-/**
- * 切换播放/暂停状态
- */
 function togglePlay() {
   if (!audioElement.value) return
 
@@ -102,28 +111,33 @@ function togglePlay() {
           class="music-cover"
         />
       </div>
-      <div class="info">
-        <div class="title">{{ playlistStore.currentPlaying?.title || '暂无播放' }}</div>
+      <div class="info" ref="infoRef">
+        <div
+          class="title"
+          @mouseenter="autoScroll"
+          @mouseleave="(e) => (e.target as HTMLElement).classList.remove('scrolling')"
+        >
+          {{ playlistStore.currentPlaying?.title || '暂无播放' }}
+        </div>
         <div class="artist">
           {{ playlistStore.currentPlaying?.artist || '未知艺术家' }}
         </div>
       </div>
     </div>
 
-    <div class="controls">
-      <button class="controls-btn" @click="playPrevious" aria-label="上一首">
-        <i class="iconfont">&#xe722;</i>
-      </button>
-      <button class="controls-btn play-pause" @click="togglePlay" aria-label="播放/暂停">
-        <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
-        <i class="iconfont" v-else>&#xe67b;</i>
-      </button>
-      <button class="controls-btn" @click="playNext" aria-label="下一首">
-        <i class="iconfont">&#xe72a;</i>
-      </button>
-    </div>
-
     <div class="right">
+      <div class="controls">
+        <button class="controls-btn" @click="playPrevious" aria-label="上一首">
+          <i class="iconfont">&#xe722;</i>
+        </button>
+        <button class="controls-btn play-pause" @click="togglePlay" aria-label="播放/暂停">
+          <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
+          <i class="iconfont" v-else>&#xe67b;</i>
+        </button>
+        <button class="controls-btn" @click="playNext" aria-label="下一首">
+          <i class="iconfont">&#xe72a;</i>
+        </button>
+      </div>
       <button class="playlist-btn" @click="usePageStatusStore().togglePlaylist">
         <i class="iconfont">&#xe716;</i>
         <span class="playlist-count">播放列表</span>
@@ -194,11 +208,17 @@ i {
 
 .info {
   margin-left: 10px;
+  max-width: 180px;
+  overflow: hidden;
+  white-space: nowrap;
+
   .col-flex();
 
   .title {
     font-weight: 500;
     color: @lightMode-music-playingTextColor;
+    display: inline-block;
+    position: relative;
   }
 
   .artist {
@@ -209,15 +229,15 @@ i {
 .right {
   align-items: center;
   margin-right: 10px;
+  margin-left: auto;
 }
 
+.controls,
 .controls-btn {
   .row-flex(center);
 }
 
 .controls {
-  .row-flex(center);
-  margin-left: auto;
   gap: 5px;
   margin-right: 10px;
 }
@@ -230,6 +250,19 @@ i {
 
   &:hover {
     background-color: @lightMode-playBar-btnHoverBg;
+  }
+}
+
+.scrolling {
+  display: inline-block;
+  position: relative;
+  animation: scrolling 15s linear infinite alternate;
+  animation-delay: 0.5s;
+}
+
+@keyframes scrolling {
+  to {
+    transform: translateX(calc(-100% - 50px));
   }
 }
 </style>
