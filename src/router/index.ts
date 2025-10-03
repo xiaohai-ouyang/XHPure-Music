@@ -52,13 +52,6 @@ const routes = [
       },
     ],
   },
-  {
-    path: '/playback',
-    component: () => import('@views/home/PlaybackPage.vue'),
-    meta: {
-      title: '播放页',
-    },
-  },
 ]
 
 const router = createRouter({
