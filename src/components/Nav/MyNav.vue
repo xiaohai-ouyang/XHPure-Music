@@ -1,5 +1,9 @@
 <template>
-  <div class="myNav" :class="{ myNavContracted: usePageStatusStore().isNavContracted }">
+  <div
+    class="myNav"
+    :class="{ myNavContracted: usePageStatusStore().isNavContracted }"
+    @click="usePageStatusStore().isPlaylistShow = false"
+  >
     <nav>
       <!-- 色彩模式切换区域 -->
       <div class="color-mode-switch">

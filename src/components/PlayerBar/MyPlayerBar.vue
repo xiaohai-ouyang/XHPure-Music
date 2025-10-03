@@ -7,7 +7,6 @@ import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
 
 const playlistStore = usePlaylistStore()
 const audioElement = ref<HTMLAudioElement | null>(null)
-const isPlaylistShow = ref(false)
 
 function replaySingle() {
   audioElement.value?.pause()
@@ -125,12 +124,15 @@ function togglePlay() {
     </div>
 
     <div class="right">
-      <button class="playlist-btn" @click="isPlaylistShow = !isPlaylistShow">
+      <button class="playlist-btn" @click="usePageStatusStore().togglePlaylist">
         <i class="iconfont">&#xe716;</i>
         <span class="playlist-count">播放列表</span>
       </button>
     </div>
-    <my-play-list v-if="isPlaylistShow" @close="isPlaylistShow = false" />
+    <my-play-list
+      v-if="usePageStatusStore().isPlaylistShow"
+      @close="usePageStatusStore().isPlaylistShow = false"
+    />
   </div>
 
   <audio ref="audioElement" />
