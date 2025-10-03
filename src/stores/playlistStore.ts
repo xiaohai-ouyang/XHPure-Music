@@ -16,7 +16,7 @@ const MODE_ICONS: Record<PlayMode, string> = {
   loop: '&#xe727;',
 }
 const MODE_LABELS: Record<PlayMode, string> = {
-  list: '列表播放',
+  list: '列表循环',
   random: '随机播放',
   loop: '单曲循环',
 }
@@ -118,7 +118,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
       if (currentIndex < playlist.value.length - 1) {
         nextIndex = currentIndex + 1
       } else {
-        nextIndex = playMode.value === 'loop' ? 0 : currentIndex
+        nextIndex = playMode.value === 'loop' || playMode.value === 'list' ? 0 : currentIndex
       }
     }
 
@@ -144,7 +144,10 @@ export const usePlaylistStore = defineStore('playlist', () => {
       if (currentIndex > 0) {
         prevIndex = currentIndex - 1
       } else {
-        prevIndex = playMode.value === 'loop' ? playlist.value.length - 1 : currentIndex
+        prevIndex =
+          playMode.value === 'loop' || playMode.value === 'list'
+            ? playlist.value.length - 1
+            : currentIndex
       }
     }
 
