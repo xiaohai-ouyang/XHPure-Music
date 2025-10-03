@@ -1,5 +1,5 @@
 <template>
-  <div class="MyHeader">
+  <div class="MyHeader" @click="usePageStatusStore().isPlaylistShow = false">
     <header :style="{ width: usePageStatusStore().pageWidth + 'px' }">
       <button class="toggle-nav-btn" @click="usePageStatusStore().toggleNav">
         <i class="iconfont">&#xe62b;</i>
