@@ -139,6 +139,7 @@ onMounted(() => {
     .col-flex();
     max-height: 516px;
     overflow-y: auto;
+    overflow-x: hidden;
   }
 }
 
