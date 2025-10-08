@@ -33,7 +33,6 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   // 计算属性
   const isPlayingListEmpty = computed(() => playlist.value.length === 0)
-
   const currentPlaying = computed(() => {
     if (currentPlayingId.value === null) return null
     return playlist.value.find((music) => music.id === currentPlayingId.value) || null
