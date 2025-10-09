@@ -28,7 +28,10 @@
       </div>
     </div>
     <div class="right">
-      <p>{{ playlistStore.currentPlaying?.lyrics }}</p>
+      <LrcParser
+        :lyrics="playlistStore.currentPlaying?.lyrics || ''"
+        :current-time="playlistStore.currentPlayingTime"
+      />
     </div>
   </div>
 </template>
@@ -38,6 +41,7 @@ import router from '@/router'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { computed } from 'vue'
+import LrcParser from '@/components/LrcParser.vue'
 
 const playlistStore = usePlaylistStore()
 
