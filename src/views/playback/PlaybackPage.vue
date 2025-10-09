@@ -52,6 +52,7 @@ const currentPlaying = computed(
       artist: '',
       album: '',
       cover: '',
+      lyrics: '',
     },
 )
 
@@ -76,9 +77,12 @@ function togglePlayPause() {
 
 <style scoped lang="less">
 .playback-page {
+  .row-flex(center);
   padding: 20px;
   height: 100vh;
-  .row-flex(center);
+  width: 100vw;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .back-btn {
