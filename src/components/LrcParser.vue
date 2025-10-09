@@ -206,7 +206,7 @@ onMounted(updateSpacerHeight)
 
   .lyric-line {
     font-size: 18px;
-    color: #aca8a8;
+    color: rgba(255, 255, 255, 0.267);
     transition: all 0.5s linear;
     text-align: center;
     width: 90%;
@@ -215,7 +215,7 @@ onMounted(updateSpacerHeight)
     text-overflow: ellipsis;
 
     &.active {
-      color: #003cff;
+      color: #ffffff;
       font-size: 25px;
       font-weight: bold;
       transform: scale(1.05);

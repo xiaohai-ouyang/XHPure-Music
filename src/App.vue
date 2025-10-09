@@ -8,9 +8,19 @@ const playlistStore = usePlaylistStore()
 const audioRef = ref<HTMLAudioElement | null>(null)
 
 document.title = '椒盐音乐'
-useGlobalShortcutKey()
+
 onMounted(() => {
+  if (!audioRef.value) return
+
+  audioRef.value.addEventListener('play', () => (playlistStore.isPlaying = true))
+  audioRef.value.addEventListener('pause', () => (playlistStore.isPlaying = false))
+  audioRef.value.addEventListener('timeupdate', () => {
+    playlistStore.currentPlayingTime = audioRef.value?.currentTime
+  })
+  audioRef.value.addEventListener('ended', playlistStore.playNext)
+
   useThemeStore().initTheme()
+  useGlobalShortcutKey()
 })
 
 watch(
