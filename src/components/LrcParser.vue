@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick, onMounted } from 'vue'
 
 interface LyricLine {
   time: number
@@ -15,6 +15,8 @@ const props = defineProps<{
 const lyricsContainerRef = ref<HTMLElement | null>(null)
 // 歌词行引用列表
 const lyricLineRefs = ref<HTMLElement[]>([])
+// 底部占位高度
+const spacerHeight = ref(250)
 
 // 解析后的歌词数组
 const parsedLyrics = ref<LyricLine[]>([])
@@ -65,7 +67,7 @@ const activeLineIndex = computed(() => {
     return -1
   }
 
-  // 找到当前时间对应的歌词行
+  // 找到当前时间对应的歌词行（从后往前找第一个 ≤ 当前时间的）
   for (let i = parsedLyrics.value.length - 1; i >= 0; i--) {
     if (parsedLyrics.value[i].time <= (props.currentTime || 0)) {
       return i
@@ -80,29 +82,30 @@ function isActiveLine(index: number) {
   return index === activeLineIndex.value
 }
 
-// 滚动到当前播放的歌词行
+// 滚动到当前播放的歌词行（居中）
 function scrollToActiveLine() {
   nextTick(() => {
     if (
-      activeLineIndex.value >= 0 &&
-      lyricsContainerRef.value &&
-      lyricLineRefs.value[activeLineIndex.value]
+      activeLineIndex.value < 0 ||
+      !lyricsContainerRef.value ||
+      !lyricLineRefs.value[activeLineIndex.value]
     ) {
-      const container = lyricsContainerRef.value
-      const activeLine = lyricLineRefs.value[activeLineIndex.value]
-
-      // 计算滚动位置，使活动行居中
-      const containerHeight = container.clientHeight
-      const activeLineHeight = activeLine.offsetHeight
-      const activeLineTop = activeLine.offsetTop
-
-      // 滚动到使活动行居中的位置
-      const scrollPosition = activeLineTop - containerHeight / 1.1 + activeLineHeight / 2
-      container.scrollTo({
-        top: scrollPosition,
-        behavior: 'smooth',
-      })
+      return
     }
+
+    const container = lyricsContainerRef.value
+    const activeLine = lyricLineRefs.value[activeLineIndex.value]
+    const containerHeight = container.clientHeight
+    const activeLineHeight = activeLine.offsetHeight
+    const activeLineTop = activeLine.offsetTop
+
+    // 标准居中公式
+    const scrollPosition = activeLineTop - containerHeight / 2 + activeLineHeight / 2
+
+    container.scrollTo({
+      top: scrollPosition,
+      behavior: 'smooth',
+    })
   })
 }
 
@@ -114,28 +117,50 @@ watch(
   },
 )
 
-// 监听歌词变化，重新解析
+// 监听歌词变化，重新解析并更新占位高度
 watch(
   () => props.lyrics,
-  (newLyrics) => {
-    parseLyrics(newLyrics)
+  () => {
+    parseLyrics(props.lyrics)
+    updateSpacerHeight()
   },
   { immediate: true },
 )
+
+// 更新底部占位高度（应约为容器可视高度的一半）
+function updateSpacerHeight() {
+  nextTick(() => {
+    if (lyricsContainerRef.value) {
+      spacerHeight.value = lyricsContainerRef.value.clientHeight / 2
+    }
+  })
+}
+
+// 组件挂载后更新占位高度
+onMounted(updateSpacerHeight)
 </script>
 
 <template>
   <div class="lrc-parser" ref="lyricsContainerRef">
     <div v-if="parsedLyrics.length === 0" class="no-lyrics">暂无歌词</div>
-    <div v-else class="lyrics-container">
-      <div
-        v-for="(line, index) in parsedLyrics"
-        :key="index"
-        :class="{ 'lyric-line': true, active: isActiveLine(index) }"
-        :ref="(el) => setLyricLineRef(el, index)"
-      >
-        {{ line.text }}
+    <div v-else class="lyrics-container-wrapper">
+      <!-- 顶部占位：确保第一行也能居中 -->
+      <div class="lyrics-spacer" :style="{ height: spacerHeight + 'px' }"></div>
+
+      <!-- 歌词内容 -->
+      <div class="lyrics-container">
+        <div
+          v-for="(line, index) in parsedLyrics"
+          :key="index"
+          :class="{ 'lyric-line': true, active: isActiveLine(index) }"
+          :ref="(el) => setLyricLineRef(el, index)"
+        >
+          {{ line.text }}
+        </div>
       </div>
+
+      <!-- 底部占位：确保最后一行也能居中 -->
+      <div class="lyrics-spacer" :style="{ height: spacerHeight + 'px' }"></div>
     </div>
   </div>
 </template>
@@ -144,9 +169,18 @@ watch(
 .lrc-parser {
   height: 500px;
   width: 100%;
-  overflow-y: hidden;
+  overflow-y: auto; // 支持滚动到底部
   padding: 20px;
-  background-color: black;
+  box-sizing: border-box;
+  scroll-behavior: smooth; // 平滑滚动（可选，替代 JS behavior）
+  position: relative;
+
+  // 隐藏滚动条（可选，美观用）
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 
   .no-lyrics {
     text-align: center;
@@ -155,21 +189,42 @@ watch(
     margin-top: 50px;
   }
 
+  .lyrics-container-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100%; // 确保内容少时也能撑开
+  }
+
   .lyrics-container {
-    .col-flex(center);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
     gap: 10px;
+  }
 
-    .lyric-line {
-      font-size: 20px;
-      color: #666;
-      transition: all 0.3s ease;
+  .lyric-line {
+    font-size: 18px;
+    color: #aca8a8;
+    transition: all 0.5s linear;
+    text-align: center;
+    width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
-      &.active {
-        color: #fff;
-        font-size: 25px;
-        font-weight: bold;
-      }
+    &.active {
+      color: #003cff;
+      font-size: 25px;
+      font-weight: bold;
+      transform: scale(1.05);
     }
+  }
+
+  .lyrics-spacer {
+    // 动态高度，由 JS 控制
+    flex-shrink: 0;
   }
 }
 </style>
