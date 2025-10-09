@@ -42,7 +42,7 @@ function scrollToPlayingItem() {
     if (el) {
       el.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest',
+        block: 'center',
       })
     }
   })
