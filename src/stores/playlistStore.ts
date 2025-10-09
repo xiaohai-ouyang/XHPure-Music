@@ -28,8 +28,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
   const playMode = ref<PlayMode>('list')
   const currentPlayingId = ref<string | null>(null)
 
-  const currentPlayingTime = ref(null)
-  const currentPlayingDuration = ref(null)
+  const currentPlayingTime = ref(0)
+  const currentPlayingDuration = ref(0)
 
   // 计算属性
   const isPlayingListEmpty = computed(() => playlist.value.length === 0)
@@ -41,7 +41,19 @@ export const usePlaylistStore = defineStore('playlist', () => {
   const playModeIcon = computed(() => MODE_ICONS[playMode.value])
   const playModeLabel = computed(() => MODE_LABELS[playMode.value])
 
-  function getCurrentPlayingTime() {}
+  /**
+   * 获取当前播放时间
+   */
+  function getCurrentPlayingTime() {
+    if (currentPlayingId.value === null) return null
+
+    const audioElement = document.querySelector('audio')
+    if (!audioElement) return null
+
+    currentPlayingTime.value = audioElement.currentTime
+    currentPlayingDuration.value = audioElement.duration
+  }
+
   /**
    * 添加歌曲到播放列表（去重）
    */
