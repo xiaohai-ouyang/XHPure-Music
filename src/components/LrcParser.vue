@@ -1,20 +1,5 @@
-<template>
-  <div class="lrc-parser">
-    <div v-if="parsedLyrics.length === 0" class="no-lyrics">暂无歌词</div>
-    <div v-else class="lyrics-container">
-      <div
-        v-for="(line, index) in parsedLyrics"
-        :key="index"
-        :class="{ 'lyric-line': true, active: isActiveLine(index) }"
-      >
-        {{ line.text }}
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 
 interface LyricLine {
   time: number
@@ -26,8 +11,20 @@ const props = defineProps<{
   currentTime?: number
 }>()
 
+// 歌词容器引用
+const lyricsContainerRef = ref<HTMLElement | null>(null)
+// 歌词行引用列表
+const lyricLineRefs = ref<HTMLElement[]>([])
+
 // 解析后的歌词数组
 const parsedLyrics = ref<LyricLine[]>([])
+
+// 设置歌词行引用
+function setLyricLineRef(el: Element | null, index: number) {
+  if (el) {
+    lyricLineRefs.value[index] = el as HTMLElement
+  }
+}
 
 // 解析歌词
 function parseLyrics(lyrics: string) {
@@ -83,6 +80,40 @@ function isActiveLine(index: number) {
   return index === activeLineIndex.value
 }
 
+// 滚动到当前播放的歌词行
+function scrollToActiveLine() {
+  nextTick(() => {
+    if (
+      activeLineIndex.value >= 0 &&
+      lyricsContainerRef.value &&
+      lyricLineRefs.value[activeLineIndex.value]
+    ) {
+      const container = lyricsContainerRef.value
+      const activeLine = lyricLineRefs.value[activeLineIndex.value]
+
+      // 计算滚动位置，使活动行居中
+      const containerHeight = container.clientHeight
+      const activeLineHeight = activeLine.offsetHeight
+      const activeLineTop = activeLine.offsetTop
+
+      // 滚动到使活动行居中的位置
+      const scrollPosition = activeLineTop - containerHeight / 1.1 + activeLineHeight / 2
+      container.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth',
+      })
+    }
+  })
+}
+
+// 监听当前时间变化，滚动到对应歌词
+watch(
+  () => activeLineIndex.value,
+  () => {
+    scrollToActiveLine()
+  },
+)
+
 // 监听歌词变化，重新解析
 watch(
   () => props.lyrics,
@@ -93,11 +124,29 @@ watch(
 )
 </script>
 
+<template>
+  <div class="lrc-parser" ref="lyricsContainerRef">
+    <div v-if="parsedLyrics.length === 0" class="no-lyrics">暂无歌词</div>
+    <div v-else class="lyrics-container">
+      <div
+        v-for="(line, index) in parsedLyrics"
+        :key="index"
+        :class="{ 'lyric-line': true, active: isActiveLine(index) }"
+        :ref="(el) => setLyricLineRef(el, index)"
+      >
+        {{ line.text }}
+      </div>
+    </div>
+  </div>
+</template>
+
 <style scoped lang="less">
 .lrc-parser {
-  height: 100%;
-  overflow-y: auto;
+  height: 500px;
+  width: 100%;
+  overflow-y: hidden;
   padding: 20px;
+  background-color: black;
 
   .no-lyrics {
     text-align: center;
@@ -107,18 +156,17 @@ watch(
   }
 
   .lyrics-container {
-    text-align: center;
+    .col-flex(center);
+    gap: 10px;
 
     .lyric-line {
-      margin: 10px 0;
-      padding: 5px 0;
-      font-size: 16px;
+      font-size: 20px;
       color: #666;
       transition: all 0.3s ease;
 
       &.active {
         color: #fff;
-        font-size: 18px;
+        font-size: 25px;
         font-weight: bold;
       }
     }
