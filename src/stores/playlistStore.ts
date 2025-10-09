@@ -41,6 +41,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
   const playModeIcon = computed(() => MODE_ICONS[playMode.value])
   const playModeLabel = computed(() => MODE_LABELS[playMode.value])
 
+  function getCurrentPlayingTime() {}
   /**
    * 添加歌曲到播放列表（去重）
    */
@@ -223,5 +224,6 @@ export const usePlaylistStore = defineStore('playlist', () => {
     playNext,
     playPrevious,
     cyclePlayMode,
+    getCurrentPlayingTime,
   }
 })
