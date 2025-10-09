@@ -40,6 +40,7 @@ watch(
 <template>
   <audio
     ref="audioRef"
+    @timeupdate="playlistStore.getCurrentPlayingTime"
     @play="playlistStore.isPlaying = true"
     @pause="playlistStore.isPlaying = false"
     @ended="playlistStore.playNext"
