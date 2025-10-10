@@ -10,38 +10,39 @@ const audioRef = ref<HTMLAudioElement | null>(null)
 document.title = '椒盐音乐'
 
 onMounted(() => {
-  if (!audioRef.value) return
-
-  audioRef.value.addEventListener('play', () => (playlistStore.isPlaying = true))
-  audioRef.value.addEventListener('pause', () => (playlistStore.isPlaying = false))
-  audioRef.value.addEventListener('timeupdate', () => {
-    playlistStore.currentPlayingTime = audioRef.value?.currentTime
-  })
-  audioRef.value.addEventListener('ended', playlistStore.playNext)
-
   useThemeStore().initTheme()
   useGlobalShortcutKey()
 })
 
 watch(
   () => playlistStore.currentPlaying,
-  async () => {
-    if (!audioRef.value) return
+  async (newSong) => {
+    const audio = audioRef.value
+    if (!audio) return
 
     try {
-      if (!playlistStore.currentPlaying) {
-        return
-      }
+      audio.pause()
 
-      const musicUrl = playlistStore.currentPlaying.url
-      if (!musicUrl) {
-        return
-      }
+      if (!newSong || !newSong.url) return
 
-      audioRef.value.src = musicUrl
-      await audioRef.value.play()
-    } catch (error) {
-      console.error('播放音频时出错:', error)
+      audio.src = newSong.url
+      audio.load()
+
+      audio.addEventListener(
+        'canplay',
+        () => {
+          audio.play().catch((err) => {
+            if (err.name !== 'AbortError') {
+              console.error('播放音频时出错:', err)
+            }
+          })
+        },
+        { once: true },
+      )
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('播放音频时出错:', error)
+      }
     }
   },
 )
@@ -50,11 +51,12 @@ watch(
 <template>
   <audio
     ref="audioRef"
-    @timeupdate="playlistStore.getCurrentPlayingTime"
+    @timeupdate="playlistStore.updateCurrentPlayingTime"
     @play="playlistStore.isPlaying = true"
     @pause="playlistStore.isPlaying = false"
     @ended="playlistStore.playNext"
   />
+
   <router-view></router-view>
 </template>
 
