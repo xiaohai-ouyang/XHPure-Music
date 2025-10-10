@@ -88,9 +88,9 @@ const back = () => {
 
             <transition name="fade-slide">
               <div class="more-menu" v-show="moreListShow">
-                <button class="more-menu-item"><i class="iconfont">&#xe720;</i>我喜欢</button>
+                <button class="more-menu-item"><i class="iconfont">&#xe761;</i>我喜欢</button>
                 <button class="more-menu-item"><i class="iconfont">&#xe730;</i>添加到歌单</button>
-                <button class="more-menu-item"><i class="iconfont">&#xe71e;</i>再放一次</button>
+                <button class="more-menu-item"><i class="iconfont">&#xe66e;</i>再放一次</button>
               </div>
             </transition>
           </div>
