@@ -5,9 +5,11 @@ import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import LrcParser from '@/components/LrcParser.vue'
 import ColorThief from 'colorthief'
+import tinycolor from 'tinycolor2'
 
 const playlistStore = usePlaylistStore()
 const dominantColor = ref('linear-gradient(135deg, #222, #000)')
+const dominantTextColor = ref('#fff') // 动态文字颜色
 const coverLoaded = ref(false)
 const moreListShow = ref(false)
 
@@ -44,6 +46,7 @@ function togglePlayPause() {
   }
 }
 
+// 音频事件监听
 onMounted(() => {
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
@@ -66,11 +69,7 @@ onMounted(() => {
   })
 })
 
-watch(dominantColor, () => {
-  coverLoaded.value = false
-  setTimeout(() => (coverLoaded.value = true), 1500)
-})
-
+// 更新背景和文字颜色
 function updateBackgroundFromCover(cover: string) {
   if (!cover) return
   const img = new Image()
@@ -80,22 +79,40 @@ function updateBackgroundFromCover(cover: string) {
     const colorThief = new ColorThief()
     try {
       const palette: number[][] = colorThief.getPalette(img, 7)
-      const gradient = `linear-gradient(135deg, ${palette
-        .map((c) => `rgb(${c.join(',')})`)
+
+      // 微调每个色块亮度
+      const adjustedPalette = palette.map((c) => {
+        let color = tinycolor({ r: c[0], g: c[1], b: c[2] })
+        // 如果颜色很亮，稍微调暗；如果颜色暗，稍微调亮
+        color = color.isLight() ? color.darken(10) : color.lighten(15)
+        return color.toRgb()
+      })
+
+      // 生成渐变字符串
+      const gradient = `linear-gradient(135deg, ${adjustedPalette
+        .map((c) => `rgb(${c.r},${c.g},${c.b})`)
         .join(', ')})`
+
       dominantColor.value = gradient
       coverLoaded.value = true
+
+      // 主色调文字颜色也做微调
+      const mainColor = adjustedPalette[0]
+      let textColor = tinycolor(mainColor)
+      textColor = textColor.isLight() ? textColor.darken(10) : textColor.lighten(15)
+      dominantTextColor.value = textColor.toString()
     } catch (err) {
       console.warn('颜色提取失败:', err)
       dominantColor.value = 'linear-gradient(135deg, #222, #000)'
+      dominantTextColor.value = '#fff'
     }
   }
 }
 
+// 初始和封面变化监听
 onMounted(() => {
   if (currentPlaying.value.cover) updateBackgroundFromCover(currentPlaying.value.cover)
 })
-
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
@@ -103,16 +120,49 @@ watch(
   },
 )
 
-function onSeek(event: Event) {
+// --------- 进度条相关 ---------
+const progressBar = ref<HTMLElement | null>(null)
+const isDragging = ref(false)
+
+function seekByClick(event: MouseEvent) {
+  const bar = progressBar.value
+  if (!bar) return
+  const rect = bar.getBoundingClientRect()
+  const clickX = event.clientX - rect.left
+  const ratio = Math.min(Math.max(clickX / rect.width, 0), 1)
+
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
-  const value = (event.target as HTMLInputElement).value
-  audio.currentTime = Number(value)
+  audio.currentTime = ratio * playlistStore.currentPlayingDuration
+}
+
+function startDrag(event: MouseEvent) {
+  isDragging.value = true
+  const audio = document.querySelector('audio') as HTMLAudioElement | null
+  if (!audio) return
+
+  const onMove = (e: MouseEvent) => {
+    const bar = progressBar.value
+    if (!bar) return
+    const rect = bar.getBoundingClientRect()
+    const x = Math.min(Math.max(e.clientX - rect.left, 0), rect.width)
+    const ratio = x / rect.width
+    audio.currentTime = ratio * playlistStore.currentPlayingDuration
+  }
+
+  const onUp = () => {
+    isDragging.value = false
+    window.removeEventListener('mousemove', onMove)
+    window.removeEventListener('mouseup', onUp)
+  }
+
+  window.addEventListener('mousemove', onMove)
+  window.addEventListener('mouseup', onUp)
 }
 </script>
 
 <template>
-  <div class="playback-page" :style="{ background: dominantColor }">
+  <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
     <div
       class="background-blur"
       :style="{ backgroundImage: `url(${currentPlaying.cover})` }"
@@ -143,16 +193,18 @@ function onSeek(event: Event) {
             </transition>
           </div>
         </div>
-
         <div class="controlers">
-          <div class="progress-line">
-            <input
-              type="range"
-              :max="playlistStore.currentPlayingDuration"
-              :value="playlistStore.currentPlayingTime"
-              @input="onSeek"
-            />
+          <div class="progress-line" ref="progressBar" @mousedown="startDrag" @click="seekByClick">
+            <div
+              class="progress-filled"
+              :style="{
+                width:
+                  (playlistStore.currentPlayingTime / playlistStore.currentPlayingDuration) * 100 +
+                  '%',
+              }"
+            ></div>
           </div>
+
           <div class="ctl-btns">
             <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
               <i class="iconfont">&#xe722;</i>
@@ -170,6 +222,7 @@ function onSeek(event: Event) {
 
       <div class="right">
         <LrcParser
+          :dominantTextColor="dominantTextColor"
           :lyrics="playlistStore.currentPlaying?.lyrics ?? ''"
           :current-time="playlistStore.currentPlayingTime"
         />
@@ -178,4 +231,6 @@ function onSeek(event: Event) {
   </div>
 </template>
 
-<style scoped src="@assets/styles/PlaybackPage/playbackPageStyle.less" lang="less"></style>
+<style scoped lang="less">
+@import '@assets/styles/PlaybackPage/playbackPageStyle.less';
+</style>
