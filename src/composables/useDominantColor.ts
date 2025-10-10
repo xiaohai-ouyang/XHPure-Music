@@ -1,8 +1,8 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import ColorThief from 'colorthief'
 import tinycolor from 'tinycolor2'
 
-export function useDominantColor(cover: string | undefined) {
+export function useDominantColor() {
   const dominantColor = ref('linear-gradient(135deg, #222, #000)')
   const dominantTextColor = ref('#fff')
 
@@ -31,14 +31,6 @@ export function useDominantColor(cover: string | undefined) {
       }
     }
   }
-
-  watch(
-    () => cover,
-    (newCover) => {
-      if (newCover) updateBackgroundFromCover(newCover)
-    },
-    { immediate: true },
-  )
 
   return { dominantColor, dominantTextColor, updateBackgroundFromCover }
 }

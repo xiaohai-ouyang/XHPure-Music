@@ -74,9 +74,11 @@ async function pickMusic() {
 
 <template>
   <div class="jiaoyan-music" ref="listContainer">
-    <button @click="pickMusic" :disabled="loading" v-if="musicStore.isEmpty">
-      <span>添加音乐</span>
-    </button>
+    <div class="empty" v-if="musicStore.isEmpty">
+      <button @click="pickMusic" :disabled="loading" class="add-to-list-btn">
+        <span>添加音乐</span>
+      </button>
+    </div>
 
     <div class="music-item-box">
       <div
@@ -101,18 +103,28 @@ async function pickMusic() {
 </template>
 
 <style lang="less" scoped>
-audio {
-  display: none;
+.jiaoyan-music {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.empty {
+  .col-flex(center);
+  height: 100%;
+  width: 100%;
+  .add-to-list-btn {
+    padding: 10px;
+    background-color: #0088ff;
+    color: white;
+    font-weight: 700;
+    font-size: 25px;
+    border-radius: 10px;
+  }
 }
 
 .music-cover {
   width: 130px;
   height: 130px;
-}
-
-.jiaoyan-music {
-  height: 100%;
-  overflow-y: auto;
 }
 
 .music-item-box {
