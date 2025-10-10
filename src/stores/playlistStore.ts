@@ -28,10 +28,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
   const playMode = ref<PlayMode>('list')
   const currentPlayingId = ref<string | null>(null)
 
-  const currentPlayingTime = ref(0)
-  const currentPlayingDuration = ref(0)
+  const currentPlayingTime = ref<number>()
+  const currentPlayingDuration = ref<number>()
 
-  // 计算属性
   const isPlayingListEmpty = computed(() => playlist.value.length === 0)
   const currentPlaying = computed(() => {
     if (currentPlayingId.value === null) return null
