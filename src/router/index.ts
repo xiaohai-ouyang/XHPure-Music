@@ -11,6 +11,10 @@ const routes = [
     component: () => import('@views/welcome/WelcomePage.vue'),
   },
   {
+    path: '/playback',
+    component: () => import('@views/playback/PlaybackPage.vue'),
+  },
+  {
     path: '/page',
     component: () => import('@views/home/HomePage.vue'),
     redirect: '/page/music',

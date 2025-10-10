@@ -1,4 +1,60 @@
+<script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
+import { useThemeStore } from './stores/themeStore'
+import { useGlobalShortcutKey } from './composable/globalShortcutKey'
+import { usePlaylistStore } from './stores/playlistStore'
+
+const playlistStore = usePlaylistStore()
+const audioRef = ref<HTMLAudioElement | null>(null)
+
+document.title = '椒盐音乐'
+
+onMounted(() => {
+  if (!audioRef.value) return
+
+  audioRef.value.addEventListener('play', () => (playlistStore.isPlaying = true))
+  audioRef.value.addEventListener('pause', () => (playlistStore.isPlaying = false))
+  audioRef.value.addEventListener('timeupdate', () => {
+    playlistStore.currentPlayingTime = audioRef.value?.currentTime
+  })
+  audioRef.value.addEventListener('ended', playlistStore.playNext)
+
+  useThemeStore().initTheme()
+  useGlobalShortcutKey()
+})
+
+watch(
+  () => playlistStore.currentPlaying,
+  async () => {
+    if (!audioRef.value) return
+
+    try {
+      if (!playlistStore.currentPlaying) {
+        return
+      }
+
+      const musicUrl = playlistStore.currentPlaying.url
+      if (!musicUrl) {
+        return
+      }
+
+      audioRef.value.src = musicUrl
+      await audioRef.value.play()
+    } catch (error) {
+      console.error('播放音频时出错:', error)
+    }
+  },
+)
+</script>
+
 <template>
+  <audio
+    ref="audioRef"
+    @timeupdate="playlistStore.getCurrentPlayingTime"
+    @play="playlistStore.isPlaying = true"
+    @pause="playlistStore.isPlaying = false"
+    @ended="playlistStore.playNext"
+  />
   <router-view></router-view>
 </template>
 
@@ -40,16 +96,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>
-
-<script setup lang="ts">
-import { onMounted } from 'vue'
-import { useThemeStore } from './stores/themeStore'
-import { useGlobalShortcutKey } from './composable/globalShortcutKey'
-useGlobalShortcutKey()
-document.title = '椒盐音乐'
-
-onMounted(() => {
-  useThemeStore().initTheme()
-})
-</script>
