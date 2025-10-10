@@ -9,6 +9,7 @@ import ColorThief from 'colorthief'
 const playlistStore = usePlaylistStore()
 const dominantColor = ref('linear-gradient(135deg, #222, #000)')
 const coverLoaded = ref(false)
+const moreListShow = ref(false)
 
 const currentPlaying = computed(
   () =>
@@ -24,6 +25,10 @@ const currentPlaying = computed(
 function back() {
   usePageStatusStore().isPlayBackExpand = false
   router.back()
+}
+
+function toggleMoreList() {
+  moreListShow.value = !moreListShow.value
 }
 
 function togglePlayPause() {
@@ -108,14 +113,12 @@ function onSeek(event: Event) {
 
 <template>
   <div class="playback-page" :style="{ background: dominantColor }">
-    <!-- 背景模糊封面层 -->
     <div
       class="background-blur"
       :style="{ backgroundImage: `url(${currentPlaying.cover})` }"
       v-if="currentPlaying.cover"
     ></div>
 
-    <!-- 内容 -->
     <div class="content">
       <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>Back</button>
 
@@ -129,7 +132,15 @@ function onSeek(event: Event) {
             <div class="artist">{{ currentPlaying.artist }}</div>
           </div>
           <div class="mright">
-            <button class="iconfont more-btn" title="更多">&#xe71a;</button>
+            <button class="iconfont more-btn" @click="toggleMoreList" title="更多">&#xe71a;</button>
+
+            <transition name="fade-slide">
+              <div class="more-menu" v-show="moreListShow">
+                <div class="more-menu-item"><i class="iconfont">&#xe720;</i>我喜欢</div>
+                <div class="more-menu-item"><i class="iconfont">&#xe730;</i>添加到歌单</div>
+                <div class="more-menu-item"><i class="iconfont">&#xe71e;</i>再放一次</div>
+              </div>
+            </transition>
           </div>
         </div>
 
@@ -167,168 +178,4 @@ function onSeek(event: Event) {
   </div>
 </template>
 
-<style scoped lang="less">
-.playback-page {
-  position: relative;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  .row-flex(center);
-  transition: background 1.2s ease;
-  background-size: 300% 300%;
-  animation: gradientMove 10s ease infinite;
-}
-
-.background-blur {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  filter: blur(100px) brightness(0.6);
-  transform: scale(1.2);
-  z-index: 0;
-  opacity: 0.8;
-  transition: opacity 1s ease;
-}
-
-.content {
-  position: relative;
-  z-index: 2;
-  padding: 20px;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  color: #fff;
-}
-
-@keyframes gradientMove {
-  0% {
-    background-position: 0% 50%;
-    filter: brightness(1);
-  }
-  25% {
-    background-position: 50% 100%;
-    filter: brightness(1.1);
-  }
-  50% {
-    background-position: 100% 50%;
-    filter: brightness(1.2);
-  }
-  75% {
-    background-position: 50% 0%;
-    filter: brightness(1.1);
-  }
-  100% {
-    background-position: 0% 50%;
-    filter: brightness(1);
-  }
-}
-
-.back-btn {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  .row-flex(center);
-  font-size: 20px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: white;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    width: 100px;
-  }
-
-  .iconfont {
-    font-size: 26px;
-    margin-right: 6px;
-  }
-}
-
-.left,
-.right {
-  flex: 1;
-  .col-flex();
-  align-items: center;
-}
-
-.music-cover {
-  width: 380px;
-  height: 380px;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-
-  img {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.music-info {
-  width: 400px;
-  font-weight: 500;
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
-  text-align: left;
-
-  .title {
-    font-size: 22px;
-  }
-
-  .artist {
-    font-size: 16px;
-    opacity: 0.8;
-  }
-}
-
-.more-btn {
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
-  transition: 0.2s;
-
-  &.iconfont {
-    font-size: 28px !important;
-  }
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-  }
-}
-
-.controlers {
-  width: 400px;
-
-  .ctl-btns {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 10px;
-
-    .iconfont {
-      font-size: 34px;
-      color: white;
-    }
-  }
-
-  .mute-btn {
-    margin-left: auto;
-  }
-
-  input[type='range'] {
-    width: 100%;
-    cursor: pointer;
-  }
-}
-
-.iconfont {
-  color: white;
-}
-</style>
+<style scoped src="@assets/styles/PlaybackPage/playbackPageStyle.less" lang="less"></style>

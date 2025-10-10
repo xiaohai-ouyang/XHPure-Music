@@ -170,9 +170,7 @@ onMounted(updateSpacerHeight)
   }
 
   .lyrics-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    .col-flex(center);
     width: 100%;
     gap: 10px;
   }
