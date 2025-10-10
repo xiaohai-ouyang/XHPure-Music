@@ -6,6 +6,7 @@ import { usePlaylistStore } from '@/stores/playlistStore'
 import LrcParser from '@/components/LrcParser.vue'
 import ColorThief from 'colorthief'
 import tinycolor from 'tinycolor2'
+import defaultCover from '@assets/images/defaultCover-lightMode.png'
 
 const playlistStore = usePlaylistStore()
 const dominantColor = ref('linear-gradient(135deg, #222, #000)')
@@ -177,7 +178,7 @@ function startDrag() {
   <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
     <div
       class="background-blur"
-      :style="{ backgroundImage: `url(${currentPlaying.cover || ''})` }"
+      :style="{ backgroundImage: `url(${currentPlaying.cover || defaultCover})` }"
       v-if="currentPlaying.cover"
     ></div>
 
@@ -196,7 +197,6 @@ function startDrag() {
           </div>
 
           <div class="mright">
-            <!-- 翻译按钮仅在有中文且歌词行大于阈值时显示 -->
             <button
               class="iconfont translation-btn"
               v-if="hasChinese"
