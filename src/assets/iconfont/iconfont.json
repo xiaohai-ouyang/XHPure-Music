@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "42676499",
+      "name": "刷新",
+      "font_class": "shuaxin_1",
+      "unicode": "e66e",
+      "unicode_decimal": 58990
+    },
+    {
+      "icon_id": "577382",
+      "name": "喜欢",
+      "font_class": "xihuan",
+      "unicode": "e761",
+      "unicode_decimal": 59233
+    },
+    {
+      "icon_id": "29328043",
+      "name": "翻译",
+      "font_class": "fanyi",
+      "unicode": "e644",
+      "unicode_decimal": 58948
+    },
+    {
       "icon_id": "7592640",
       "name": "列表播放",
       "font_class": "icon-leibiaobofang",
