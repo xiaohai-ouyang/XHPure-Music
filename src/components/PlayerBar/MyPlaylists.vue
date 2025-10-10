@@ -138,8 +138,13 @@ onMounted(() => {
   .my-playlists-container {
     .col-flex();
     max-height: 516px;
+
     overflow-y: auto;
     overflow-x: hidden;
+  }
+
+  .has-playlist {
+    width: 100%;
   }
 }
 
@@ -159,28 +164,35 @@ onMounted(() => {
   }
 }
 
-.fade-move,
 .fade-enter-active,
-.fade-leave-active {
-  transition: all 0.4s ease;
+.fade-leave-active,
+.fade-move {
+  transition: all 0.4s ease-in-out;
 }
 
 .fade-enter-from {
   opacity: 0;
-  transform: translateX(12px);
+  transform: translateY(50px);
 }
 
-.fade-leave-to {
-  opacity: 0;
-  transform: translateX(-12px);
-  height: 0;
-  margin: 0;
-  padding: 0;
+.fade-enter-to {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .fade-leave-active {
   position: absolute;
   width: 100%;
+}
+
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(0px);
 }
 
 .cover {
