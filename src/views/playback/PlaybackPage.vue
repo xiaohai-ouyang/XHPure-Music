@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import router from '@/router'
 import LrcParser from '@/components/LrcParser.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
@@ -11,7 +11,6 @@ import { useChineseToggle } from '@/composables/useChineseToggle'
 const playlistStore = usePlaylistStore()
 const pageStatusStore = usePageStatusStore()
 
-// 当前播放歌曲信息
 const currentPlaying = computed(
   () =>
     playlistStore.currentPlaying || {
@@ -23,25 +22,26 @@ const currentPlaying = computed(
     },
 )
 
-// 中文显示切换
 const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
 const { removeChinese, hasChinese, toggleChinese, translationTooltip } = useChineseToggle(
   lyricsText.value,
 )
 
-// 背景色和文字颜色
-const { dominantColor, dominantTextColor } = useDominantColor(
-  currentPlaying.value.cover as string | undefined,
+const { dominantColor, dominantTextColor, updateBackgroundFromCover } = useDominantColor()
+
+watch(
+  () => currentPlaying.value.cover,
+  (newCover) => {
+    if (newCover) {
+      updateBackgroundFromCover(newCover as string)
+    }
+  },
+  { immediate: true },
 )
 
-// 音频控制
 const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
-
-// 更多菜单显示
 const moreListShow = ref(false)
 const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
-
-// 返回上一页
 const back = () => {
   pageStatusStore.isPlayBackExpand = false
   router.back()
@@ -50,7 +50,6 @@ const back = () => {
 
 <template>
   <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
-    <!-- 背景模糊 -->
     <div
       class="background-blur"
       :style="{ backgroundImage: `url(${currentPlaying.cover || ''})` }"
@@ -97,7 +96,6 @@ const back = () => {
         </div>
 
         <div class="controlers">
-          <!-- 进度条 -->
           <div class="progress-line" ref="progressBar" @mousedown="startDrag" @click="seekByClick">
             <div
               class="progress-filled"
@@ -109,7 +107,6 @@ const back = () => {
             ></div>
           </div>
 
-          <!-- 播放控制按钮 -->
           <div class="ctl-btns">
             <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
               <i class="iconfont">&#xe722;</i>
@@ -125,7 +122,6 @@ const back = () => {
         </div>
       </div>
 
-      <!-- 歌词 -->
       <div class="right">
         <LrcParser
           :dominantTextColor="dominantTextColor"
