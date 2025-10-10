@@ -9,9 +9,15 @@ import tinycolor from 'tinycolor2'
 
 const playlistStore = usePlaylistStore()
 const dominantColor = ref('linear-gradient(135deg, #222, #000)')
-const dominantTextColor = ref('#fff') // 动态文字颜色
+const dominantTextColor = ref('#fff')
 const coverLoaded = ref(false)
 const moreListShow = ref(false)
+const removeChinese = ref(false)
+
+const hasChinese = computed(() => {
+  const lyrics = playlistStore.currentPlaying?.lyrics ?? ''
+  return /[\u4e00-\u9fff]/.test(typeof lyrics === 'string' ? lyrics : '')
+})
 
 interface MusicInfoTyped {
   id?: string
@@ -34,6 +40,10 @@ const currentPlaying = computed(
       lyrics: '',
     },
 )
+
+function toggleChinese() {
+  removeChinese.value = !removeChinese.value
+}
 
 function back() {
   usePageStatusStore().isPlayBackExpand = false
@@ -91,7 +101,6 @@ function updateBackgroundFromCover(cover: string) {
 
       const adjustedPalette = palette.map((c) => {
         let color = tinycolor({ r: c[0], g: c[1], b: c[2] })
-
         color = color.isLight() ? color.darken(10) : color.lighten(15)
         return color.toRgb()
       })
@@ -103,7 +112,6 @@ function updateBackgroundFromCover(cover: string) {
       dominantColor.value = gradient
       coverLoaded.value = true
 
-      // 主色调文字颜色也做微调
       const mainColor = adjustedPalette[0]
       let textColor = tinycolor(mainColor)
       textColor = textColor.isLight() ? textColor.darken(10) : textColor.lighten(15)
@@ -120,6 +128,7 @@ onMounted(() => {
   if (currentPlaying.value.cover && typeof currentPlaying.value.cover === 'string')
     updateBackgroundFromCover(currentPlaying.value.cover)
 })
+
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
@@ -127,7 +136,6 @@ watch(
   },
 )
 
-// 进度条拖拽
 const progressBar = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 
@@ -189,6 +197,14 @@ function startDrag() {
             <div class="artist">{{ currentPlaying.artist }}</div>
           </div>
           <div class="mright">
+            <button
+              class="iconfont translation-btn"
+              v-show="hasChinese"
+              @click="toggleChinese()"
+              :title="removeChinese ? '显示中文' : '隐藏中文'"
+            >
+              &#xe644;
+            </button>
             <button class="iconfont more-btn" @click="toggleMoreList" title="更多">&#xe71a;</button>
 
             <transition name="fade-slide">
@@ -232,6 +248,7 @@ function startDrag() {
           :dominantTextColor="dominantTextColor"
           :lyrics="(playlistStore.currentPlaying?.lyrics as string | undefined) ?? ''"
           :current-time="playlistStore.currentPlayingTime"
+          :remove-chinese="removeChinese"
         />
       </div>
     </div>
