@@ -61,6 +61,14 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    // 如果浏览器有保存的滚动位置（后退/前进）
+    if (savedPosition) {
+      return savedPosition
+    }
+    // 默认滚动到顶部
+    return { top: 0 }
+  },
 })
 
 router.beforeEach((to, from, next) => {

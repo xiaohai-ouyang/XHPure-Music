@@ -3,6 +3,11 @@ import { ref, computed } from 'vue'
 import { parseMusicFile } from '@/utils/musicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
+import { useScrollRestore } from '@/composables/useScrollRestore'
+
+const listContainer = ref<HTMLElement | null>(null)
+
+useScrollRestore({ containerRef: listContainer, key: 'music-list' })
 
 const playlistStore = usePlaylistStore()
 const musicStore = useMusicMetaStore()
@@ -68,7 +73,7 @@ async function pickMusic() {
 </script>
 
 <template>
-  <div class="jiaoyan-music">
+  <div class="jiaoyan-music" ref="listContainer">
     <button @click="pickMusic" :disabled="loading" v-if="musicStore.isEmpty">
       <span>添加音乐</span>
     </button>
@@ -164,9 +169,7 @@ audio {
   width: 30px;
   height: 30px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  .col-flex(center);
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.7);
