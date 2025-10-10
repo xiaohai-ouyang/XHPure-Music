@@ -58,8 +58,11 @@ export function useLrcParser(
       if (/:|：/.test(lyricText)) lastColonLineIndex = index
     })
 
-    // 只有中文行 >20 且非中文行 >20 才可能去掉中文
-    const shouldRemoveChinese = removeChinese?.value && chineseLineCount > 20 && otherLineCount > 20
+    // 只有中英文都超过20行时，才算双语歌词
+    const isTrueBilingual = chineseLineCount >= 20 && otherLineCount >= 20
+
+    // 是否应该移除中文
+    const shouldRemoveChinese = removeChinese?.value && isTrueBilingual
 
     lines.forEach((line, index) => {
       const timeMatch = line.match(/\[(\d+):(\d+)(?:\.(\d+))?\]/)
@@ -71,9 +74,9 @@ export function useLrcParser(
 
         let lyricText = line.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim()
 
-        // 只有在 lastColonLineIndex 之后的行才去掉中文
+        // 只有在最后一个冒号行之后才会移除中文
         if (shouldRemoveChinese && index > lastColonLineIndex) {
-          lyricText = lyricText.replace(/[\u4e00-\u9fff]/g, '')
+          lyricText = lyricText.replace(/[\u4e00-\u9fff]+/g, '')
         }
 
         lyricLines.push({
@@ -88,6 +91,7 @@ export function useLrcParser(
     parsedLyrics.value = lyricLines
   }
 
+  // 当前行索引
   const activeLineIndex = computed(() => {
     if (!currentTime.value || parsedLyrics.value.length === 0) return -1
     for (let i = parsedLyrics.value.length - 1; i >= 0; i--) {
@@ -96,6 +100,7 @@ export function useLrcParser(
     return -1
   })
 
+  // 滚动到当前行
   function scrollToActiveLine() {
     nextTick(() => {
       const container = containerRef.value
@@ -114,12 +119,19 @@ export function useLrcParser(
     })
   }
 
+  // 是否为双语歌词
   const isBilingual = computed(() => {
-    const allLanguages = new Set<string>()
-    parsedLyrics.value.forEach((line) => line.languages?.forEach((l) => allLanguages.add(l)))
-    return allLanguages.size >= 2
+    // 通过 parseLyrics 时统计到的 bilingual 规则
+    let zhCount = 0
+    let enCount = 0
+    parsedLyrics.value.forEach((line) => {
+      if (line.languages?.includes('zh')) zhCount++
+      if (line.languages?.includes('en')) enCount++
+    })
+    return zhCount >= 20 && enCount >= 20
   })
 
+  // 监听歌词变化
   watch(
     lyrics,
     (val) => {
@@ -136,7 +148,6 @@ export function useLrcParser(
   }
 
   watch(activeLineIndex, scrollToActiveLine)
-
   onMounted(updateSpacerHeight)
 
   return {
