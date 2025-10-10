@@ -15,6 +15,12 @@ app.use(router)
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 const pageStore = usePageStatusStore()
 
+pageStore.$subscribe((mutation, state) => {
+  if (state.isPlayBackExpand) {
+    router.push('/playback')
+  }
+})
+
 router.beforeEach((to, from, next) => {
   const title = to.meta.title as string | undefined
   pageStore.currentPageTitle = title || '默认标题'
