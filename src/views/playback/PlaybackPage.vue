@@ -9,9 +9,18 @@ import tinycolor from 'tinycolor2'
 
 const playlistStore = usePlaylistStore()
 const dominantColor = ref('linear-gradient(135deg, #222, #000)')
-const dominantTextColor = ref('#fff') // 动态文字颜色
+const dominantTextColor = ref('#fff')
 const coverLoaded = ref(false)
 const moreListShow = ref(false)
+const removeChinese = ref(false)
+
+// 监听当前歌词是否包含中文，用于翻译按钮显示
+const lyricsText = computed(
+  () => (playlistStore.currentPlaying?.lyrics as string | undefined) ?? '',
+)
+const hasChinese = computed(() => /[\u4e00-\u9fff]/.test(lyricsText.value))
+
+const translationTooltip = computed(() => (removeChinese.value ? '显示中文' : '隐藏中文'))
 
 interface MusicInfoTyped {
   id?: string
@@ -24,8 +33,8 @@ interface MusicInfoTyped {
   [key: string]: unknown
 }
 
-const currentPlaying = computed(
-  (): MusicInfoTyped =>
+const currentPlaying = computed<MusicInfoTyped>(
+  () =>
     playlistStore.currentPlaying || {
       title: '',
       artist: '',
@@ -34,6 +43,11 @@ const currentPlaying = computed(
       lyrics: '',
     },
 )
+
+// 切换中文显示
+function toggleChinese() {
+  removeChinese.value = !removeChinese.value
+}
 
 function back() {
   usePageStatusStore().isPlayBackExpand = false
@@ -47,7 +61,6 @@ function toggleMoreList() {
 function togglePlayPause() {
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
-
   if (playlistStore.isPlaying) {
     audio.pause()
   } else {
@@ -57,6 +70,7 @@ function togglePlayPause() {
   }
 }
 
+// 监听 audio
 onMounted(() => {
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
@@ -79,6 +93,7 @@ onMounted(() => {
   })
 })
 
+// 根据封面提取背景色
 function updateBackgroundFromCover(cover: string) {
   if (!cover) return
   const img = new Image()
@@ -88,28 +103,20 @@ function updateBackgroundFromCover(cover: string) {
     const colorThief = new ColorThief()
     try {
       const palette: number[][] = colorThief.getPalette(img, 7)
-
       const adjustedPalette = palette.map((c) => {
         let color = tinycolor({ r: c[0], g: c[1], b: c[2] })
-
         color = color.isLight() ? color.darken(10) : color.lighten(15)
         return color.toRgb()
       })
 
-      const gradient = `linear-gradient(135deg, ${adjustedPalette
-        .map((c) => `rgb(${c.r},${c.g},${c.b})`)
-        .join(', ')})`
-
-      dominantColor.value = gradient
+      dominantColor.value = `linear-gradient(135deg, ${adjustedPalette.map((c) => `rgb(${c.r},${c.g},${c.b})`).join(', ')})`
       coverLoaded.value = true
 
-      // 主色调文字颜色也做微调
       const mainColor = adjustedPalette[0]
       let textColor = tinycolor(mainColor)
       textColor = textColor.isLight() ? textColor.darken(10) : textColor.lighten(15)
       dominantTextColor.value = textColor.toString()
-    } catch (err) {
-      console.warn('颜色提取失败:', err)
+    } catch {
       dominantColor.value = 'linear-gradient(135deg, #222, #000)'
       dominantTextColor.value = '#fff'
     }
@@ -117,13 +124,13 @@ function updateBackgroundFromCover(cover: string) {
 }
 
 onMounted(() => {
-  if (currentPlaying.value.cover && typeof currentPlaying.value.cover === 'string')
-    updateBackgroundFromCover(currentPlaying.value.cover)
+  if (currentPlaying.value.cover) updateBackgroundFromCover(currentPlaying.value.cover)
 })
+
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
-    if (newCover && typeof newCover === 'string') updateBackgroundFromCover(newCover)
+    if (newCover) updateBackgroundFromCover(newCover)
   },
 )
 
@@ -135,8 +142,7 @@ function seekByClick(event: MouseEvent) {
   const bar = progressBar.value
   if (!bar) return
   const rect = bar.getBoundingClientRect()
-  const clickX = event.clientX - rect.left
-  const ratio = Math.min(Math.max(clickX / rect.width, 0), 1)
+  const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1)
 
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
@@ -152,8 +158,7 @@ function startDrag() {
     const bar = progressBar.value
     if (!bar) return
     const rect = bar.getBoundingClientRect()
-    const x = Math.min(Math.max(e.clientX - rect.left, 0), rect.width)
-    const ratio = x / rect.width
+    const ratio = Math.min(Math.max(e.clientX - rect.left, 0), rect.width) / rect.width
     audio.currentTime = ratio * playlistStore.currentPlayingDuration
   }
 
@@ -172,7 +177,7 @@ function startDrag() {
   <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
     <div
       class="background-blur"
-      :style="{ backgroundImage: `url(${String(currentPlaying.cover || '')})` }"
+      :style="{ backgroundImage: `url(${currentPlaying.cover || ''})` }"
       v-if="currentPlaying.cover"
     ></div>
 
@@ -181,14 +186,26 @@ function startDrag() {
 
       <div class="left">
         <div class="music-cover">
-          <img :src="String(currentPlaying.cover || '')" :alt="currentPlaying.title" />
+          <img :src="currentPlaying.cover" :alt="currentPlaying.title" />
         </div>
+
         <div class="music-info">
           <div class="mleft">
             <div class="title">{{ currentPlaying.title }}</div>
             <div class="artist">{{ currentPlaying.artist }}</div>
           </div>
+
           <div class="mright">
+            <!-- 翻译按钮仅在有中文且歌词行大于阈值时显示 -->
+            <button
+              class="iconfont translation-btn"
+              v-if="hasChinese"
+              @click="toggleChinese"
+              :title="translationTooltip"
+            >
+              &#xe644;
+            </button>
+
             <button class="iconfont more-btn" @click="toggleMoreList" title="更多">&#xe71a;</button>
 
             <transition name="fade-slide">
@@ -200,6 +217,7 @@ function startDrag() {
             </transition>
           </div>
         </div>
+
         <div class="controlers">
           <div class="progress-line" ref="progressBar" @mousedown="startDrag" @click="seekByClick">
             <div
@@ -230,8 +248,9 @@ function startDrag() {
       <div class="right">
         <LrcParser
           :dominantTextColor="dominantTextColor"
-          :lyrics="(playlistStore.currentPlaying?.lyrics as string | undefined) ?? ''"
+          :lyrics="lyricsText"
           :current-time="playlistStore.currentPlayingTime"
+          :remove-chinese="removeChinese"
         />
       </div>
     </div>
