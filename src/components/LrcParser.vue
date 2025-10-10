@@ -6,6 +6,7 @@ const props = defineProps<{
   lyrics: string
   currentTime?: number
   dominantTextColor?: string
+  removeChinese?: boolean // 新增：是否去掉中文
 }>()
 
 const lyricsContainerRef = ref<HTMLElement | null>(null)
@@ -14,6 +15,7 @@ const { parsedLyrics, activeLineIndex, spacerHeight, setLyricLineRef } = useLrcP
   toRef(props, 'lyrics'),
   toRef(props, 'currentTime'),
   lyricsContainerRef,
+  toRef(props, 'removeChinese'),
 )
 
 function isActiveLine(index: number) {
@@ -35,7 +37,7 @@ function isActiveLine(index: number) {
           v-for="(line, index) in parsedLyrics"
           :key="index"
           :class="{ 'lyric-line': true, active: isActiveLine(index) }"
-          :ref="(el) => setLyricLineRef(el, index)"
+          :ref="(el) => setLyricLineRef(el as Element, index)"
         >
           {{ line.text }}
         </div>
