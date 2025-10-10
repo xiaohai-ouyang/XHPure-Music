@@ -3,7 +3,7 @@ import defaultCover from '@assets/images/defaultCover-lightMode.png'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { ref } from 'vue'
-import myPlayList from '@/components/PlayerBar/myPlaylists.vue'
+import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
 
 const playlistStore = usePlaylistStore()
 
