@@ -39,7 +39,6 @@ function togglePlayPause() {
   }
 }
 
-// 同步音频事件
 onMounted(() => {
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
@@ -52,7 +51,6 @@ onMounted(() => {
   audio.addEventListener('ended', playlistStore.playNext)
 })
 
-// 根据封面提取多色渐变背景
 function updateBackgroundFromCover(cover: string) {
   if (!cover) return
   const img = new Image()
@@ -61,7 +59,7 @@ function updateBackgroundFromCover(cover: string) {
   img.onload = () => {
     const colorThief = new ColorThief()
     try {
-      const palette = colorThief.getPalette(img, 5)
+      const palette = colorThief.getPalette(img, 7)
       const gradient = `linear-gradient(135deg, ${palette
         .map((c) => `rgb(${c.join(',')})`)
         .join(', ')})`
@@ -195,12 +193,23 @@ function onSeek(event: Event) {
 @keyframes gradientMove {
   0% {
     background-position: 0% 50%;
+    filter: brightness(1);
+  }
+  25% {
+    background-position: 50% 100%;
+    filter: brightness(1.1);
   }
   50% {
     background-position: 100% 50%;
+    filter: brightness(1.2);
+  }
+  75% {
+    background-position: 50% 0%;
+    filter: brightness(1.1);
   }
   100% {
     background-position: 0% 50%;
+    filter: brightness(1);
   }
 }
 
@@ -208,8 +217,7 @@ function onSeek(event: Event) {
   position: fixed;
   top: 20px;
   left: 20px;
-  display: flex;
-  align-items: center;
+  .row-flex(center);
   font-size: 20px;
   padding: 8px 12px;
   border-radius: 10px;
@@ -232,14 +240,14 @@ function onSeek(event: Event) {
 .left,
 .right {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  .col-flex();
   align-items: center;
 }
 
 .music-cover {
   width: 380px;
   height: 380px;
+  border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
 
@@ -295,6 +303,10 @@ function onSeek(event: Event) {
       font-size: 34px;
       color: white;
     }
+  }
+
+  .mute-btn {
+    margin-left: auto;
   }
 
   input[type='range'] {
