@@ -62,7 +62,10 @@ const back = () => {
 
       <div class="left">
         <div class="music-cover">
-          <img :src="currentPlaying.cover" :alt="currentPlaying.title" />
+          <img
+            :src="(currentPlaying.cover as string) || ''"
+            :alt="(currentPlaying.title as string) || ''"
+          />
         </div>
 
         <div class="music-info">
