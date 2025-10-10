@@ -13,8 +13,19 @@ const dominantTextColor = ref('#fff') // 动态文字颜色
 const coverLoaded = ref(false)
 const moreListShow = ref(false)
 
+interface MusicInfoTyped {
+  id?: string
+  url?: string
+  title?: string
+  artist?: string
+  album?: string
+  cover?: string
+  lyrics?: string
+  [key: string]: unknown
+}
+
 const currentPlaying = computed(
-  () =>
+  (): MusicInfoTyped =>
     playlistStore.currentPlaying || {
       title: '',
       artist: '',
@@ -46,7 +57,6 @@ function togglePlayPause() {
   }
 }
 
-// 音频事件监听
 onMounted(() => {
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
@@ -69,7 +79,6 @@ onMounted(() => {
   })
 })
 
-// 更新背景和文字颜色
 function updateBackgroundFromCover(cover: string) {
   if (!cover) return
   const img = new Image()
@@ -80,15 +89,13 @@ function updateBackgroundFromCover(cover: string) {
     try {
       const palette: number[][] = colorThief.getPalette(img, 7)
 
-      // 微调每个色块亮度
       const adjustedPalette = palette.map((c) => {
         let color = tinycolor({ r: c[0], g: c[1], b: c[2] })
-        // 如果颜色很亮，稍微调暗；如果颜色暗，稍微调亮
+
         color = color.isLight() ? color.darken(10) : color.lighten(15)
         return color.toRgb()
       })
 
-      // 生成渐变字符串
       const gradient = `linear-gradient(135deg, ${adjustedPalette
         .map((c) => `rgb(${c.r},${c.g},${c.b})`)
         .join(', ')})`
@@ -109,18 +116,18 @@ function updateBackgroundFromCover(cover: string) {
   }
 }
 
-// 初始和封面变化监听
 onMounted(() => {
-  if (currentPlaying.value.cover) updateBackgroundFromCover(currentPlaying.value.cover)
+  if (currentPlaying.value.cover && typeof currentPlaying.value.cover === 'string')
+    updateBackgroundFromCover(currentPlaying.value.cover)
 })
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
-    if (newCover) updateBackgroundFromCover(newCover)
+    if (newCover && typeof newCover === 'string') updateBackgroundFromCover(newCover)
   },
 )
 
-// --------- 进度条相关 ---------
+// 进度条拖拽
 const progressBar = ref<HTMLElement | null>(null)
 const isDragging = ref(false)
 
@@ -136,7 +143,7 @@ function seekByClick(event: MouseEvent) {
   audio.currentTime = ratio * playlistStore.currentPlayingDuration
 }
 
-function startDrag(event: MouseEvent) {
+function startDrag() {
   isDragging.value = true
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
@@ -165,7 +172,7 @@ function startDrag(event: MouseEvent) {
   <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
     <div
       class="background-blur"
-      :style="{ backgroundImage: `url(${currentPlaying.cover})` }"
+      :style="{ backgroundImage: `url(${String(currentPlaying.cover || '')})` }"
       v-if="currentPlaying.cover"
     ></div>
 
@@ -174,7 +181,7 @@ function startDrag(event: MouseEvent) {
 
       <div class="left">
         <div class="music-cover">
-          <img :src="currentPlaying.cover" :alt="currentPlaying.title" />
+          <img :src="String(currentPlaying.cover || '')" :alt="currentPlaying.title" />
         </div>
         <div class="music-info">
           <div class="mleft">
@@ -223,7 +230,7 @@ function startDrag(event: MouseEvent) {
       <div class="right">
         <LrcParser
           :dominantTextColor="dominantTextColor"
-          :lyrics="playlistStore.currentPlaying?.lyrics ?? ''"
+          :lyrics="(playlistStore.currentPlaying?.lyrics as string | undefined) ?? ''"
           :current-time="playlistStore.currentPlayingTime"
         />
       </div>
