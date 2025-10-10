@@ -1,40 +1,18 @@
 <script setup lang="ts">
 import router from '@/router'
-import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+import LrcParser from '@/components/LrcParser.vue'
+import { computed, ref } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
-import LrcParser from '@/components/LrcParser.vue'
-import ColorThief from 'colorthief'
-import tinycolor from 'tinycolor2'
-import defaultCover from '@assets/images/defaultCover-lightMode.png'
+import { useAudioPlayer } from '@/composables/useAudioPlayer'
+import { useDominantColor } from '@/composables/useDominantColor'
+import { useChineseToggle } from '@/composables/useChineseToggle'
 
 const playlistStore = usePlaylistStore()
-const dominantColor = ref('linear-gradient(135deg, #222, #000)')
-const dominantTextColor = ref('#fff')
-const coverLoaded = ref(false)
-const moreListShow = ref(false)
-const removeChinese = ref(false)
+const pageStatusStore = usePageStatusStore()
 
-// 监听当前歌词是否包含中文，用于翻译按钮显示
-const lyricsText = computed(
-  () => (playlistStore.currentPlaying?.lyrics as string | undefined) ?? '',
-)
-const hasChinese = computed(() => /[\u4e00-\u9fff]/.test(lyricsText.value))
-
-const translationTooltip = computed(() => (removeChinese.value ? '显示中文' : '隐藏中文'))
-
-interface MusicInfoTyped {
-  id?: string
-  url?: string
-  title?: string
-  artist?: string
-  album?: string
-  cover?: string
-  lyrics?: string
-  [key: string]: unknown
-}
-
-const currentPlaying = computed<MusicInfoTyped>(
+// 当前播放歌曲信息
+const currentPlaying = computed(
   () =>
     playlistStore.currentPlaying || {
       title: '',
@@ -45,140 +23,37 @@ const currentPlaying = computed<MusicInfoTyped>(
     },
 )
 
-// 切换中文显示
-function toggleChinese() {
-  removeChinese.value = !removeChinese.value
-}
-
-function back() {
-  usePageStatusStore().isPlayBackExpand = false
-  router.back()
-}
-
-function toggleMoreList() {
-  moreListShow.value = !moreListShow.value
-}
-
-function togglePlayPause() {
-  const audio = document.querySelector('audio') as HTMLAudioElement | null
-  if (!audio) return
-  if (playlistStore.isPlaying) {
-    audio.pause()
-  } else {
-    audio.play().catch((error) => {
-      console.error('播放失败:', error)
-    })
-  }
-}
-
-// 监听 audio
-onMounted(() => {
-  const audio = document.querySelector('audio') as HTMLAudioElement | null
-  if (!audio) return
-
-  const onPlay = () => (playlistStore.isPlaying = true)
-  const onPause = () => (playlistStore.isPlaying = false)
-  const onTimeUpdate = () => (playlistStore.currentPlayingTime = audio.currentTime)
-  const onEnded = () => playlistStore.playNext()
-
-  audio.addEventListener('play', onPlay)
-  audio.addEventListener('pause', onPause)
-  audio.addEventListener('timeupdate', onTimeUpdate)
-  audio.addEventListener('ended', onEnded)
-
-  onUnmounted(() => {
-    audio.removeEventListener('play', onPlay)
-    audio.removeEventListener('pause', onPause)
-    audio.removeEventListener('timeupdate', onTimeUpdate)
-    audio.removeEventListener('ended', onEnded)
-  })
-})
-
-// 根据封面提取背景色
-function updateBackgroundFromCover(cover: string) {
-  if (!cover) return
-  const img = new Image()
-  img.crossOrigin = 'Anonymous'
-  img.src = cover
-  img.onload = () => {
-    const colorThief = new ColorThief()
-    try {
-      const palette: number[][] = colorThief.getPalette(img, 7)
-      const adjustedPalette = palette.map((c) => {
-        let color = tinycolor({ r: c[0], g: c[1], b: c[2] })
-        color = color.isLight() ? color.darken(10) : color.lighten(15)
-        return color.toRgb()
-      })
-
-      dominantColor.value = `linear-gradient(135deg, ${adjustedPalette.map((c) => `rgb(${c.r},${c.g},${c.b})`).join(', ')})`
-      coverLoaded.value = true
-
-      const mainColor = adjustedPalette[0]
-      let textColor = tinycolor(mainColor)
-      textColor = textColor.isLight() ? textColor.darken(10) : textColor.lighten(15)
-      dominantTextColor.value = textColor.toString()
-    } catch {
-      dominantColor.value = 'linear-gradient(135deg, #222, #000)'
-      dominantTextColor.value = '#fff'
-    }
-  }
-}
-
-onMounted(() => {
-  if (currentPlaying.value.cover) updateBackgroundFromCover(currentPlaying.value.cover)
-})
-
-watch(
-  () => currentPlaying.value.cover,
-  (newCover) => {
-    if (newCover) updateBackgroundFromCover(newCover)
-  },
+// 中文显示切换
+const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
+const { removeChinese, hasChinese, toggleChinese, translationTooltip } = useChineseToggle(
+  lyricsText.value,
 )
 
-// 进度条拖拽
-const progressBar = ref<HTMLElement | null>(null)
-const isDragging = ref(false)
+// 背景色和文字颜色
+const { dominantColor, dominantTextColor } = useDominantColor(
+  currentPlaying.value.cover as string | undefined,
+)
 
-function seekByClick(event: MouseEvent) {
-  const bar = progressBar.value
-  if (!bar) return
-  const rect = bar.getBoundingClientRect()
-  const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1)
+// 音频控制
+const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
 
-  const audio = document.querySelector('audio') as HTMLAudioElement | null
-  if (!audio) return
-  audio.currentTime = ratio * playlistStore.currentPlayingDuration
-}
+// 更多菜单显示
+const moreListShow = ref(false)
+const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
 
-function startDrag() {
-  isDragging.value = true
-  const audio = document.querySelector('audio') as HTMLAudioElement | null
-  if (!audio) return
-
-  const onMove = (e: MouseEvent) => {
-    const bar = progressBar.value
-    if (!bar) return
-    const rect = bar.getBoundingClientRect()
-    const ratio = Math.min(Math.max(e.clientX - rect.left, 0), rect.width) / rect.width
-    audio.currentTime = ratio * playlistStore.currentPlayingDuration
-  }
-
-  const onUp = () => {
-    isDragging.value = false
-    window.removeEventListener('mousemove', onMove)
-    window.removeEventListener('mouseup', onUp)
-  }
-
-  window.addEventListener('mousemove', onMove)
-  window.addEventListener('mouseup', onUp)
+// 返回上一页
+const back = () => {
+  pageStatusStore.isPlayBackExpand = false
+  router.back()
 }
 </script>
 
 <template>
   <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
+    <!-- 背景模糊 -->
     <div
       class="background-blur"
-      :style="{ backgroundImage: `url(${currentPlaying.cover || defaultCover})` }"
+      :style="{ backgroundImage: `url(${currentPlaying.cover || ''})` }"
       v-if="currentPlaying.cover"
     ></div>
 
@@ -219,6 +94,7 @@ function startDrag() {
         </div>
 
         <div class="controlers">
+          <!-- 进度条 -->
           <div class="progress-line" ref="progressBar" @mousedown="startDrag" @click="seekByClick">
             <div
               class="progress-filled"
@@ -230,6 +106,7 @@ function startDrag() {
             ></div>
           </div>
 
+          <!-- 播放控制按钮 -->
           <div class="ctl-btns">
             <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
               <i class="iconfont">&#xe722;</i>
@@ -245,6 +122,7 @@ function startDrag() {
         </div>
       </div>
 
+      <!-- 歌词 -->
       <div class="right">
         <LrcParser
           :dominantTextColor="dominantTextColor"
