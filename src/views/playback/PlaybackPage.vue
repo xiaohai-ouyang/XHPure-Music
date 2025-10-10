@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import LrcParser from '@/components/LrcParser.vue'
@@ -43,12 +43,27 @@ onMounted(() => {
   const audio = document.querySelector('audio') as HTMLAudioElement | null
   if (!audio) return
 
-  audio.addEventListener('play', () => (playlistStore.isPlaying = true))
-  audio.addEventListener('pause', () => (playlistStore.isPlaying = false))
-  audio.addEventListener('timeupdate', () => {
-    playlistStore.currentPlayingTime = audio.currentTime
+  const onPlay = () => (playlistStore.isPlaying = true)
+  const onPause = () => (playlistStore.isPlaying = false)
+  const onTimeUpdate = () => (playlistStore.currentPlayingTime = audio.currentTime)
+  const onEnded = () => playlistStore.playNext()
+
+  audio.addEventListener('play', onPlay)
+  audio.addEventListener('pause', onPause)
+  audio.addEventListener('timeupdate', onTimeUpdate)
+  audio.addEventListener('ended', onEnded)
+
+  onUnmounted(() => {
+    audio.removeEventListener('play', onPlay)
+    audio.removeEventListener('pause', onPause)
+    audio.removeEventListener('timeupdate', onTimeUpdate)
+    audio.removeEventListener('ended', onEnded)
   })
-  audio.addEventListener('ended', playlistStore.playNext)
+})
+
+watch(dominantColor, () => {
+  coverLoaded.value = false
+  setTimeout(() => (coverLoaded.value = true), 1500)
 })
 
 function updateBackgroundFromCover(cover: string) {
@@ -59,7 +74,7 @@ function updateBackgroundFromCover(cover: string) {
   img.onload = () => {
     const colorThief = new ColorThief()
     try {
-      const palette = colorThief.getPalette(img, 7)
+      const palette: number[][] = colorThief.getPalette(img, 7)
       const gradient = `linear-gradient(135deg, ${palette
         .map((c) => `rgb(${c.join(',')})`)
         .join(', ')})`
@@ -158,9 +173,7 @@ function onSeek(event: Event) {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  .row-flex(center);
   transition: background 1.2s ease;
   background-size: 300% 300%;
   animation: gradientMove 10s ease infinite;
@@ -181,10 +194,10 @@ function onSeek(event: Event) {
 .content {
   position: relative;
   z-index: 2;
-  display: flex;
   padding: 20px;
   width: 100%;
   height: 100%;
+  display: flex;
   justify-content: space-around;
   align-items: center;
   color: #fff;
