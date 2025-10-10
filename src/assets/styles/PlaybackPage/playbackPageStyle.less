@@ -7,6 +7,22 @@
   transition: background 1.2s ease;
   background-size: 300% 300%;
   animation: gradientMove 10s ease infinite;
+
+  /* 动态文字颜色继承 */
+  color: inherit;
+
+  .title,
+  .artist,
+  .more-menu-item,
+  .ctl-btns button,
+  .back-btn,
+  .iconfont {
+    color: inherit; // 全部文字图标继承父元素颜色
+  }
+}
+
+.progress-line .progress-filled {
+  background: currentColor; // 随文字色
 }
 
 .background-blur {
@@ -30,7 +46,6 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  color: #fff;
 }
 
 @keyframes gradientMove {
@@ -66,7 +81,6 @@
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
-  color: white;
   transition: all 0.3s ease;
 
   &:hover {
@@ -144,22 +158,31 @@
 
     .iconfont {
       font-size: 34px;
-      color: white;
+      color: inherit; // 图标也继承父级动态颜色
     }
   }
 
   .mute-btn {
     margin-left: auto;
   }
-
-  input[type='range'] {
-    width: 100%;
-    cursor: pointer;
-  }
 }
 
-.iconfont {
-  color: white;
+.progress-line {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  margin-bottom: 12px;
+
+  .progress-filled {
+    height: 100%;
+    background: currentColor; // 进度条颜色随文字动态变化
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
 }
 
 .mright {
@@ -168,7 +191,7 @@
 
   .more-menu {
     position: absolute;
-    background-color: rgba(110, 107, 107, 0.637);
+    background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     bottom: 15px;
     left: 35px;
@@ -189,8 +212,7 @@
     cursor: pointer;
     padding: 3px 0;
     user-select: none;
-    color: white;
-    font-weight: 00;
+    font-weight: 500;
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.2);

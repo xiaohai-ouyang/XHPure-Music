@@ -9,6 +9,7 @@ interface LyricLine {
 const props = defineProps<{
   lyrics: string
   currentTime?: number
+  dominantTextColor?: string
 }>()
 
 const lyricsContainerRef = ref<HTMLElement | null>(null)
@@ -116,7 +117,11 @@ onMounted(updateSpacerHeight)
 </script>
 
 <template>
-  <div class="lrc-parser" ref="lyricsContainerRef">
+  <div
+    class="lrc-parser"
+    ref="lyricsContainerRef"
+    :style="{ color: dominantTextColor || 'rgba(255, 255, 255)' }"
+  >
     <div v-if="parsedLyrics.length === 0" class="no-lyrics">暂无歌词</div>
     <div v-else class="lyrics-container-wrapper">
       <!-- 顶部占位：确保第一行也能居中 -->
@@ -157,7 +162,7 @@ onMounted(updateSpacerHeight)
 
   .no-lyrics {
     text-align: center;
-    color: #999;
+
     font-size: 16px;
     margin-top: 50px;
   }
@@ -177,19 +182,20 @@ onMounted(updateSpacerHeight)
 
   .lyric-line {
     font-size: 18px;
-    color: rgba(255, 255, 255, 0.267);
     transition: all 0.5s linear;
     text-align: center;
     width: 90%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    opacity: 0.5;
 
     &.active {
-      color: #ffffff;
+      color: #fff;
       font-size: 25px;
       font-weight: bold;
       transform: scale(1.05);
+      opacity: 1;
     }
   }
 
