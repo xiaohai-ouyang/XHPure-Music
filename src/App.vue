@@ -8,10 +8,10 @@ const playlistStore = usePlaylistStore()
 const audioRef = ref<HTMLAudioElement | null>(null)
 
 document.title = '椒盐音乐'
+useGlobalShortcutKey()
 
 onMounted(() => {
   useThemeStore().initTheme()
-  useGlobalShortcutKey()
 })
 
 watch(
