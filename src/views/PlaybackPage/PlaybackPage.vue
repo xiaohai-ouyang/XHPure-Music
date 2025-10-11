@@ -29,6 +29,14 @@ const { removeChinese, hasChinese, toggleChinese, translationTooltip } = useChin
 
 const { dominantColor, dominantTextColor, updateBackgroundFromCover } = useDominantColor()
 
+// 添加选中的颜色索引
+const selectedColorIndex = ref(0)
+
+// 处理颜色项点击事件
+const selectColor = (index: number) => {
+  selectedColorIndex.value = index
+}
+
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
@@ -49,7 +57,10 @@ const back = () => {
 </script>
 
 <template>
-  <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
+  <div
+    class="playback-page"
+    :style="{ background: dominantColor, color: dominantTextColor[selectedColorIndex] }"
+  >
     <div
       class="background-blur"
       :style="{ backgroundImage: `url(${currentPlaying.cover || ''})` }"
@@ -60,11 +71,14 @@ const back = () => {
       <header>
         <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>Back</button>
         <div class="color-wheel">
-          <div class="color-item selecter" :style="{ background: dominantTextColor }"></div>
-          <div class="color-item" :style="{ background: dominantColor }"></div>
-          <div class="color-item" :style="{ background: dominantColor }"></div>
-          <div class="color-item" :style="{ background: dominantColor }"></div>
-          <div class="color-item" :style="{ background: dominantColor }"></div>
+          <div
+            v-for="(color, index) in dominantTextColor"
+            :key="index"
+            class="color-item"
+            :class="{ selected: index === selectedColorIndex }"
+            :style="{ background: color }"
+            @click="selectColor(index)"
+          ></div>
         </div>
       </header>
       <main>
@@ -141,7 +155,7 @@ const back = () => {
 
         <div class="right">
           <LrcParser
-            :dominantTextColor="dominantTextColor"
+            :dominantTextColor="dominantTextColor[selectedColorIndex]"
             :lyrics="lyricsText"
             :current-time="playlistStore.currentPlayingTime"
             :remove-chinese="removeChinese"
@@ -240,11 +254,11 @@ header .color-wheel {
     transition: all 0.3s ease;
   }
 
-  .selecter {
+  .selected {
     @size: 35px;
     width: @size;
     height: @size;
-    border: 2px solid;
+    border: 2px solid #fff;
     pointer-events: none;
   }
 }
@@ -299,10 +313,9 @@ main {
 }
 
 .music-info {
+  .row-flex(@align: center, @justify: space-between);
   width: 400px;
   font-weight: 500;
-  display: flex;
-  justify-content: space-between;
   margin: 20px 0;
   text-align: left;
 
@@ -321,7 +334,6 @@ main {
 
   .ctl-btns {
     .row-flex(@justify: center, @align: center,@gap: 20px);
-
     margin-top: 10px;
 
     .iconfont {
@@ -331,6 +343,13 @@ main {
 
   .mute-btn {
     margin-left: auto;
+  }
+}
+
+.music-info,
+.controlers {
+  * {
+    transition: all 0.5s linear;
   }
 }
 
