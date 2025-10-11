@@ -119,9 +119,10 @@ async function pickMusic() {
 }
 
 .empty {
-  .col-flex(center);
+  .col-flex(@align:center, @justify: center);
   height: 100%;
   width: 100%;
+
   .add-to-list-btn {
     padding: 10px;
     background-color: #0088ff;
@@ -138,63 +139,41 @@ async function pickMusic() {
 }
 
 .music-item-box {
-  .col-flex();
-  gap: 5px;
+  .col-flex(@justify:flex-start,@gap:5px);
 }
 
 .music-item {
-  .row-flex();
-  align-items: center;
+  .row-flex(@align: center, @gap: 10px);
   cursor: pointer;
   position: relative;
-}
 
-.left {
-  height: 130px;
-}
+  .left {
+    height: 130px;
+  }
 
-.right {
-  .col-flex();
-}
+  .right {
+    .col-flex();
+  }
 
-.right,
-.music-item {
-  gap: 10px;
-}
+  .right,
+  .music-item {
+    gap: 10px;
+  }
 
-.music-title {
-  font-size: 24px;
+  .music-title {
+    font-size: 24px;
+  }
 }
 
 .isPlaying {
   background-color: @lightMode-music-playingBgColor;
+
   .music-title {
     color: @lightMode-music-playingTextColor;
     font-weight: 600;
   }
   .music-artist {
     font-weight: 500;
-  }
-}
-
-.actions {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
-
-.add-to-playlist-btn {
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  .col-flex(center);
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.7);
   }
 }
 </style>

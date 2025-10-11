@@ -140,7 +140,7 @@ const back = () => {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  .row-flex(center);
+  .row-flex(@align:center);
   transition: background 1.2s ease;
   background-size: 300% 300%;
   animation: gradientMove 10s ease infinite;
@@ -173,14 +173,12 @@ const back = () => {
 }
 
 .content {
+  .row-flex(@align: center,@justify: space-around);
   position: relative;
   z-index: 2;
   padding: 20px;
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
 }
 
 @keyframes gradientMove {
@@ -207,10 +205,10 @@ const back = () => {
 }
 
 .back-btn {
+  .row-flex(@justify:center,@align:center);
   position: fixed;
   top: 20px;
   left: 20px;
-  .row-flex(center);
   font-size: 20px;
   padding: 8px 12px;
   border-radius: 10px;
@@ -232,8 +230,7 @@ const back = () => {
 .left,
 .right {
   flex: 1;
-  .col-flex();
-  align-items: center;
+  .col-flex(@align: center );
 }
 
 .music-cover {
@@ -271,9 +268,8 @@ const back = () => {
   width: 400px;
 
   .ctl-btns {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
+    .row-flex(@justify: center, @align: center,@gap: 20px);
+
     margin-top: 10px;
 
     .iconfont {
@@ -309,6 +305,7 @@ const back = () => {
   height: 28px;
 
   .more-menu {
+    .col-flex(@align: flex-start,@justify: center);
     position: absolute;
     background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
@@ -316,7 +313,6 @@ const back = () => {
     left: 72px;
     width: 128px;
     border-radius: 5px;
-    .col-flex();
     z-index: 999;
     overflow: hidden;
   }
@@ -327,8 +323,8 @@ const back = () => {
   }
 
   .more-menu-item {
-    display: flex;
-    align-items: center;
+    .row-flex(@align: center);
+    width: 100%;
     cursor: pointer;
     padding: 3px 0;
     user-select: none;

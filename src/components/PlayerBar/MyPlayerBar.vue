@@ -86,7 +86,7 @@ function autoScroll(event: MouseEvent) {
 
 .controls-btn,
 .playlist-btn {
-  .row-flex(center);
+  .row-flex(@align: center);
 }
 
 i {
@@ -99,6 +99,16 @@ i {
   align-items: center;
   position: fixed;
   bottom: 0;
+
+  .left {
+    .row-flex(@align: center, @justify: center);
+  }
+
+  .right {
+    align-items: center;
+    margin-right: 10px;
+    margin-left: auto;
+  }
 }
 
 .cover {
@@ -113,18 +123,11 @@ i {
   object-fit: cover;
 }
 
-.left {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .info {
   margin-left: 10px;
   max-width: 180px;
   overflow: hidden;
   white-space: nowrap;
-
   .col-flex();
 
   .title {
@@ -137,12 +140,6 @@ i {
   .artist {
     font-size: 14px;
   }
-}
-
-.right {
-  align-items: center;
-  margin-right: 10px;
-  margin-left: auto;
 }
 
 .controls,
