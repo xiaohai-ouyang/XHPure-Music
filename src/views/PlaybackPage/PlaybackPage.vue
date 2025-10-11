@@ -232,7 +232,6 @@ const isPlaying = computed(() => playlistStore.isPlaying)
 .playback-page.paused .background-blur {
   filter: blur(60px) brightness(0.45);
   opacity: 0.7;
-
   will-change: auto;
   transition:
     filter 0.6s ease,
@@ -261,14 +260,8 @@ header .back-btn {
   font-size: 20px;
   padding: 8px 12px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    width: 100px;
-  }
 
   .iconfont {
     font-size: 26px;
