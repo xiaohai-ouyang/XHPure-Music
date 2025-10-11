@@ -63,7 +63,6 @@ async function pickMusic() {
   try {
     const dirHandle = await window.showDirectoryPicker()
 
-    // ✅ 不再报错
     for await (const handle of dirHandle.values()) {
       if (handle.kind === 'file') {
         await handleMusicFile(handle as FileSystemFileHandle)
