@@ -32,6 +32,14 @@ const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
 const chineseToggleFeatures = computed(() => useChineseToggle(lyricsText.value))
 const { removeChinese, toggleChinese, translationTooltip } = chineseToggleFeatures.value
 
+// 监听当前播放歌曲变化，重置中文切换状态
+watch(
+  () => playlistStore.currentPlaying?.id,
+  () => {
+    removeChinese.value = false
+  }
+)
+
 // 判断是否为双语歌词与是否显示去中文按钮
 const { showRemoveChineseButton } = useLrcParser(
   lyricsText,
