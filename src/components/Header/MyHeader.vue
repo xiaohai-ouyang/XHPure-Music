@@ -14,8 +14,7 @@ import { usePageStatusStore } from '@/stores/pageStatusStores'
 
 <style lang="less" scoped>
 header {
-  .row-flex();
-  align-items: center;
+  .row-flex(@align: center);
   padding: 5px 10px;
   position: fixed;
   top: 0;
