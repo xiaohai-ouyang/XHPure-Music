@@ -8,9 +8,11 @@ import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useDominantColor } from '@/composables/useDominantColor'
 import { useChineseToggle } from '@/composables/useChineseToggle'
 
+// 播放列表和页面状态管理
 const playlistStore = usePlaylistStore()
 const pageStatusStore = usePageStatusStore()
 
+// 当前播放的音乐信息
 const currentPlaying = computed(
   () =>
     playlistStore.currentPlaying || {
@@ -22,10 +24,14 @@ const currentPlaying = computed(
     },
 )
 
+// 歌词文本
 const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
+
+// 中文翻译切换功能
 const chineseToggleFeatures = computed(() => useChineseToggle(lyricsText.value))
 const { removeChinese, hasChinese, toggleChinese, translationTooltip } = chineseToggleFeatures.value
 
+// 主题颜色相关功能
 const {
   selectedColorIndex,
   selectColor,
@@ -36,6 +42,7 @@ const {
   coverUrl,
 } = useDominantColor()
 
+// 监听封面变化并更新背景
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
@@ -44,24 +51,34 @@ watch(
   { immediate: true },
 )
 
+// 音频播放控制相关功能
 const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
+
+// 更多菜单显示状态
 const moreListShow = ref(false)
 const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
+
+// 返回上一页
 const back = () => {
   pageStatusStore.isPlayBackExpand = false
   router.back()
 }
 
+// 播放状态
 const isPlaying = computed(() => playlistStore.isPlaying)
 </script>
 
 <template>
   <div class="playback-page" :style="pageStyle" :class="{ paused: !isPlaying }">
+    <!-- 背景模糊效果 -->
     <div v-if="coverUrl" class="background-blur" :style="backgroundStyle"></div>
 
     <div class="content">
       <header>
+        <!-- 返回按钮 -->
         <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>Back</button>
+
+        <!-- 颜色选择器 -->
         <div class="color-wheel">
           <div
             v-for="(color, index) in textColors"
@@ -73,8 +90,10 @@ const isPlaying = computed(() => playlistStore.isPlaying)
           ></div>
         </div>
       </header>
+
       <main>
         <div class="left">
+          <!-- 音乐封面 -->
           <div class="music-cover">
             <img
               :src="(currentPlaying.cover as string) || ''"
@@ -82,6 +101,7 @@ const isPlaying = computed(() => playlistStore.isPlaying)
             />
           </div>
 
+          <!-- 音乐信息 -->
           <div class="music-info">
             <div class="mleft">
               <div class="title">{{ currentPlaying.title }}</div>
@@ -89,6 +109,7 @@ const isPlaying = computed(() => playlistStore.isPlaying)
             </div>
 
             <div class="mright">
+              <!-- 翻译按钮 -->
               <button
                 class="iconfont translation-btn"
                 v-if="hasChinese"
@@ -98,10 +119,12 @@ const isPlaying = computed(() => playlistStore.isPlaying)
                 &#xe644;
               </button>
 
+              <!-- 更多操作按钮 -->
               <button class="iconfont more-btn" @click="toggleMoreList" title="更多">
                 &#xe71a;
               </button>
 
+              <!-- 更多操作菜单 -->
               <transition name="fade-slide">
                 <div class="more-menu" v-show="moreListShow">
                   <button class="more-menu-item"><i class="iconfont">&#xe761;</i>我喜欢</button>
@@ -112,7 +135,9 @@ const isPlaying = computed(() => playlistStore.isPlaying)
             </div>
           </div>
 
+          <!-- 播放控制区域 -->
           <div class="controlers">
+            <!-- 进度条 -->
             <div
               class="progress-line"
               ref="progressBar"
@@ -130,6 +155,7 @@ const isPlaying = computed(() => playlistStore.isPlaying)
               ></div>
             </div>
 
+            <!-- 控制按钮 -->
             <div class="ctl-btns">
               <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
                 <i class="iconfont">&#xe722;</i>
@@ -145,6 +171,7 @@ const isPlaying = computed(() => playlistStore.isPlaying)
           </div>
         </div>
 
+        <!-- 歌词显示区域 -->
         <div class="right">
           <LrcParser
             :dominantTextColor="textColors[selectedColorIndex]"
