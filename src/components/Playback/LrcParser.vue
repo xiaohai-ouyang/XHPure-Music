@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, toRef, computed, watch, onMounted, nextTick } from 'vue'
-import { usePlaylistStore } from '@/stores/playlistStore'
+import { ref, toRef, computed } from 'vue'
+
 import tinycolor from 'tinycolor2'
 import { useLrcParser } from '@/composables/useLrcParser'
 import { useDominantColor } from '@/composables/useDominantColor'
@@ -19,8 +19,6 @@ const props = defineProps<{
 
 const lyricsContainerRef = ref<HTMLElement | null>(null)
 
-const playlistStore = usePlaylistStore()
-
 /**
  * 使用歌词解析组合式函数处理歌词数据
  * @param toRef(props, 'lyrics') 响应式的歌词文本
@@ -33,47 +31,6 @@ const { parsedLyrics, activeLineIndex, spacerHeight, setLyricLineRef } = useLrcP
   toRef(props, 'currentTime'),
   lyricsContainerRef,
   toRef(props, 'removeChinese'),
-)
-
-/**
- * 监听活动行索引变化，同步到播放列表存储
- */
-watch(activeLineIndex, (val) => {
-  playlistStore.setLyricActiveLineIndex(val)
-})
-
-/**
- * 同步滚动位置到 playlistStore
- */
-function syncScrollTop() {
-  if (lyricsContainerRef.value) {
-    playlistStore.setLyricScrollTop(lyricsContainerRef.value.scrollTop)
-  }
-}
-
-/**
- * 组件挂载后恢复之前保存的滚动位置
- */
-onMounted(() => {
-  nextTick(() => {
-    // 恢复滚动位置
-    if (lyricsContainerRef.value && playlistStore.lyricScrollTop > 0) {
-      lyricsContainerRef.value.scrollTop = playlistStore.lyricScrollTop
-    }
-  })
-})
-
-/**
- * 监听滚动事件，实时同步滚动位置
- */
-watch(
-  lyricsContainerRef,
-  (el) => {
-    if (el) {
-      el.addEventListener('scroll', syncScrollTop)
-    }
-  },
-  { immediate: true },
 )
 
 const { textColors, currentTextColor } = useDominantColor()
