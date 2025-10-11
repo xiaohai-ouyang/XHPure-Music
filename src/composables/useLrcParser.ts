@@ -1,5 +1,6 @@
 import { ref, computed, watch, nextTick, onMounted, type Ref } from 'vue'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
+import { detectLanguages } from '@/utils/lyricUtils'
 
 export interface LyricLine {
   time: number
@@ -30,14 +31,7 @@ export function useLrcParser(
     if (el) lyricLineRefs.value[index] = el as HTMLElement
   }
 
-  function detectLanguages(text: string): string[] {
-    const langSet = new Set<string>()
-    if (/[\u4e00-\u9fff]/.test(text)) langSet.add('zh')
-    if (/[A-Za-z]/.test(text)) langSet.add('en')
-    if (/[\u3040-\u309f\u30a0-\u30ff]/.test(text)) langSet.add('ja')
-    if (/[\uac00-\ud7af]/.test(text)) langSet.add('ko')
-    return Array.from(langSet)
-  }
+
 
   function parseLyrics(text: string) {
     if (!text) {
@@ -55,9 +49,6 @@ export function useLrcParser(
       const lyricText = line.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim()
       if (/:|：/.test(lyricText)) lastColonLineIndex = index
     })
-
-    // 获取当前正在播放的音乐
-    const currentMusic = musicStore.musicList.find((music) => music.isPlaying)
 
     // 是否应该移除中文：当用户开启 removeChinese 时替换中文
     const shouldRemoveChinese = removeChinese?.value
