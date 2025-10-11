@@ -6,7 +6,6 @@ import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useDominantColor } from '@/composables/useDominantColor'
-import { useChineseToggle } from '@/composables/useChineseToggle'
 import { useLrcParser } from '@/composables/useLrcParser'
 
 // 播放列表和页面状态管理
@@ -29,15 +28,15 @@ const currentPlaying = computed(
 const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
 
 // 中文翻译切换功能
-const chineseToggleFeatures = computed(() => useChineseToggle(lyricsText.value))
-const { removeChinese, toggleChinese, translationTooltip } = chineseToggleFeatures.value
+const toggleChinese = () => (playlistStore.removeChinese = !playlistStore.removeChinese)
+const translationTooltip = computed(() => (playlistStore.removeChinese ? '显示中文' : '隐藏中文'))
 
 // 监听当前播放歌曲变化，重置中文切换状态
 watch(
   () => playlistStore.currentPlaying?.id,
   () => {
-    removeChinese.value = false
-  }
+    playlistStore.removeChinese = false
+  },
 )
 
 // 判断是否为双语歌词与是否显示去中文按钮
@@ -45,7 +44,7 @@ const { showRemoveChineseButton } = useLrcParser(
   lyricsText,
   ref(undefined),
   ref(null),
-  removeChinese,
+  computed(() => playlistStore.removeChinese),
 )
 
 // 优先使用 music metadata (由 useMusicPicker 设置的 isBilingual)，如果未定义则回退到 useLrcParser 的检测结果
@@ -201,7 +200,7 @@ const isPlaying = computed(() => playlistStore.isPlaying)
             :dominantTextColor="textColors[selectedColorIndex]"
             :lyrics="lyricsText"
             :current-time="playlistStore.currentPlayingTime"
-            :remove-chinese="removeChinese"
+            :remove-chinese="playlistStore.removeChinese"
           />
         </div>
       </main>

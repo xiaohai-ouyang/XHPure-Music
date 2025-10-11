@@ -62,6 +62,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
   // 歌词高亮行索引和滚动位置
   const lyricActiveLineIndex = ref(-1)
   const lyricScrollTop = ref(0)
+  const removeChinese = ref(false)
 
   /**
    * 设置歌词高亮行索引
@@ -285,6 +286,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     currentPlayingDuration,
     lyricActiveLineIndex,
     lyricScrollTop,
+    removeChinese,
 
     // getters
     isPlayingListEmpty,
