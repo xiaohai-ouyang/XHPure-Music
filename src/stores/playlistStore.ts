@@ -35,6 +35,17 @@ export const usePlaylistStore = defineStore('playlist', () => {
   const currentPlayingTime = ref(0)
   const currentPlayingDuration = ref(0)
 
+  // 歌词高亮行索引和滚动位置
+  const lyricActiveLineIndex = ref(-1)
+  const lyricScrollTop = ref(0)
+
+  function setLyricActiveLineIndex(index: number) {
+    lyricActiveLineIndex.value = index
+  }
+  function setLyricScrollTop(top: number) {
+    lyricScrollTop.value = top
+  }
+
   // ============
   // 🔹 Getters
   // ============
@@ -228,6 +239,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
     currentPlayingId,
     currentPlayingTime,
     currentPlayingDuration,
+    lyricActiveLineIndex,
+    lyricScrollTop,
 
     // getters
     isPlayingListEmpty,
@@ -244,5 +257,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     playPrevious,
     cyclePlayMode,
     updateCurrentPlayingTime,
+    setLyricActiveLineIndex,
+    setLyricScrollTop,
   }
 })
