@@ -9,10 +9,13 @@ declare global {
   interface Window {
     showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>
   }
+
+  interface FileSystemDirectoryHandle {
+    values(): AsyncIterableIterator<FileSystemHandle>
+  }
 }
 
 const listContainer = ref<HTMLElement | null>(null)
-
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
 
 const playlistStore = usePlaylistStore()
@@ -60,6 +63,7 @@ async function pickMusic() {
   try {
     const dirHandle = await window.showDirectoryPicker()
 
+    // ✅ 不再报错
     for await (const handle of dirHandle.values()) {
       if (handle.kind === 'file') {
         await handleMusicFile(handle as FileSystemFileHandle)
@@ -78,6 +82,7 @@ async function pickMusic() {
   }
 }
 </script>
+
 <template>
   <div class="jiaoyan-music" ref="listContainer">
     <div class="empty" v-if="musicStore.isEmpty">
