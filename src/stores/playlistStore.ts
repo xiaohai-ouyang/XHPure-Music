@@ -181,8 +181,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   /**
    * 播放下一首
+   * @param isAutoPlayNext 是否为自动播放下一首（如歌曲播放结束触发）
    */
-  function playNext() {
+  function playNext(isAutoPlayNext = false) {
     if (isPlaylistEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
@@ -195,7 +196,13 @@ export const usePlaylistStore = defineStore('playlist', () => {
     } else if (playMode.value === 'list') {
       nextIndex = currentIndex < playlist.value.length - 1 ? currentIndex + 1 : 0
     } else if (playMode.value === 'loop') {
-      nextIndex = currentIndex // 单曲循环
+      // 如果是自动播放下一首，则保持单曲循环
+      // 如果是手动点击下一曲，则切换到下一首歌曲
+      if (isAutoPlayNext) {
+        nextIndex = currentIndex // 单曲循环
+      } else {
+        nextIndex = currentIndex < playlist.value.length - 1 ? currentIndex + 1 : 0
+      }
     }
 
     if (playlist.value[nextIndex]) {
@@ -205,8 +212,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   /**
    * 播放上一首
+   * @param isAutoPlayPrevious 是否为自动播放上一首
    */
-  function playPrevious() {
+  function playPrevious(isAutoPlayPrevious = false) {
     if (isPlaylistEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
@@ -219,7 +227,13 @@ export const usePlaylistStore = defineStore('playlist', () => {
     } else if (playMode.value === 'list') {
       prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.value.length - 1
     } else if (playMode.value === 'loop') {
-      prevIndex = currentIndex
+      // 如果是自动播放上一首，则保持单曲循环
+      // 如果是手动点击上一曲，则切换到上一首歌曲
+      if (isAutoPlayPrevious) {
+        prevIndex = currentIndex
+      } else {
+        prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.value.length - 1
+      }
     }
 
     if (playlist.value[prevIndex]) {
