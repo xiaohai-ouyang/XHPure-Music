@@ -23,26 +23,23 @@ const currentPlaying = computed(
 )
 
 const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
-const { removeChinese, hasChinese, toggleChinese, translationTooltip } = useChineseToggle(
-  lyricsText.value,
-)
+const chineseToggleFeatures = computed(() => useChineseToggle(lyricsText.value))
+const { removeChinese, hasChinese, toggleChinese, translationTooltip } = chineseToggleFeatures.value
 
-const { dominantColor, dominantTextColor, updateBackgroundFromCover } = useDominantColor()
-
-// 添加选中的颜色索引
-const selectedColorIndex = ref(0)
-
-// 处理颜色项点击事件
-const selectColor = (index: number) => {
-  selectedColorIndex.value = index
-}
+const {
+  selectedColorIndex,
+  selectColor,
+  textColors,
+  pageStyle,
+  setCover,
+  backgroundStyle,
+  coverUrl,
+} = useDominantColor()
 
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
-    if (newCover) {
-      updateBackgroundFromCover(newCover as string)
-    }
+    setCover(newCover as string)
   },
   { immediate: true },
 )
@@ -54,25 +51,20 @@ const back = () => {
   pageStatusStore.isPlayBackExpand = false
   router.back()
 }
+
+const isPlaying = computed(() => playlistStore.isPlaying)
 </script>
 
 <template>
-  <div
-    class="playback-page"
-    :style="{ background: dominantColor, color: dominantTextColor[selectedColorIndex] }"
-  >
-    <div
-      class="background-blur"
-      :style="{ backgroundImage: `url(${currentPlaying.cover || ''})` }"
-      v-if="currentPlaying.cover"
-    ></div>
+  <div class="playback-page" :style="pageStyle" :class="{ paused: !isPlaying }">
+    <div v-if="coverUrl" class="background-blur" :style="backgroundStyle"></div>
 
     <div class="content">
       <header>
         <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>Back</button>
         <div class="color-wheel">
           <div
-            v-for="(color, index) in dominantTextColor"
+            v-for="(color, index) in textColors"
             :key="index"
             class="color-item"
             :class="{ selected: index === selectedColorIndex }"
@@ -155,7 +147,7 @@ const back = () => {
 
         <div class="right">
           <LrcParser
-            :dominantTextColor="dominantTextColor[selectedColorIndex]"
+            :dominantTextColor="textColors[selectedColorIndex]"
             :lyrics="lyricsText"
             :current-time="playlistStore.currentPlayingTime"
             :remove-chinese="removeChinese"
@@ -173,9 +165,10 @@ const back = () => {
   width: 100vw;
   overflow: hidden;
   .row-flex(@align:center);
-  transition: background 1.2s ease;
+
   background-size: 300% 300%;
   animation: gradientMove 10s ease infinite;
+  will-change: background-position, filter, color;
   color: inherit;
 
   .title,
@@ -186,6 +179,10 @@ const back = () => {
   .iconfont {
     color: inherit;
   }
+}
+
+.playback-page.paused {
+  animation-play-state: paused;
 }
 
 .progress-line .progress-filled {
@@ -202,6 +199,17 @@ const back = () => {
   z-index: 0;
   opacity: 0.8;
   transition: opacity 1s ease;
+  will-change: transform, opacity;
+}
+
+.playback-page.paused .background-blur {
+  filter: blur(60px) brightness(0.45);
+  opacity: 0.7;
+
+  will-change: auto;
+  transition:
+    filter 0.6s ease,
+    opacity 0.6s ease;
 }
 
 .content {
@@ -255,10 +263,8 @@ header .color-wheel {
   }
 
   .selected {
-    @size: 35px;
-    width: @size;
-    height: @size;
-    border: 2px solid #fff;
+    transform: scale(1.4);
+    border: 1px solid #fff;
     pointer-events: none;
   }
 }

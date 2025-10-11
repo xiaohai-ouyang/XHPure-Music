@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { ref, toRef } from 'vue'
+import { ref, toRef, computed, watch, onMounted, nextTick } from 'vue'
+import { usePlaylistStore } from '@/stores/playlistStore'
+import tinycolor from 'tinycolor2'
 import { useLrcParser } from '@/composables/useLrcParser'
+import { useDominantColor } from '@/composables/useDominantColor'
 
 const props = defineProps<{
   lyrics: string
   currentTime?: number
-  dominantTextColor?: string
   removeChinese?: boolean
 }>()
 
 const lyricsContainerRef = ref<HTMLElement | null>(null)
+
+const playlistStore = usePlaylistStore()
 
 const { parsedLyrics, activeLineIndex, spacerHeight, setLyricLineRef } = useLrcParser(
   toRef(props, 'lyrics'),
@@ -18,17 +22,58 @@ const { parsedLyrics, activeLineIndex, spacerHeight, setLyricLineRef } = useLrcP
   toRef(props, 'removeChinese'),
 )
 
+watch(activeLineIndex, (val) => {
+  playlistStore.setLyricActiveLineIndex(val)
+})
+
+// 同步滚动位置到 playlistStore
+function syncScrollTop() {
+  if (lyricsContainerRef.value) {
+    playlistStore.setLyricScrollTop(lyricsContainerRef.value.scrollTop)
+  }
+}
+onMounted(() => {
+  nextTick(() => {
+    // 恢复滚动位置
+    if (lyricsContainerRef.value && playlistStore.lyricScrollTop > 0) {
+      lyricsContainerRef.value.scrollTop = playlistStore.lyricScrollTop
+    }
+  })
+})
+// 监听滚动事件
+watch(
+  lyricsContainerRef,
+  (el) => {
+    if (el) {
+      el.addEventListener('scroll', syncScrollTop)
+    }
+  },
+  { immediate: true },
+)
+
+const { textColors, currentTextColor } = useDominantColor()
+
+const effectiveColor = computed(
+  () => currentTextColor.value || (textColors.value && textColors.value[0]) || 'rgba(255,255,255)',
+)
+
+// 非激活行使用更暗、更透明的颜色
+const inactiveColor = computed(() => {
+  try {
+    const rgb = tinycolor(effectiveColor.value).toRgb()
+    return `rgba(${rgb.r},${rgb.g},${rgb.b},0.6)`
+  } catch {
+    return 'rgba(255,255,255,0.6)'
+  }
+})
+
 function isActiveLine(index: number) {
   return index === activeLineIndex.value
 }
 </script>
 
 <template>
-  <div
-    class="lrc-parser"
-    ref="lyricsContainerRef"
-    :style="{ color: dominantTextColor || 'rgba(255,255,255)' }"
-  >
+  <div class="lrc-parser" ref="lyricsContainerRef" :style="{ color: effectiveColor }">
     <div v-if="parsedLyrics.length === 0" class="no-lyrics">暂无歌词</div>
     <div v-else class="lyrics-container-wrapper">
       <div class="lyrics-spacer" :style="{ height: spacerHeight + 'px' }"></div>
@@ -37,6 +82,7 @@ function isActiveLine(index: number) {
           v-for="(line, index) in parsedLyrics"
           :key="index"
           :class="{ 'lyric-line': true, active: isActiveLine(index) }"
+          :style="isActiveLine(index) ? { color: effectiveColor } : { color: inactiveColor }"
           :ref="(el) => setLyricLineRef(el as Element, index)"
         >
           {{ line.text }}
@@ -83,10 +129,10 @@ function isActiveLine(index: number) {
 
     &.active {
       opacity: 1;
-      font-weight: bold;
+      font-weight: 700;
       font-size: 25px;
-      transform: scale(1.05);
-      color: #fff;
+      transform: scale(1.06);
+      color: inherit;
     }
   }
 }
