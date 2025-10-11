@@ -274,6 +274,36 @@ export const usePlaylistStore = defineStore('playlist', () => {
     })
   }
 
+  /**
+   * 格式化时间（秒）为 mm:ss 格式
+   * @param seconds 时间（秒）
+   * @returns 格式化后的时间字符串 mm:ss
+   */
+  function formatTime(seconds: number): string {
+    if (isNaN(seconds) || seconds < 0) return '00:00'
+
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  /**
+   * 格式化时间为负数形式（用于显示剩余时间）
+   * @param currentTime 当前播放时间（秒）
+   * @param duration 总时长（秒）
+   * @returns 格式化后的负时间字符串 -mm:ss
+   */
+  function formatNegativeTime(currentTime: number, duration: number): string {
+    if (isNaN(currentTime) || currentTime < 0 || isNaN(duration) || duration <= 0) return '-00:00'
+
+    const remainingTime = duration - currentTime
+    const mins = Math.floor(remainingTime / 60)
+    const secs = Math.floor(remainingTime % 60)
+
+    return `-${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
   return {
     // state
     playlist,
@@ -303,5 +333,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     cyclePlayMode,
     updateCurrentPlayingTime,
     setSongChineseState,
+    formatTime,
+    formatNegativeTime,
   }
 })
