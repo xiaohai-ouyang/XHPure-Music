@@ -7,6 +7,7 @@ import { usePlaylistStore } from '@/stores/playlistStore'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useDominantColor } from '@/composables/useDominantColor'
 import { useChineseToggle } from '@/composables/useChineseToggle'
+import { useLrcParser } from '@/composables/useLrcParser'
 
 // 播放列表和页面状态管理
 const playlistStore = usePlaylistStore()
@@ -29,7 +30,22 @@ const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
 
 // 中文翻译切换功能
 const chineseToggleFeatures = computed(() => useChineseToggle(lyricsText.value))
-const { removeChinese, hasChinese, toggleChinese, translationTooltip } = chineseToggleFeatures.value
+const { removeChinese, toggleChinese, translationTooltip } = chineseToggleFeatures.value
+
+// 判断是否为双语歌词与是否显示去中文按钮
+const { showRemoveChineseButton } = useLrcParser(
+  lyricsText,
+  ref(undefined),
+  ref(null),
+  removeChinese,
+)
+
+// 优先使用 music metadata (由 useMusicPicker 设置的 isBilingual)，如果未定义则回退到 useLrcParser 的检测结果
+const shouldShowRemoveChinese = computed(() => {
+  const meta = currentPlaying.value as Record<string, unknown> | null
+  if (meta && typeof meta.isBilingual === 'boolean') return meta.isBilingual as boolean
+  return showRemoveChineseButton.value
+})
 
 // 主题颜色相关功能
 const {
@@ -109,10 +125,10 @@ const isPlaying = computed(() => playlistStore.isPlaying)
             </div>
 
             <div class="mright">
-              <!-- 翻译按钮 -->
+              <!-- 仅当歌词包含中文且包含任意其它语言时显示去中文按钮 -->
               <button
                 class="iconfont translation-btn"
-                v-if="hasChinese"
+                v-if="shouldShowRemoveChinese"
                 @click="toggleChinese"
                 :title="translationTooltip"
               >
