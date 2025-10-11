@@ -66,16 +66,12 @@ function isActiveLine(index: number) {
     margin-top: 50px;
   }
 
-  .lyrics-container-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .lyrics-container-wrapper,
+  .lyrics-container {
+    .col-flex(@align: center);
   }
 
   .lyrics-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 10px;
     width: 100%;
   }
@@ -84,6 +80,7 @@ function isActiveLine(index: number) {
     font-size: 18px;
     opacity: 0.5;
     transition: all 0.5s linear;
+
     &.active {
       opacity: 1;
       font-weight: bold;

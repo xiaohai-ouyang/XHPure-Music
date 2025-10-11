@@ -5,7 +5,6 @@
     @click="usePageStatusStore().isPlaylistShow = false"
   >
     <nav>
-      <!-- 色彩模式切换区域 -->
       <div class="color-mode-switch">
         <button
           class="dark-mode"
@@ -35,7 +34,6 @@
         </button>
       </div>
 
-      <!-- 导航菜单 -->
       <div class="navItem-container">
         <router-link
           class="nav-item"
@@ -85,7 +83,6 @@
 <script setup lang="ts">
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { useThemeStore } from '@/stores/themeStore'
-
 const pageStatusStore = usePageStatusStore()
 </script>
 
@@ -111,39 +108,32 @@ nav {
 }
 
 .color-mode-switch {
-  .row-flex();
+  .row-flex(@justify: space-evenly, @align: center);
   width: 100%;
   padding: 5px;
-  justify-content: space-evenly;
-  gap: 10px;
 
   i {
     font-size: 25px;
   }
 
   button {
+    .row-flex(@justify: center, @align: center);
     border-radius: 50%;
-    padding: unset;
     width: 32px;
     height: 32px;
     background: transparent;
-    border: none;
-    outline: none;
-    .row-flex(center);
     cursor: pointer;
   }
 }
 
 .navItem-container {
-  .col-flex(center);
   margin-top: 20px;
   width: 100%;
   padding: 2px;
 }
 
 .nav-item {
-  .row-flex();
-  align-items: center;
+  .row-flex(@justify: flex-start, @align: center);
   height: 40px;
   color: initial;
   text-decoration: none;
