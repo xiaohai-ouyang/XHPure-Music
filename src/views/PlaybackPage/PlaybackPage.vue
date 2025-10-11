@@ -199,14 +199,14 @@ const translationTooltip = computed(() =>
 
             <!-- 控制按钮 -->
             <div class="ctl-btns">
-              <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
+              <button class="controls-btn prev-btn" @click="() => playlistStore.playPrevious()">
                 <i class="iconfont">&#xe722;</i>
               </button>
               <button class="controls-btn play-pause" @click="togglePlayPause">
                 <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
                 <i class="iconfont" v-else>&#xe67b;</i>
               </button>
-              <button class="controls-btn next-btn" @click="playlistStore.playNext">
+              <button class="controls-btn next-btn" @click="() => playlistStore.playNext()">
                 <i class="iconfont">&#xe72a;</i>
               </button>
             </div>

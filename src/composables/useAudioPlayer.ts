@@ -50,7 +50,16 @@ export function useAudioPlayer() {
     const onPlay = () => (playlistStore.isPlaying = true)
     const onPause = () => (playlistStore.isPlaying = false)
     const onTimeUpdate = () => (playlistStore.currentPlayingTime = audio.currentTime)
-    const onEnded = () => playlistStore.playNext()
+    const onEnded = () => {
+      // 在单曲循环模式下，重新播放当前歌曲
+      if (playlistStore.playMode === 'loop' && playlistStore.currentPlaying) {
+        audio.currentTime = 0
+        audio.play().catch(console.error)
+      } else {
+        // 传入true表示这是自动播放结束触发的下一首
+        playlistStore.playNext(true)
+      }
+    }
 
     audio.addEventListener('play', onPlay)
     audio.addEventListener('pause', onPause)
