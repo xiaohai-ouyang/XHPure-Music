@@ -185,6 +185,18 @@ const translationTooltip = computed(() =>
               ></div>
             </div>
 
+            <div class="timer">
+              <span v-html="playlistStore.formatTime(playlistStore.currentPlayingTime)"></span>
+              <span
+                v-html="
+                  playlistStore.formatNegativeTime(
+                    playlistStore.currentPlayingTime,
+                    playlistStore.currentPlayingDuration,
+                  )
+                "
+              ></span>
+            </div>
+
             <!-- 控制按钮 -->
             <div class="ctl-btns">
               <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
@@ -402,6 +414,13 @@ main {
   }
 }
 
+.timer {
+  width: 400px;
+  font-size: 12px;
+  .row-flex(@align: center, @justify: space-between);
+  margin-bottom: 12px;
+}
+
 .music-info,
 .controlers {
   * {
@@ -414,9 +433,9 @@ main {
   height: 6px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
+  margin-bottom: 5px;
   cursor: pointer;
   position: relative;
-  margin-bottom: 12px;
 
   .progress-filled {
     height: 100%;

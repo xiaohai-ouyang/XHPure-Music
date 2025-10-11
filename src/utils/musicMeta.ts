@@ -32,7 +32,6 @@ function getCover(picture?: IPicture[]): string | null {
   const imageData = picture[0].data
   if (!(imageData instanceof Uint8Array) || imageData.length === 0) return null
 
-  // ✅ 确保 arrayBuffer 为 ArrayBuffer（非 SharedArrayBuffer）
   const arrayBuffer = new Uint8Array(imageData).buffer
   const blob = new Blob([arrayBuffer], { type: picture[0].format || 'image/jpeg' })
   return URL.createObjectURL(blob)
