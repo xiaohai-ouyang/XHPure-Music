@@ -4,7 +4,7 @@ import tinycolor from 'tinycolor2'
 
 export function useDominantColor() {
   const dominantColor = ref('linear-gradient(135deg, #222, #000)')
-  const dominantTextColor = ref('#fff')
+  const dominantTextColor = ref(['#fff', '#fff', '#fff', '#fff', '#fff'])
 
   const updateBackgroundFromCover = (coverUrl: string) => {
     if (!coverUrl) return
@@ -24,10 +24,21 @@ export function useDominantColor() {
         const mainColor = adjusted[0]
         let textColor = tinycolor(mainColor)
         textColor = textColor.isLight() ? textColor.darken(10) : textColor.lighten(15)
-        dominantTextColor.value = textColor.toString()
+
+        // 从调色板中随机选择4个颜色
+        const paletteColors = [...adjusted]
+        const selectedColors = []
+        for (let i = 0; i < 4; i++) {
+          const randomIndex = Math.floor(Math.random() * paletteColors.length)
+          const color = paletteColors.splice(randomIndex, 1)[0]
+          const tColor = tinycolor(color)
+          selectedColors.push(tColor.toString())
+        }
+
+        dominantTextColor.value = [textColor.toString(), ...selectedColors]
       } catch {
         dominantColor.value = 'linear-gradient(135deg, #222, #000)'
-        dominantTextColor.value = '#fff'
+        dominantTextColor.value = ['#fff', '#fff', '#fff', '#fff', '#fff']
       }
     }
   }
