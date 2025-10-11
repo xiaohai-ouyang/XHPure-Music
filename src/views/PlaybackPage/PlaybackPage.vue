@@ -8,9 +8,11 @@ import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useDominantColor } from '@/composables/useDominantColor'
 import { useChineseToggle } from '@/composables/useChineseToggle'
 
+// 播放列表和页面状态管理
 const playlistStore = usePlaylistStore()
 const pageStatusStore = usePageStatusStore()
 
+// 当前播放的音乐信息
 const currentPlaying = computed(
   () =>
     playlistStore.currentPlaying || {
@@ -22,114 +24,163 @@ const currentPlaying = computed(
     },
 )
 
+// 歌词文本
 const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
-const { removeChinese, hasChinese, toggleChinese, translationTooltip } = useChineseToggle(
-  lyricsText.value,
-)
 
-const { dominantColor, dominantTextColor, updateBackgroundFromCover } = useDominantColor()
+// 中文翻译切换功能
+const chineseToggleFeatures = computed(() => useChineseToggle(lyricsText.value))
+const { removeChinese, hasChinese, toggleChinese, translationTooltip } = chineseToggleFeatures.value
 
+// 主题颜色相关功能
+const {
+  selectedColorIndex,
+  selectColor,
+  textColors,
+  pageStyle,
+  setCover,
+  backgroundStyle,
+  coverUrl,
+} = useDominantColor()
+
+// 监听封面变化并更新背景
 watch(
   () => currentPlaying.value.cover,
   (newCover) => {
-    if (newCover) {
-      updateBackgroundFromCover(newCover as string)
-    }
+    setCover(newCover as string)
   },
   { immediate: true },
 )
 
+// 音频播放控制相关功能
 const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
+
+// 更多菜单显示状态
 const moreListShow = ref(false)
 const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
+
+// 返回上一页
 const back = () => {
   pageStatusStore.isPlayBackExpand = false
   router.back()
 }
+
+// 播放状态
+const isPlaying = computed(() => playlistStore.isPlaying)
 </script>
 
 <template>
-  <div class="playback-page" :style="{ background: dominantColor, color: dominantTextColor }">
-    <div
-      class="background-blur"
-      :style="{ backgroundImage: `url(${currentPlaying.cover || ''})` }"
-      v-if="currentPlaying.cover"
-    ></div>
+  <div class="playback-page" :style="pageStyle" :class="{ paused: !isPlaying }">
+    <!-- 背景模糊效果 -->
+    <div v-if="coverUrl" class="background-blur" :style="backgroundStyle"></div>
 
     <div class="content">
-      <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>Back</button>
+      <header>
+        <!-- 返回按钮 -->
+        <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>Back</button>
 
-      <div class="left">
-        <div class="music-cover">
-          <img
-            :src="(currentPlaying.cover as string) || ''"
-            :alt="(currentPlaying.title as string) || ''"
+        <!-- 颜色选择器 -->
+        <div class="color-wheel">
+          <div
+            v-for="(color, index) in textColors"
+            :key="index"
+            class="color-item"
+            :class="{ selected: index === selectedColorIndex }"
+            :style="{ background: color }"
+            @click="selectColor(index)"
+          ></div>
+        </div>
+      </header>
+
+      <main>
+        <div class="left">
+          <!-- 音乐封面 -->
+          <div class="music-cover">
+            <img
+              :src="(currentPlaying.cover as string) || ''"
+              :alt="(currentPlaying.title as string) || ''"
+            />
+          </div>
+
+          <!-- 音乐信息 -->
+          <div class="music-info">
+            <div class="mleft">
+              <div class="title">{{ currentPlaying.title }}</div>
+              <div class="artist">{{ currentPlaying.artist }}</div>
+            </div>
+
+            <div class="mright">
+              <!-- 翻译按钮 -->
+              <button
+                class="iconfont translation-btn"
+                v-if="hasChinese"
+                @click="toggleChinese"
+                :title="translationTooltip"
+              >
+                &#xe644;
+              </button>
+
+              <!-- 更多操作按钮 -->
+              <button class="iconfont more-btn" @click="toggleMoreList" title="更多">
+                &#xe71a;
+              </button>
+
+              <!-- 更多操作菜单 -->
+              <transition name="fade-slide">
+                <div class="more-menu" v-show="moreListShow">
+                  <button class="more-menu-item"><i class="iconfont">&#xe761;</i>我喜欢</button>
+                  <button class="more-menu-item"><i class="iconfont">&#xe730;</i>添加到歌单</button>
+                  <button class="more-menu-item"><i class="iconfont">&#xe66e;</i>再放一次</button>
+                </div>
+              </transition>
+            </div>
+          </div>
+
+          <!-- 播放控制区域 -->
+          <div class="controlers">
+            <!-- 进度条 -->
+            <div
+              class="progress-line"
+              ref="progressBar"
+              @mousedown="startDrag"
+              @click="seekByClick"
+            >
+              <div
+                class="progress-filled"
+                :style="{
+                  width:
+                    (playlistStore.currentPlayingTime / playlistStore.currentPlayingDuration) *
+                      100 +
+                    '%',
+                }"
+              ></div>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="ctl-btns">
+              <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
+                <i class="iconfont">&#xe722;</i>
+              </button>
+              <button class="controls-btn play-pause" @click="togglePlayPause">
+                <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
+                <i class="iconfont" v-else>&#xe67b;</i>
+              </button>
+              <button class="controls-btn next-btn" @click="playlistStore.playNext">
+                <i class="iconfont">&#xe72a;</i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 歌词显示区域 -->
+        <div class="right">
+          <LrcParser
+            :dominantTextColor="textColors[selectedColorIndex]"
+            :lyrics="lyricsText"
+            :current-time="playlistStore.currentPlayingTime"
+            :remove-chinese="removeChinese"
           />
         </div>
-
-        <div class="music-info">
-          <div class="mleft">
-            <div class="title">{{ currentPlaying.title }}</div>
-            <div class="artist">{{ currentPlaying.artist }}</div>
-          </div>
-
-          <div class="mright">
-            <button
-              class="iconfont translation-btn"
-              v-if="hasChinese"
-              @click="toggleChinese"
-              :title="translationTooltip"
-            >
-              &#xe644;
-            </button>
-
-            <button class="iconfont more-btn" @click="toggleMoreList" title="更多">&#xe71a;</button>
-
-            <transition name="fade-slide">
-              <div class="more-menu" v-show="moreListShow">
-                <button class="more-menu-item"><i class="iconfont">&#xe761;</i>我喜欢</button>
-                <button class="more-menu-item"><i class="iconfont">&#xe730;</i>添加到歌单</button>
-                <button class="more-menu-item"><i class="iconfont">&#xe66e;</i>再放一次</button>
-              </div>
-            </transition>
-          </div>
-        </div>
-
-        <div class="controlers">
-          <div class="progress-line" ref="progressBar" @mousedown="startDrag" @click="seekByClick">
-            <div
-              class="progress-filled"
-              :style="{
-                width:
-                  (playlistStore.currentPlayingTime / playlistStore.currentPlayingDuration) * 100 +
-                  '%',
-              }"
-            ></div>
-          </div>
-
-          <div class="ctl-btns">
-            <button class="controls-btn prev-btn" @click="playlistStore.playPrevious">
-              <i class="iconfont">&#xe722;</i>
-            </button>
-            <button class="controls-btn play-pause" @click="togglePlayPause">
-              <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
-              <i class="iconfont" v-else>&#xe67b;</i>
-            </button>
-            <button class="controls-btn next-btn" @click="playlistStore.playNext">
-              <i class="iconfont">&#xe72a;</i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="right">
-        <LrcParser
-          :dominantTextColor="dominantTextColor"
-          :lyrics="lyricsText"
-          :current-time="playlistStore.currentPlayingTime"
-          :remove-chinese="removeChinese"
-        />
-      </div>
+      </main>
     </div>
   </div>
 </template>
@@ -141,9 +192,10 @@ const back = () => {
   width: 100vw;
   overflow: hidden;
   .row-flex(@align:center);
-  transition: background 1.2s ease;
+
   background-size: 300% 300%;
   animation: gradientMove 10s ease infinite;
+  will-change: background-position, filter, color;
   color: inherit;
 
   .title,
@@ -154,6 +206,10 @@ const back = () => {
   .iconfont {
     color: inherit;
   }
+}
+
+.playback-page.paused {
+  animation-play-state: paused;
 }
 
 .progress-line .progress-filled {
@@ -170,15 +226,87 @@ const back = () => {
   z-index: 0;
   opacity: 0.8;
   transition: opacity 1s ease;
+  will-change: transform, opacity;
+}
+
+.playback-page.paused .background-blur {
+  filter: blur(60px) brightness(0.45);
+  opacity: 0.7;
+
+  will-change: auto;
+  transition:
+    filter 0.6s ease,
+    opacity 0.6s ease;
 }
 
 .content {
-  .row-flex(@align: center,@justify: space-around);
-  position: relative;
+  .col-flex();
   z-index: 2;
-  padding: 20px;
+  padding: 10px;
   width: 100%;
   height: 100%;
+}
+
+header {
+  .row-flex();
+  position: relative;
+  height: 43px;
+}
+
+header .back-btn {
+  .row-flex(@justify:center,@align:center);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 20px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    width: 100px;
+  }
+
+  .iconfont {
+    font-size: 26px;
+    margin-right: 6px;
+  }
+}
+
+header .color-wheel {
+  .row-flex(@align: center, @justify: center, @gap: 15px);
+  position: relative;
+  margin: auto;
+
+  .color-item {
+    @size: 25px;
+    width: @size;
+    height: @size;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  .selected {
+    transform: scale(1.4);
+    border: 1px solid #fff;
+    pointer-events: none;
+  }
+}
+
+main {
+  .row-flex(@align: center,@justify: space-around);
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  .left,
+  .right {
+    flex: 1;
+    .col-flex(@align: center );
+  }
 }
 
 @keyframes gradientMove {
@@ -204,35 +332,6 @@ const back = () => {
   }
 }
 
-.back-btn {
-  .row-flex(@justify:center,@align:center);
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  font-size: 20px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    width: 100px;
-  }
-
-  .iconfont {
-    font-size: 26px;
-    margin-right: 6px;
-  }
-}
-
-.left,
-.right {
-  flex: 1;
-  .col-flex(@align: center );
-}
-
 .music-cover {
   width: 380px;
   height: 380px;
@@ -247,10 +346,9 @@ const back = () => {
 }
 
 .music-info {
+  .row-flex(@align: center, @justify: space-between);
   width: 400px;
   font-weight: 500;
-  display: flex;
-  justify-content: space-between;
   margin: 20px 0;
   text-align: left;
 
@@ -269,7 +367,6 @@ const back = () => {
 
   .ctl-btns {
     .row-flex(@justify: center, @align: center,@gap: 20px);
-
     margin-top: 10px;
 
     .iconfont {
@@ -279,6 +376,13 @@ const back = () => {
 
   .mute-btn {
     margin-left: auto;
+  }
+}
+
+.music-info,
+.controlers {
+  * {
+    transition: all 0.5s linear;
   }
 }
 
