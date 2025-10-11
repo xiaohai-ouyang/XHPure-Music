@@ -78,7 +78,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
   /**
    * 播放列表是否为空
    */
-  const isPlayingListEmpty = computed(() => playlist.value.length === 0)
+  const isPlaylistEmpty = computed(() => playlist.value.length === 0)
 
   /**
    * 当前播放的歌曲信息
@@ -183,7 +183,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * 播放下一首
    */
   function playNext() {
-    if (isPlayingListEmpty.value || !currentPlayingId.value) return
+    if (isPlaylistEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
@@ -207,7 +207,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * 播放上一首
    */
   function playPrevious() {
-    if (isPlayingListEmpty.value || !currentPlayingId.value) return
+    if (isPlaylistEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
@@ -232,19 +232,13 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * @returns 随机索引
    */
   function makeRandomIndex(): number {
-    if (playlist.value.length <= 1) {
-      const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
-      return currentIndex === -1 ? 0 : currentIndex
-    }
-
-    let randomIndex: number
-    const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
-
-    do {
-      randomIndex = Math.floor(Math.random() * playlist.value.length)
-    } while (randomIndex === currentIndex)
-
-    return randomIndex
+    const len = playlist.value.length
+    if (len <= 1) return 0
+    const current = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
+    let next
+    do next = Math.floor(Math.random() * len)
+    while (next === current)
+    return next
   }
 
   /**
@@ -294,7 +288,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     currentSongRemoveChinese,
 
     // getters
-    isPlayingListEmpty,
+    isPlaylistEmpty,
     currentPlaying,
     playModeIcon,
     playModeLabel,

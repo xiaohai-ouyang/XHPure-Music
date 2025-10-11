@@ -55,12 +55,8 @@ const { showRemoveChineseButton } = useLrcParser(
   computed(() => playlistStore.removeChinese),
 )
 
-// 优先使用 music metadata (由 useMusicPicker 设置的 isBilingual)，如果未定义则回退到 useLrcParser 的检测结果
-const shouldShowRemoveChinese = computed(() => {
-  const meta = currentPlaying.value as Record<string, unknown> | null
-  if (meta && typeof meta.isBilingual === 'boolean') return meta.isBilingual as boolean
-  return showRemoveChineseButton.value
-})
+// 直接使用 useLrcParser 提供的 showRemoveChineseButton 值
+const shouldShowRemoveChinese = computed(() => showRemoveChineseButton.value)
 
 // 主题颜色相关功能
 const {
