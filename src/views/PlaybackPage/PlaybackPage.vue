@@ -405,7 +405,7 @@ main {
 .music-info,
 .controlers {
   * {
-    transition: all 0.5s linear;
+    transition: all 0.3s linear;
   }
 }
 
@@ -437,7 +437,7 @@ main {
     background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     bottom: 15px;
-    left: 72px;
+    left: 35px;
     width: 128px;
     border-radius: 5px;
     z-index: 999;
@@ -474,7 +474,7 @@ main {
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(5px);
-  transition: 0.2s;
+  transition: 0.3s;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.3);
