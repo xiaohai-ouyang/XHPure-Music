@@ -5,6 +5,8 @@ export interface MusicInfo {
   [key: string]: unknown
   id?: string
   url?: string
+  isBilingual?: boolean
+  languages?: string[]
 }
 
 export const useMusicMetaStore = defineStore('musicMeta', () => {

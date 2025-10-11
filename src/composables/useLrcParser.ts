@@ -1,8 +1,10 @@
 import { ref, computed, watch, nextTick, onMounted, type Ref } from 'vue'
+import { useMusicMetaStore } from '@/stores/musicMetaStores'
 
 export interface LyricLine {
   time: number
-  text: string
+  text: string // 原始文本
+  displayText: string // 显示文本（根据removeChinese决定是否移除中文）
   languages?: string[]
 }
 
@@ -22,6 +24,7 @@ export function useLrcParser(
   const lyricLineRefs = ref<HTMLElement[]>([])
   const spacerHeight = ref(250)
   const parsedLyrics = ref<LyricLine[]>([])
+  const musicStore = useMusicMetaStore()
 
   function setLyricLineRef(el: Element | null, index: number) {
     if (el) lyricLineRefs.value[index] = el as HTMLElement
@@ -45,24 +48,19 @@ export function useLrcParser(
     const lines = text.split('\n')
     const lyricLines: LyricLine[] = []
 
-    let chineseLineCount = 0
-    let otherLineCount = 0
     let lastColonLineIndex = -1
 
-    // 第一次统计行数，并找到最后一行冒号位置
+    // 找到最后一行冒号位置
     lines.forEach((line, index) => {
       const lyricText = line.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim()
-      const langs = detectLanguages(lyricText)
-      if (langs.includes('zh')) chineseLineCount++
-      if (langs.some((l) => l !== 'zh')) otherLineCount++
       if (/:|：/.test(lyricText)) lastColonLineIndex = index
     })
 
-    // 只有中英文都超过20行时，才算双语歌词
-    const isTrueBilingual = chineseLineCount >= 20 && otherLineCount >= 20
+    // 获取当前正在播放的音乐
+    const currentMusic = musicStore.musicList.find((music) => music.isPlaying)
 
-    // 是否应该移除中文
-    const shouldRemoveChinese = removeChinese?.value && isTrueBilingual
+    // 是否应该移除中文：当用户开启 removeChinese 时替换中文
+    const shouldRemoveChinese = removeChinese?.value
 
     lines.forEach((line, index) => {
       const timeMatch = line.match(/\[(\d+):(\d+)(?:\.(\d+))?\]/)
@@ -72,17 +70,19 @@ export function useLrcParser(
         const milliseconds = timeMatch[3] ? parseInt(timeMatch[3]) : 0
         const time = minutes * 60 + seconds + milliseconds / 1000
 
-        let lyricText = line.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim()
+        const originalText = line.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim()
 
-        // 只有在最后一个冒号行之后才会移除中文
+        // 根据removeChinese决定显示文本
+        let displayText = originalText
         if (shouldRemoveChinese && index > lastColonLineIndex) {
-          lyricText = lyricText.replace(/[\u4e00-\u9fff]+/g, '')
+          displayText = originalText.replace(/[\u4e00-\u9fff]+/g, '')
         }
 
         lyricLines.push({
           time,
-          text: lyricText,
-          languages: detectLanguages(lyricText),
+          text: originalText, // 始终保存原始文本
+          displayText, // 根据条件决定显示的文本
+          languages: detectLanguages(originalText),
         })
       }
     })
@@ -119,16 +119,16 @@ export function useLrcParser(
     })
   }
 
-  // 是否为双语歌词
+  // 是否为双语歌词（直接使用musicPicker中判断的结果）
   const isBilingual = computed(() => {
-    // 通过 parseLyrics 时统计到的 bilingual 规则
-    let zhCount = 0
-    let enCount = 0
-    parsedLyrics.value.forEach((line) => {
-      if (line.languages?.includes('zh')) zhCount++
-      if (line.languages?.includes('en')) enCount++
-    })
-    return zhCount >= 20 && enCount >= 20
+    const currentMusic = musicStore.musicList.find((music) => music.isPlaying)
+    return !!currentMusic?.isBilingual
+  })
+
+  // 是否应该显示"去中文"按钮
+  const showRemoveChineseButton = computed(() => {
+    const currentMusic = musicStore.musicList.find((music) => music.isPlaying)
+    return !!currentMusic?.isBilingual
   })
 
   // 监听歌词变化
@@ -156,5 +156,6 @@ export function useLrcParser(
     spacerHeight,
     setLyricLineRef,
     isBilingual,
+    showRemoveChineseButton,
   }
 }

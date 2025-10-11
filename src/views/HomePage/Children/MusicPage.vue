@@ -1,84 +1,27 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
-import { parseMusicFile } from '@/utils/musicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { useScrollRestore } from '@/composables/useScrollRestore'
-
-declare global {
-  interface Window {
-    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>
-  }
-
-  interface FileSystemDirectoryHandle {
-    values(): AsyncIterableIterator<FileSystemHandle>
-  }
-}
+import { useMusicPicker } from '@/composables/useMusicPicker'
 
 const listContainer = ref<HTMLElement | null>(null)
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
 
 const playlistStore = usePlaylistStore()
 const musicStore = useMusicMetaStore()
+const { loading, pickMusic } = useMusicPicker()
 
-const loading = ref(false)
 const currentPlayingId = computed(() => playlistStore.currentPlayingId)
 
 function handleMusicClick(music: MusicInfo) {
   playlistStore.addToPlaylist(music)
 }
 
-function showError(msg: string, err?: unknown) {
-  if (err) console.error(msg, err)
-  alert(msg)
-}
-
 interface MusicInfo {
   [key: string]: unknown
   id?: string
   url?: string
-}
-
-async function handleMusicFile(entry: FileSystemFileHandle) {
-  const name = entry.name
-  if (!/\.(flac|mp3|wav)$/i.test(name)) return
-
-  try {
-    const file = await entry.getFile()
-    const musicInfo = (await parseMusicFile(file)) as MusicInfo
-    musicInfo.url = URL.createObjectURL(file)
-    musicStore.addMusic(musicInfo)
-  } catch (fileError) {
-    showError(`解析文件 ${name} 时出错，请检查文件格式`, fileError)
-  }
-}
-
-async function pickMusic() {
-  if (!window.showDirectoryPicker) {
-    showError('当前浏览器不支持此功能，请使用最新版本的Chrome、Edge等浏览器')
-    return
-  }
-
-  loading.value = true
-  try {
-    const dirHandle = await window.showDirectoryPicker()
-
-    for await (const handle of dirHandle.values()) {
-      if (handle.kind === 'file') {
-        await handleMusicFile(handle as FileSystemFileHandle)
-      }
-    }
-
-    alert('音乐添加完成')
-  } catch (err: unknown) {
-    if ((err as { name?: string })?.name === 'AbortError') {
-      console.log('用户取消了操作')
-    } else {
-      showError('无法访问文件夹，请确保已授予必要的权限', err)
-    }
-  } finally {
-    loading.value = false
-  }
 }
 </script>
 

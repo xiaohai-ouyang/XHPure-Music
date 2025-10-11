@@ -124,7 +124,7 @@ function isActiveLine(index: number) {
           :style="isActiveLine(index) ? { color: effectiveColor } : { color: inactiveColor }"
           :ref="(el) => setLyricLineRef(el as Element, index)"
         >
-          {{ line.text }}
+          {{ line.displayText }}
         </div>
       </div>
       <!-- 下方间隔元素，用于居中歌词 -->
