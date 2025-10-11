@@ -63,6 +63,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
   const lyricActiveLineIndex = ref(-1)
   const lyricScrollTop = ref(0)
   const removeChinese = ref(false)
+  
+  // 每首歌曲的中文显示状态
+  const songChineseStates = ref<Record<string, boolean>>({})
 
   /**
    * 设置歌词高亮行索引
@@ -79,6 +82,15 @@ export const usePlaylistStore = defineStore('playlist', () => {
   function setLyricScrollTop(top: number) {
     lyricScrollTop.value = top
   }
+  
+  /**
+   * 设置特定歌曲的中文显示状态
+   * @param songId 歌曲ID
+   * @param state 是否隐藏中文
+   */
+  function setSongChineseState(songId: string, state: boolean) {
+    songChineseStates.value[songId] = state
+  }
 
   /**
    * 播放列表是否为空
@@ -91,6 +103,12 @@ export const usePlaylistStore = defineStore('playlist', () => {
   const currentPlaying = computed<MusicInfo | null>(() => {
     if (!currentPlayingId.value) return null
     return playlist.value.find((music) => music.id === currentPlayingId.value) || null
+  })
+  
+  // 当前播放歌曲的中文显示状态
+  const currentSongRemoveChinese = computed(() => {
+    if (!currentPlayingId.value) return false
+    return songChineseStates.value[currentPlayingId.value] ?? false
   })
 
   /**
@@ -164,6 +182,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
     const wasCurrent = musicId === currentPlayingId.value
     playlist.value.splice(index, 1)
+    
+    // 同时删除该歌曲的中文显示状态
+    delete songChineseStates.value[musicId]
 
     if (playlist.value.length === 0) {
       currentPlayingId.value = null
@@ -287,6 +308,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
     lyricActiveLineIndex,
     lyricScrollTop,
     removeChinese,
+    songChineseStates,
+    currentSongRemoveChinese,
 
     // getters
     isPlayingListEmpty,
@@ -305,5 +328,6 @@ export const usePlaylistStore = defineStore('playlist', () => {
     updateCurrentPlayingTime,
     setLyricActiveLineIndex,
     setLyricScrollTop,
+    setSongChineseState,
   }
 })
