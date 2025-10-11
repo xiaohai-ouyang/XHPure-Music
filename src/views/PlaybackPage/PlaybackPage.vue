@@ -28,15 +28,25 @@ const currentPlaying = computed(
 const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
 
 // 中文翻译切换功能
-const toggleChinese = () => (playlistStore.removeChinese = !playlistStore.removeChinese)
-const translationTooltip = computed(() => (playlistStore.removeChinese ? '显示中文' : '隐藏中文'))
+const toggleChinese = () => {
+  if (playlistStore.currentPlayingId) {
+    playlistStore.setSongChineseState(
+      playlistStore.currentPlayingId,
+      !playlistStore.currentSongRemoveChinese,
+    )
+    playlistStore.removeChinese = !playlistStore.currentSongRemoveChinese
+  }
+}
 
-// 监听当前播放歌曲变化，重置中文切换状态
+// 监听当前播放歌曲变化，同步中文显示状态
 watch(
-  () => playlistStore.currentPlaying?.id,
-  () => {
-    playlistStore.removeChinese = false
+  () => playlistStore.currentPlayingId,
+  (newId) => {
+    if (newId) {
+      playlistStore.removeChinese = playlistStore.currentSongRemoveChinese
+    }
   },
+  { immediate: true },
 )
 
 // 判断是否为双语歌词与是否显示去中文按钮
@@ -89,6 +99,10 @@ const back = () => {
 
 // 播放状态
 const isPlaying = computed(() => playlistStore.isPlaying)
+
+const translationTooltip = computed(() =>
+  playlistStore.currentSongRemoveChinese ? '显示中文' : '隐藏中文',
+)
 </script>
 
 <template>
