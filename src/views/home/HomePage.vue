@@ -1,20 +1,20 @@
 <template>
   <div class="homePage">
-    <myNav />
+    <MyNav />
     <div class="main-container" ref="mainContainer">
-      <myHeader />
+      <MyHeader />
       <div class="main-page">
         <router-view></router-view>
       </div>
-      <myPlayerBar />
+      <MyPlayerBar />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import myHeader from '@components/Header/myHeader.vue'
-import myNav from '@components/Nav/myNav.vue'
-import myPlayerBar from '@components/PlayerBar/myPlayerBar.vue'
+import MyHeader from '@components/Header/MyHeader.vue'
+import MyNav from '@components/Nav/MyNav.vue'
+import MyPlayerBar from '@components/PlayerBar/MyPlayerBar.vue'
 import { onMounted, ref, onUnmounted } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 
