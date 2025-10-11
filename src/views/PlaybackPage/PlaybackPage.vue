@@ -24,6 +24,27 @@ const currentPlaying = computed(
     },
 )
 
+// 静音状态
+const isMuted = ref(false)
+const volumeBeforeMute = ref(1) // 保存静音前的音量
+
+// 切换静音状态
+const toggleMute = () => {
+  const audio = document.querySelector('audio') as HTMLAudioElement | null
+  if (!audio) return
+
+  if (isMuted.value) {
+    // 取消静音，恢复之前的音量
+    audio.volume = volumeBeforeMute.value
+    isMuted.value = false
+  } else {
+    // 静音，保存当前音量
+    volumeBeforeMute.value = audio.volume
+    audio.volume = 0
+    isMuted.value = true
+  }
+}
+
 // 歌词文本
 const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
 
@@ -199,16 +220,36 @@ const translationTooltip = computed(() =>
 
             <!-- 控制按钮 -->
             <div class="ctl-btns">
-              <button class="controls-btn prev-btn" @click="() => playlistStore.playPrevious()">
-                <i class="iconfont">&#xe722;</i>
-              </button>
-              <button class="controls-btn play-pause" @click="togglePlayPause">
-                <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
-                <i class="iconfont" v-else>&#xe67b;</i>
-              </button>
-              <button class="controls-btn next-btn" @click="() => playlistStore.playNext()">
-                <i class="iconfont">&#xe72a;</i>
-              </button>
+              <div class="controls-btn">
+                <button class="prev-btn" @click="() => playlistStore.playPrevious()">
+                  <i class="iconfont">&#xe722;</i>
+                </button>
+                <button class="play-pause" @click="togglePlayPause">
+                  <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
+                  <i class="iconfont" v-else>&#xe67b;</i>
+                </button>
+                <button class="next-btn" @click="() => playlistStore.playNext()">
+                  <i class="iconfont">&#xe72a;</i>
+                </button>
+              </div>
+
+              <div class="function-btn">
+                <button
+                  class="mode-switch-btn iconfont"
+                  v-html="playlistStore.playModeIcon"
+                  :class="playlistStore.playMode"
+                  @click="playlistStore.cyclePlayMode"
+                  :aria-label="`${playlistStore.playModeLabel}`"
+                ></button>
+
+                <button
+                  class="mute-btn iconfont"
+                  @click="toggleMute"
+                  :title="isMuted ? '取消静音' : '静音'"
+                >
+                  {{ isMuted ? '&#xeca9;' : '&#xeca6;' }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -315,6 +356,9 @@ header .color-wheel {
   .row-flex(@align: center, @justify: center, @gap: 15px);
   position: relative;
   margin: auto;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 20px;
 
   .color-item {
     @size: 25px;
@@ -409,8 +453,18 @@ main {
     }
   }
 
+  .controls-btn {
+    margin-right: auto;
+  }
+
+  .controls-btn,
+  .function-btn {
+    .row-flex(@align: center, @justify: center,@gap: 15px);
+  }
+
+  .mode-switch-btn,
   .mute-btn {
-    margin-left: auto;
+    font-size: 26px !important;
   }
 }
 
@@ -456,7 +510,7 @@ main {
     background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     bottom: 15px;
-    left: 35px;
+    left: 71px;
     width: 128px;
     border-radius: 5px;
     z-index: 999;
