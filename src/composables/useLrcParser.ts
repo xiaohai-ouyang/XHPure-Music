@@ -1,6 +1,7 @@
 import { ref, computed, watch, nextTick, onMounted, type Ref } from 'vue'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { detectLanguages } from '@/utils/lyricUtils'
+import { usePlaylistStore } from '@/stores/playlistStore'
 
 export interface LyricLine {
   time: number
@@ -22,6 +23,7 @@ export function useLrcParser(
   containerRef: Ref<HTMLElement | null>,
   removeChinese?: Ref<boolean>,
 ) {
+  const playlistStore = usePlaylistStore()
   const lyricLineRefs = ref<HTMLElement[]>([])
   const spacerHeight = ref(250)
   const parsedLyrics = ref<LyricLine[]>([])
@@ -51,7 +53,7 @@ export function useLrcParser(
     })
 
     // 是否应该移除中文：当用户开启 removeChinese 时替换中文
-    const shouldRemoveChinese = removeChinese?.value
+    const shouldRemoveChinese = removeChinese?.value ?? playlistStore.removeChinese
 
     lines.forEach((line, index) => {
       const timeMatch = line.match(/\[(\d+):(\d+)(?:\.(\d+))?\]/)
@@ -133,7 +135,13 @@ export function useLrcParser(
   )
 
   if (removeChinese) {
-    watch(removeChinese, () => {
+    watch(removeChinese, (val) => {
+      playlistStore.removeChinese = val ?? false
+      parseLyrics(lyrics.value)
+    })
+  } else {
+    // 即使没有传入 removeChinese，也要监听 playlistStore 中的状态
+    watch(() => playlistStore.removeChinese, () => {
       parseLyrics(lyrics.value)
     })
   }
