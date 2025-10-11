@@ -30,11 +30,9 @@ const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
 // 中文翻译切换功能
 const toggleChinese = () => {
   if (playlistStore.currentPlayingId) {
-    playlistStore.setSongChineseState(
-      playlistStore.currentPlayingId,
-      !playlistStore.currentSongRemoveChinese,
-    )
-    playlistStore.removeChinese = !playlistStore.currentSongRemoveChinese
+    const newState = !playlistStore.currentSongRemoveChinese
+    playlistStore.setSongChineseState(playlistStore.currentPlayingId, newState)
+    playlistStore.removeChinese = newState
   }
 }
 
@@ -113,7 +111,7 @@ const translationTooltip = computed(() =>
     <div class="content">
       <header>
         <!-- 返回按钮 -->
-        <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>Back</button>
+        <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>返回</button>
 
         <!-- 颜色选择器 -->
         <div class="color-wheel">
@@ -146,9 +144,8 @@ const translationTooltip = computed(() =>
             </div>
 
             <div class="mright">
-              <!-- 仅当歌词包含中文且包含任意其它语言时显示去中文按钮 -->
               <button
-                class="iconfont translation-btn"
+                class="iconfont remove-chinese-btn"
                 v-if="shouldShowRemoveChinese"
                 @click="toggleChinese"
                 :title="translationTooltip"
@@ -470,7 +467,7 @@ main {
   }
 }
 
-.translation-btn {
+.remove-chinese-btn {
   transition: color 0.2s ease;
   &:hover {
     color: #ffffff;
