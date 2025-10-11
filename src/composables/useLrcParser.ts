@@ -33,8 +33,6 @@ export function useLrcParser(
     if (el) lyricLineRefs.value[index] = el as HTMLElement
   }
 
-
-
   function parseLyrics(text: string) {
     if (!text) {
       parsedLyrics.value = []
@@ -136,14 +134,22 @@ export function useLrcParser(
 
   if (removeChinese) {
     watch(removeChinese, (val) => {
-      playlistStore.removeChinese = val ?? false
+      if (playlistStore.currentPlayingId) {
+        playlistStore.setSongChineseState(playlistStore.currentPlayingId, val ?? false)
+      }
       parseLyrics(lyrics.value)
     })
   } else {
     // 即使没有传入 removeChinese，也要监听 playlistStore 中的状态
-    watch(() => playlistStore.removeChinese, () => {
-      parseLyrics(lyrics.value)
-    })
+    watch(
+      () => playlistStore.removeChinese,
+      (val) => {
+        if (playlistStore.currentPlayingId) {
+          playlistStore.setSongChineseState(playlistStore.currentPlayingId, val)
+        }
+        parseLyrics(lyrics.value)
+      },
+    )
   }
 
   watch(activeLineIndex, scrollToActiveLine)
