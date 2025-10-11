@@ -17,7 +17,7 @@ const PLAY_MODES: PlayMode[] = ['list', 'random', 'loop']
 const MODE_ICONS: Record<PlayMode, string> = {
   list: '&#xea22;', // 列表循环
   random: '&#xe734;', // 随机播放
-  loop: '&#xe727;', // 单曲循环
+  loop: '&#xe602;', // 单曲循环
 }
 
 /**

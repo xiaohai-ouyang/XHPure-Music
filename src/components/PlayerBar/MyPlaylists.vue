@@ -286,7 +286,7 @@ onMounted(() => {
 
   &,
   button {
-    .row-flex(center);
+    .row-flex(@align:center ,@justify: center);
   }
   .loop {
     background-color: #e63946;
