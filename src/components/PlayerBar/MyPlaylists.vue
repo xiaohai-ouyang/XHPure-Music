@@ -5,9 +5,6 @@ import { usePlaylistStore } from '@/stores/playlistStore'
 const playlistStore = usePlaylistStore()
 const musicItemRefs = ref<HTMLElement[]>([])
 
-/**
- * 清空播放列表
- */
 function clearPlaylist() {
   const audio = document.querySelector('audio')
   if (audio) {
@@ -20,19 +17,12 @@ function clearPlaylist() {
   playlistStore.clearPlaylist()
 }
 
-/**
- * 从播放列表中移除指定歌曲
- * @param musicId 要移除的歌曲ID
- */
 function handleRemove(musicId: string | undefined) {
   if (musicId) {
     playlistStore.removeFromPlaylist(musicId)
   }
 }
 
-/**
- * 滚动到当前正在播放的音乐项
- */
 function scrollToPlayingItem() {
   nextTick(() => {
     const index = playlistStore.playlist.findIndex(
@@ -48,16 +38,14 @@ function scrollToPlayingItem() {
   })
 }
 
-// 监听播放列表或当前播放索引变化，自动滚动
 watch(
   () => [playlistStore.playlist, playlistStore.currentPlayingId],
   () => {
     scrollToPlayingItem()
   },
-  { flush: 'post' }, // 确保 DOM 更新后执行
+  { flush: 'post' },
 )
 
-// 组件挂载时滚动到当前播放项
 onMounted(() => {
   scrollToPlayingItem()
 })
@@ -138,7 +126,6 @@ onMounted(() => {
   .my-playlists-container {
     .col-flex();
     max-height: 516px;
-
     overflow-y: auto;
     overflow-x: hidden;
   }
@@ -149,8 +136,7 @@ onMounted(() => {
 }
 
 .music-item {
-  .row-flex(center);
-  gap: 5px;
+  .row-flex(@align:center,@gap: 5px);
   cursor: pointer;
   padding: 8px 10px;
   transition: all 0.1s ease-in-out;
@@ -215,9 +201,6 @@ onMounted(() => {
   button {
     font-size: 24px;
     color: #999;
-    background: none;
-    border: none;
-    cursor: pointer;
     transition: color 0.2s;
 
     &:hover {
@@ -266,7 +249,7 @@ onMounted(() => {
 }
 
 .empty-playlist {
-  .col-flex(center);
+  .col-flex(@align:center,@justify: center);
   height: 100px;
 
   p {
@@ -305,7 +288,6 @@ onMounted(() => {
   button {
     .row-flex(center);
   }
-
   .loop {
     background-color: #e63946;
   }

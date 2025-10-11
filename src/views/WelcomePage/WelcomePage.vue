@@ -36,7 +36,7 @@ const btnHover = ref('btn1')
 
 <style scoped lang="less">
 .welcome-page {
-  .col-flex(center);
+  .col-flex(@justify:center, @align:center);
   background-color: aliceblue;
   height: 100vh;
 }
@@ -60,7 +60,7 @@ const btnHover = ref('btn1')
 }
 
 .next-btns {
-  .row-flex(center);
+  .row-flex(@justify:center, @align:center);
 
   .btn {
     color: #002fa7;
