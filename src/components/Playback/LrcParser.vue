@@ -6,7 +6,7 @@ const props = defineProps<{
   lyrics: string
   currentTime?: number
   dominantTextColor?: string
-  removeChinese?: boolean // 新增：是否去掉中文
+  removeChinese?: boolean
 }>()
 
 const lyricsContainerRef = ref<HTMLElement | null>(null)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import LrcParser from '@/components/LrcParser.vue'
+import LrcParser from '@/components/Playback/LrcParser.vue'
 import { computed, ref, watch } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'

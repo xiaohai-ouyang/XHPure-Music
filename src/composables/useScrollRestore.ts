@@ -2,11 +2,11 @@ import { onMounted, nextTick, onBeforeUnmount, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 interface Options {
-  containerRef: Ref<HTMLElement | null> // 滚动容器
-  key?: string // 用于区分不同页面缓存
+  containerRef: Ref<HTMLElement | null>
+  key?: string
 }
 
-const scrollPositions = new Map<string, number>() // 全局缓存滚动位置
+const scrollPositions = new Map<string, number>()
 
 export function useScrollRestore({ containerRef, key }: Options) {
   const route = useRoute()
