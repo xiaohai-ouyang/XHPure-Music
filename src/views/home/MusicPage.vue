@@ -5,6 +5,12 @@ import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { useScrollRestore } from '@/composables/useScrollRestore'
 
+declare global {
+  interface Window {
+    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>
+  }
+}
+
 const listContainer = ref<HTMLElement | null>(null)
 
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
@@ -27,6 +33,7 @@ function showError(msg: string, err?: unknown) {
 interface MusicInfo {
   [key: string]: unknown
   id?: string
+  url?: string
 }
 
 async function handleMusicFile(entry: FileSystemFileHandle) {
@@ -44,18 +51,18 @@ async function handleMusicFile(entry: FileSystemFileHandle) {
 }
 
 async function pickMusic() {
-  const win = window as WindowWithDirectoryPicker
-  if (!win.showDirectoryPicker) {
+  if (!window.showDirectoryPicker) {
     showError('当前浏览器不支持此功能，请使用最新版本的Chrome、Edge等浏览器')
     return
   }
 
   loading.value = true
   try {
-    const dirHandle = await win.showDirectoryPicker!()
-    for await (const entry of dirHandle.values()) {
-      if (entry.kind === 'file') {
-        await handleMusicFile(entry as FileSystemFileHandle)
+    const dirHandle = await window.showDirectoryPicker()
+
+    for await (const [name, handle] of dirHandle) {
+      if (handle.kind === 'file') {
+        await handleMusicFile(handle as FileSystemFileHandle)
       }
     }
 
@@ -71,7 +78,6 @@ async function pickMusic() {
   }
 }
 </script>
-
 <template>
   <div class="jiaoyan-music" ref="listContainer">
     <div class="empty" v-if="musicStore.isEmpty">
