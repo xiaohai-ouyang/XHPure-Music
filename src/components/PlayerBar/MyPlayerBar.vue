@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import defaultCover from '@assets/images/defaultCover-lightMode.png'
+import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { ref } from 'vue'
-import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
+import { useAudioPlayer } from '@/composables/useAudioPlayer'
 
 const playlistStore = usePlaylistStore()
-
 const infoRef = ref<HTMLElement | null>(null)
 
 function autoScroll(event: MouseEvent) {
@@ -17,19 +17,6 @@ function autoScroll(event: MouseEvent) {
     setTimeout(() => {
       target.classList.add('scrolling')
     }, 100)
-  }
-}
-
-function togglePlayPause() {
-  const audioElement = document.querySelector('audio')
-  if (!audioElement) return
-
-  if (playlistStore.isPlaying) {
-    audioElement.pause()
-  } else {
-    audioElement.play().catch((error) => {
-      console.error('播放失败:', error)
-    })
   }
 }
 </script>
@@ -67,7 +54,11 @@ function togglePlayPause() {
         <button class="controls-btn" @click="playlistStore.playPrevious" aria-label="上一首">
           <i class="iconfont">&#xe722;</i>
         </button>
-        <button class="controls-btn play-pause" @click="togglePlayPause" aria-label="播放/暂停">
+        <button
+          class="controls-btn play-pause"
+          @click="useAudioPlayer().togglePlayPause"
+          aria-label="播放/暂停"
+        >
           <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
@@ -80,27 +71,14 @@ function togglePlayPause() {
         <span class="playlist-count">播放列表</span>
       </button>
     </div>
-    <Transition name="list">
-      <my-play-list
-        v-show="usePageStatusStore().isPlaylistShow"
-        @close="usePageStatusStore().isPlaylistShow = false"
-      />
-    </Transition>
+    <my-play-list
+      v-show="usePageStatusStore().isPlaylistShow"
+      @close="usePageStatusStore().isPlaylistShow = false"
+    />
   </div>
 </template>
 
 <style scoped lang="less">
-.list-enter-active,
-.list-leave-active {
-  max-height: 600px;
-  transition: max-height 0.3s;
-}
-
-.list-enter-from,
-.list-leave-to {
-  max-height: 0;
-}
-
 .player-bar,
 .right {
   .row-flex();
