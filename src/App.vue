@@ -39,8 +39,8 @@ watch(
         },
         { once: true },
       )
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name !== 'AbortError') {
         console.error('播放音频时出错:', error)
       }
     }
@@ -54,7 +54,7 @@ watch(
     @timeupdate="playlistStore.updateCurrentPlayingTime"
     @play="playlistStore.isPlaying = true"
     @pause="playlistStore.isPlaying = false"
-    @ended="playlistStore.playNext"
+    @ended="playlistStore.playNext(true)"
   />
 
   <router-view></router-view>
