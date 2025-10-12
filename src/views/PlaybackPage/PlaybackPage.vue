@@ -348,14 +348,9 @@ header .back-btn {
   position: absolute;
   left: 0;
   top: 0;
-  font-size: 30px;
+  font-size: 22px;
   border-radius: 10px;
   transition: all 0.3s ease;
-
-  .iconfont {
-    font-size: 26px;
-    margin-right: 6px;
-  }
 }
 
 header .color-wheel {

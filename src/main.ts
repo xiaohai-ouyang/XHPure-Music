@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
 
+import '@/assets/styles/main.less'
 import '@/assets/styles/variables.less'
 import 'animate.css'
 

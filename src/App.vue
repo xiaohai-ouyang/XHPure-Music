@@ -74,21 +74,8 @@ button {
   cursor: pointer;
 }
 
-@font-face {
-  font-family: MiSans;
-  src: url(./assets/fonts/MiSans.ttf);
-}
-
 body {
   font-family: MiSans;
-}
-
-@font-face {
-  font-family: 'iconfont';
-  src:
-    url('./assets/iconfont/iconfont.woff2') format('woff2'),
-    url('./assets/iconfont/iconfont.woff') format('woff'),
-    url('./assets/iconfont/iconfont.ttf') format('truetype');
 }
 
 .iconfont {
