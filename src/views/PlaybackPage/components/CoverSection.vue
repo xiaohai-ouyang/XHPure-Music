@@ -112,6 +112,7 @@ const emit = defineEmits<{
   font-weight: 500;
   margin: 20px 0;
   text-align: left;
+  position: relative;
 
   .title {
     font-size: 22px;
