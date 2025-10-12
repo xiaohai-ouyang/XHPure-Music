@@ -44,11 +44,12 @@ export async function parseMusicFile(file: Blob): Promise<{
   year?: number
   cover: string | null
   lyrics: string
+  duration?: number
 }> {
   const metadata = await parseBlob(file)
   const { title, album, artist, year, picture } = metadata.common
   const lyrics = metadata.common.lyrics
-
+  const duration = metadata.format.duration
   return {
     title,
     album,
@@ -56,5 +57,6 @@ export async function parseMusicFile(file: Blob): Promise<{
     year,
     cover: getCover(picture),
     lyrics: extractLrcLyrics(lyrics),
+    duration,
   }
 }
