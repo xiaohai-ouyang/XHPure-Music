@@ -11,7 +11,7 @@ useScrollRestore({ containerRef: listContainer, key: 'music-list' })
 
 const playlistStore = usePlaylistStore()
 const musicStore = useMusicMetaStore()
-const { loading, pickMusic } = useMusicPicker()
+const { pickMusic } = useMusicPicker()
 
 const currentPlayingId = computed(() => playlistStore.currentPlayingId)
 
@@ -31,7 +31,7 @@ interface MusicInfo {
 <template>
   <div class="jiaoyan-music" ref="listContainer">
     <div class="empty" v-if="musicStore.isEmpty">
-      <button @click="pickMusic" :disabled="loading" class="add-to-list-btn">
+      <button @click="pickMusic" class="add-to-list-btn">
         <span>添加音乐</span>
       </button>
     </div>
