@@ -137,7 +137,6 @@ nav {
   height: 40px;
   color: initial;
   text-decoration: none;
-  font-weight: 500;
   padding: 5px 25px 5px 30px;
   width: 100%;
   gap: 30px;
@@ -150,6 +149,7 @@ nav {
 }
 
 .nav-item-name {
+  font-weight: 600;
   white-space: nowrap;
 }
 

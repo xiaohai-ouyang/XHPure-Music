@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import router from '@/router'
 import LrcParser from '@/components/Playback/LrcParser.vue'
-import { formatTime, formatNegativeTime } from '@/utils/formatTime'
 import { computed, ref, watch } from 'vue'
-import { usePageStatusStore } from '@/stores/pageStatusStores'
+
 import { usePlaylistStore } from '@/stores/playlistStore'
-import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useDominantColor } from '@/composables/useDominantColor'
-import { useLrcParser } from '@/composables/useLrcParser'
+import HeaderSection from './components/HeaderSection.vue'
+import CoverSection from './components/CoverSection.vue'
+import ControlSection from './components/ControlSection.vue'
 
 // 播放列表和页面状态管理
 const playlistStore = usePlaylistStore()
-const pageStatusStore = usePageStatusStore()
 
 // 当前播放的音乐信息
 const currentPlaying = computed(
@@ -25,71 +23,20 @@ const currentPlaying = computed(
     },
 )
 
-// 静音状态
-const isMuted = ref(false)
-const volumeBeforeMute = ref(1) // 保存静音前的音量
+// 更多菜单显示状态
+const moreListShow = ref(false)
 
-// 切换静音状态
-const toggleMute = () => {
-  const audio = document.querySelector('audio') as HTMLAudioElement | null
-  if (!audio) return
+/**
+ * 切换更多菜单显示状态
+ */
+const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
 
-  if (isMuted.value) {
-    // 取消静音，恢复之前的音量
-    audio.volume = volumeBeforeMute.value
-    isMuted.value = false
-  } else {
-    // 静音，保存当前音量
-    volumeBeforeMute.value = audio.volume
-    audio.volume = 0
-    isMuted.value = true
-  }
-}
-
-// 歌词文本
-const lyricsText = computed(() => (currentPlaying.value.lyrics as string) || '')
-
-// 中文翻译切换功能
-const toggleChinese = () => {
-  if (playlistStore.currentPlayingId) {
-    const newState = !playlistStore.currentSongRemoveChinese
-    playlistStore.setSongChineseState(playlistStore.currentPlayingId, newState)
-    playlistStore.removeChinese = newState
-  }
-}
-
-// 监听当前播放歌曲变化，同步中文显示状态
-watch(
-  () => playlistStore.currentPlayingId,
-  (newId) => {
-    if (newId) {
-      playlistStore.removeChinese = playlistStore.currentSongRemoveChinese
-    }
-  },
-  { immediate: true },
-)
-
-// 判断是否为双语歌词与是否显示去中文按钮
-const { showRemoveChineseButton } = useLrcParser(
-  lyricsText,
-  ref(undefined),
-  ref(null),
-  computed(() => playlistStore.removeChinese),
-)
-
-// 直接使用 useLrcParser 提供的 showRemoveChineseButton 值
-const shouldShowRemoveChinese = computed(() => showRemoveChineseButton.value)
+// 播放状态
+const isPlaying = computed(() => playlistStore.isPlaying)
 
 // 主题颜色相关功能
-const {
-  selectedColorIndex,
-  selectColor,
-  textColors,
-  pageStyle,
-  setCover,
-  backgroundStyle,
-  coverUrl,
-} = useDominantColor()
+const { pageStyle, setCover, backgroundStyle, coverUrl, textColors, selectedColorIndex } =
+  useDominantColor()
 
 // 监听封面变化并更新背景
 watch(
@@ -99,26 +46,6 @@ watch(
   },
   { immediate: true },
 )
-
-// 音频播放控制相关功能
-const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
-
-// 更多菜单显示状态
-const moreListShow = ref(false)
-const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
-
-// 返回上一页
-const back = () => {
-  pageStatusStore.isPlayBackExpand = false
-  router.back()
-}
-
-// 播放状态
-const isPlaying = computed(() => playlistStore.isPlaying)
-
-const translationTooltip = computed(() =>
-  playlistStore.currentSongRemoveChinese ? '显示中文' : '隐藏中文',
-)
 </script>
 
 <template>
@@ -127,55 +54,12 @@ const translationTooltip = computed(() =>
     <div v-if="coverUrl" class="background-blur" :style="backgroundStyle"></div>
 
     <div class="content">
-      <header>
-        <!-- 返回按钮 -->
-        <button @click="back" class="back-btn iconfont">&#xe79c;</button>
-
-        <!-- 颜色选择器 -->
-        <div class="color-wheel">
-          <div
-            v-for="(color, index) in textColors"
-            :key="index"
-            class="color-item"
-            :class="{ selected: index === selectedColorIndex }"
-            :style="{ background: color }"
-            @click="selectColor(index)"
-          ></div>
-        </div>
-      </header>
+      <HeaderSection />
 
       <main>
         <div class="left">
-          <!-- 音乐封面 -->
-          <div class="music-cover">
-            <img
-              :src="(currentPlaying.cover as string) || ''"
-              :alt="(currentPlaying.title as string) || ''"
-            />
-          </div>
-
-          <!-- 音乐信息 -->
-          <div class="music-info">
-            <div class="mleft">
-              <div class="title">{{ currentPlaying.title }}</div>
-              <div class="artist">{{ currentPlaying.artist }}</div>
-            </div>
-
-            <div class="mright">
-              <button
-                class="iconfont remove-chinese-btn"
-                v-if="shouldShowRemoveChinese"
-                @click="toggleChinese"
-                :title="translationTooltip"
-              >
-                &#xe644;
-              </button>
-
-              <!-- 更多操作按钮 -->
-              <button class="iconfont more-btn" @click="toggleMoreList" title="更多">
-                &#xe71a;
-              </button>
-
+          <CoverSection @toggle-more-list="toggleMoreList">
+            <template #more-menu>
               <!-- 更多操作菜单 -->
               <transition name="fade-slide">
                 <div class="more-menu" v-show="moreListShow">
@@ -184,82 +68,17 @@ const translationTooltip = computed(() =>
                   <button class="more-menu-item"><i class="iconfont">&#xe66e;</i>再放一次</button>
                 </div>
               </transition>
-            </div>
-          </div>
+            </template>
+          </CoverSection>
 
-          <!-- 播放控制区域 -->
-          <div class="controlers">
-            <!-- 进度条 -->
-            <div
-              class="progress-line"
-              ref="progressBar"
-              @mousedown="startDrag"
-              @click="seekByClick"
-            >
-              <div
-                class="progress-filled"
-                :style="{
-                  width:
-                    (playlistStore.currentPlayingTime / playlistStore.currentPlayingDuration) *
-                      100 +
-                    '%',
-                }"
-              ></div>
-            </div>
-
-            <div class="timer">
-              <span v-html="formatTime(playlistStore.currentPlayingTime)"></span>
-              <span
-                v-html="
-                  formatNegativeTime(
-                    playlistStore.currentPlayingTime,
-                    playlistStore.currentPlayingDuration,
-                  )
-                "
-              ></span>
-            </div>
-
-            <!-- 控制按钮 -->
-            <div class="ctl-btns">
-              <div class="controls-btn">
-                <button class="prev-btn" @click="() => playlistStore.playPrevious()">
-                  <i class="iconfont">&#xe722;</i>
-                </button>
-                <button class="play-pause" @click="togglePlayPause">
-                  <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
-                  <i class="iconfont" v-else>&#xe67b;</i>
-                </button>
-                <button class="next-btn" @click="() => playlistStore.playNext()">
-                  <i class="iconfont">&#xe72a;</i>
-                </button>
-              </div>
-
-              <div class="function-btn">
-                <button
-                  class="mode-switch-btn iconfont"
-                  v-html="playlistStore.playModeIcon"
-                  :class="playlistStore.playMode"
-                  @click="playlistStore.cyclePlayMode"
-                  :aria-label="`${playlistStore.playModeLabel}`"
-                ></button>
-
-                <button
-                  class="mute-btn iconfont"
-                  @click="toggleMute"
-                  :title="isMuted ? '取消静音' : '静音'"
-                >
-                  {{ isMuted ? '&#xeca9;' : '&#xeca6;' }}
-                </button>
-              </div>
-            </div>
-          </div>
+          <ControlSection />
         </div>
 
         <!-- 歌词显示区域 -->
         <div class="right">
           <LrcParser
             :dominantTextColor="textColors[selectedColorIndex]"
-            :lyrics="lyricsText"
+            :lyrics="(currentPlaying.lyrics as string) || ''"
             :current-time="playlistStore.currentPlayingTime"
             :remove-chinese="playlistStore.removeChinese"
           />
@@ -271,12 +90,11 @@ const translationTooltip = computed(() =>
 
 <style scoped lang="less">
 .playback-page {
+  .row-flex(@align:center);
   position: relative;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  .row-flex(@align:center);
-
   background-size: 300% 300%;
   animation: gradientMove 10s ease infinite;
   will-change: background-position, filter, color;
@@ -285,9 +103,8 @@ const translationTooltip = computed(() =>
   .title,
   .artist,
   .more-menu-item,
-  .ctl-btns button,
-  .back-btn,
-  .iconfont {
+  .iconfont,
+  button {
     color: inherit;
   }
 }
@@ -330,50 +147,6 @@ const translationTooltip = computed(() =>
   height: 100%;
 }
 
-header {
-  .row-flex();
-  position: relative;
-  height: 43px;
-
-  .back-btn,
-  .color-wheel {
-    .row-flex(@justify:center,@align:center);
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-  }
-}
-
-header .back-btn {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 22px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-header .color-wheel {
-  gap: 15px;
-  position: relative;
-  margin: auto;
-  border-radius: 20px;
-
-  .color-item {
-    @size: 25px;
-    width: @size;
-    height: @size;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-  }
-
-  .selected {
-    transform: scale(1.4);
-    border: 1px solid #fff;
-    pointer-events: none;
-  }
-}
-
 main {
   .row-flex(@align: center,@justify: space-around);
   position: relative;
@@ -385,6 +158,52 @@ main {
     flex: 1;
     .col-flex(@align: center );
   }
+}
+
+.music-info,
+.controlers {
+  * {
+    transition: all 0.3s linear;
+  }
+}
+
+.more-menu {
+  .col-flex(@align: flex-start,@justify: center);
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  bottom: 15px;
+  left: 32px;
+  width: 128px;
+  border-radius: 5px;
+  z-index: 999;
+  overflow: hidden;
+
+  .iconfont {
+    font-size: 28px;
+    margin: 0 5px;
+  }
+
+  .more-menu-item {
+    .row-flex(@align: center);
+    width: 100%;
+    height: 40px;
+    cursor: pointer;
+    padding: 3px 0;
+    user-select: none;
+  }
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-origin: bottom left;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translate(-10px, 10px) scale(0.95);
 }
 
 @keyframes gradientMove {
@@ -408,164 +227,5 @@ main {
     background-position: 0% 50%;
     filter: brightness(1);
   }
-}
-
-.music-cover {
-  width: 380px;
-  height: 380px;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-
-  img {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.music-info {
-  .row-flex(@align: center, @justify: space-between);
-  width: 400px;
-  font-weight: 500;
-  margin: 20px 0;
-  text-align: left;
-
-  .title {
-    font-size: 22px;
-  }
-
-  .artist {
-    font-size: 16px;
-    opacity: 0.8;
-  }
-
-  .mleft {
-    max-width: 320px;
-  }
-}
-
-.controlers {
-  width: 400px;
-
-  .ctl-btns {
-    .row-flex(@justify: center, @align: center,@gap: 20px);
-    margin-top: 10px;
-
-    .iconfont {
-      font-size: 34px;
-    }
-  }
-
-  .controls-btn {
-    margin-right: auto;
-  }
-
-  .controls-btn,
-  .function-btn {
-    .row-flex(@align: center, @justify: center,@gap: 15px);
-  }
-
-  .mode-switch-btn,
-  .mute-btn {
-    font-size: 26px !important;
-  }
-}
-
-.timer {
-  width: 400px;
-  font-size: 12px;
-  .row-flex(@align: center, @justify: space-between);
-  margin-bottom: 12px;
-}
-
-.music-info,
-.controlers {
-  * {
-    transition: all 0.3s linear;
-  }
-}
-
-.progress-line {
-  width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  margin-bottom: 5px;
-  cursor: pointer;
-  position: relative;
-
-  .progress-filled {
-    height: 100%;
-    background: currentColor;
-    border-radius: 3px;
-    width: 0%;
-    transition: width 0.1s linear;
-  }
-}
-
-.mright {
-  position: relative;
-  height: 28px;
-
-  .more-menu {
-    .col-flex(@align: flex-start,@justify: center);
-    position: absolute;
-    background-color: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    bottom: 15px;
-    left: 71px;
-    width: 128px;
-    border-radius: 5px;
-    z-index: 999;
-    overflow: hidden;
-  }
-
-  .iconfont {
-    font-size: 28px;
-    margin: 0 5px;
-  }
-
-  .more-menu-item {
-    .row-flex(@align: center);
-    width: 100%;
-    cursor: pointer;
-    padding: 3px 0;
-    user-select: none;
-    font-weight: 500;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-  }
-}
-
-.remove-chinese-btn {
-  transition: color 0.2s ease;
-  &:hover {
-    color: #ffffff;
-  }
-}
-
-.more-btn {
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
-  transition: 0.3s;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-  }
-}
-
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
-  transform-origin: bottom left;
-}
-
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translate(-10px, 10px) scale(0.95);
 }
 </style>
