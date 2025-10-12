@@ -144,6 +144,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
       return
     }
     currentPlayingId.value = music.id
+    // 当切换歌曲时，更新全局removeChinese状态为当前歌曲的状态
+    removeChinese.value = songChineseStates.value[music.id] ?? false
   }
 
   /**

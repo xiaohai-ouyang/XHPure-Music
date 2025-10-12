@@ -30,9 +30,7 @@ const { showRemoveChineseButton } = useLrcParser(
 
 const shouldShowRemoveChinese = computed(() => showRemoveChineseButton.value)
 
-const translationTooltip = computed(() =>
-  playlistStore.currentSongRemoveChinese ? '显示中文' : '隐藏中文',
-)
+const translationTooltip = computed(() => (playlistStore.removeChinese ? '显示中文' : '隐藏中文'))
 
 /**
  * 切换中文显示状态
