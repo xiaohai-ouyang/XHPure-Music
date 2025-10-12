@@ -73,19 +73,17 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
 
       <div class="function-btn">
         <button
-          class="mode-switch-btn iconfont"
-          v-html="playlistStore.playModeIcon"
+          class="mode-switch-btn"
           :class="playlistStore.playMode"
           @click="playlistStore.cyclePlayMode"
           :aria-label="`${playlistStore.playModeLabel}`"
-        ></button>
+        >
+          <i class="iconfont" v-html="playlistStore.playModeIcon"></i>
+        </button>
 
-        <button
-          class="mute-btn iconfont"
-          @click="toggleMute"
-          :title="muteTitle"
-          v-html="muteIcon"
-        ></button>
+        <button class="mute-btn iconfont" @click="toggleMute" :title="muteTitle">
+          <i class="iconfont" v-html="muteIcon"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -96,12 +94,10 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
   width: 400px;
 
   .ctl-btns {
-    .row-flex(@justify: center, @align: center,@gap: 20px);
-    margin-top: 10px;
-
-    .iconfont {
-      font-size: 34px;
-    }
+    .row-flex(@justify: center, @align: center, @gap: 20px);
+    margin-top: 15px;
+    height: 30px;
+    overflow: hidden;
 
     button,
     .iconfont {
@@ -111,16 +107,21 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
 
   .controls-btn {
     margin-right: auto;
+
+    .iconfont {
+      font-size: 34px;
+    }
+  }
+
+  .function-btn {
+    .iconfont {
+      font-size: 28px;
+    }
   }
 
   .controls-btn,
   .function-btn {
-    .row-flex(@align: center, @justify: center,@gap: 15px);
-  }
-
-  .mode-switch-btn,
-  .mute-btn {
-    font-size: 26px !important;
+    .row-flex(@align: center, @justify: center, @gap: 15px);
   }
 }
 
@@ -129,10 +130,6 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
   font-size: 12px;
   .row-flex(@align: center, @justify: space-between);
   margin-bottom: 12px;
-}
-
-.progress-line .progress-filled {
-  background: currentColor;
 }
 
 .progress-line {
@@ -151,5 +148,9 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
     width: 0%;
     transition: width 0.1s linear;
   }
+}
+
+.progress-line .progress-filled {
+  background: currentColor;
 }
 </style>

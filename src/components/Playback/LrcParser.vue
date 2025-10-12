@@ -66,9 +66,7 @@ function isActiveLine(index: number) {
 
 <template>
   <div class="lrc-parser" ref="lyricsContainerRef" :style="{ color: effectiveColor }">
-    <!-- 当没有歌词时显示提示 -->
-    <div v-if="parsedLyrics.length === 0" class="no-lyrics">暂无歌词</div>
-    <div v-else class="lyrics-container-wrapper">
+    <div class="lyrics-container-wrapper">
       <!-- 上方间隔元素，用于居中歌词 -->
       <div class="lyrics-spacer" :style="{ height: spacerHeight + 'px' }"></div>
       <div class="lyrics-container">
@@ -102,11 +100,6 @@ function isActiveLine(index: number) {
     display: none;
   }
 
-  .no-lyrics {
-    text-align: center;
-    font-size: 26px;
-  }
-
   .lyrics-container-wrapper,
   .lyrics-container {
     .col-flex(@align: center);
@@ -118,6 +111,9 @@ function isActiveLine(index: number) {
   }
 
   .lyric-line {
+    max-width: calc(100% - 70px);
+    white-space: wrap;
+    text-align: center;
     font-size: 18px;
     opacity: 0.5;
     transition:

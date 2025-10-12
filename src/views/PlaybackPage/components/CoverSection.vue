@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { useLrcParser } from '@/composables/useLrcParser'
+import { useMarqueeScroll } from '@/composables/useTextAutoScroll'
 
 const playlistStore = usePlaylistStore()
 
@@ -31,6 +32,9 @@ const { showRemoveChineseButton } = useLrcParser(
 const shouldShowRemoveChinese = computed(() => showRemoveChineseButton.value)
 
 const translationTooltip = computed(() => (playlistStore.removeChinese ? '显示中文' : '隐藏中文'))
+
+// 使用文本自动滚动功能（默认滚动）
+const { containerRef } = useMarqueeScroll(25) // 每秒40px
 
 /**
  * 切换中文显示状态
@@ -68,7 +72,13 @@ const emit = defineEmits<{
   <!-- 音乐信息 -->
   <div class="music-info">
     <div class="music-info-main">
-      <div class="title">{{ currentPlaying.title }}</div>
+      <!-- 滚动标题 -->
+      <div ref="containerRef" class="title xiaoHi-marquee-container">
+        <div class="xiaoHi-marquee-content">
+          {{ currentPlaying.title }}
+        </div>
+      </div>
+
       <div class="artist">{{ currentPlaying.artist }}</div>
     </div>
 
@@ -93,6 +103,8 @@ const emit = defineEmits<{
 </template>
 
 <style scoped lang="less">
+@import '@/assets/styles/marquee.less';
+
 .music-cover {
   width: 380px;
   height: 380px;
@@ -113,9 +125,14 @@ const emit = defineEmits<{
   margin: 20px 0;
   text-align: left;
   position: relative;
+  cursor: pointer;
+  transition: all 0.25s ease;
 
   .title {
     font-size: 22px;
+    font-weight: 600;
+    max-width: 320px;
+    position: relative;
   }
 
   .artist {
@@ -124,11 +141,14 @@ const emit = defineEmits<{
   }
 
   .music-info-main {
-    max-width: 320px;
+    max-width: 280px;
+    max-height: 60px;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .music-info-actions {
-    .row-flex(@align: center,@gap: 10px);
+    .row-flex(@align: center, @gap: 10px);
 
     .iconfont {
       font-size: 32px;
