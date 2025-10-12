@@ -9,10 +9,7 @@ import { useMarqueeScroll } from '@/composables/useTextAutoScroll'
 
 const playlistStore = usePlaylistStore()
 const infoRef = ref<HTMLElement | null>(null)
-// 在setup中调用useAudioPlayer以确保可以正确注册生命周期钩子
 const { togglePlayPause } = useAudioPlayer()
-
-// 使用文本自动滚动功能（默认滚动）
 const { containerRef } = useMarqueeScroll(25)
 </script>
 
@@ -27,7 +24,6 @@ const { containerRef } = useMarqueeScroll(25)
         />
       </div>
       <div class="info" ref="infoRef" @click="usePageStatusStore().isPlayBackExpand = true">
-        <!-- 滚动标题 -->
         <div ref="containerRef" class="title xiaoHi-marquee-container">
           <div class="xiaoHi-marquee-content">
             {{ playlistStore.currentPlaying?.title || '暂无播放' }}
