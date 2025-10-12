@@ -53,7 +53,7 @@ onMounted(() => {
 
 <template>
   <div class="my-playlists">
-    <div v-if="playlistStore.isPlayingListEmpty" class="empty-playlist">
+    <div v-if="playlistStore.isPlaylistEmpty" class="empty-playlist">
       <p>播放列表为空</p>
     </div>
 
@@ -286,7 +286,7 @@ onMounted(() => {
 
   &,
   button {
-    .row-flex(center);
+    .row-flex(@align:center ,@justify: center);
   }
   .loop {
     background-color: #e63946;

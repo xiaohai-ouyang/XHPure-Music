@@ -17,7 +17,7 @@ const PLAY_MODES: PlayMode[] = ['list', 'random', 'loop']
 const MODE_ICONS: Record<PlayMode, string> = {
   list: '&#xea22;', // 列表循环
   random: '&#xe734;', // 随机播放
-  loop: '&#xe727;', // 单曲循环
+  loop: '&#xe602;', // 单曲循环
 }
 
 /**
@@ -78,7 +78,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
   /**
    * 播放列表是否为空
    */
-  const isPlayingListEmpty = computed(() => playlist.value.length === 0)
+  const isPlaylistEmpty = computed(() => playlist.value.length === 0)
 
   /**
    * 当前播放的歌曲信息
@@ -181,9 +181,10 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   /**
    * 播放下一首
+   * @param isAutoPlayNext 是否为自动播放下一首（如歌曲播放结束触发）
    */
-  function playNext() {
-    if (isPlayingListEmpty.value || !currentPlayingId.value) return
+  function playNext(isAutoPlayNext = false) {
+    if (isPlaylistEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
@@ -195,7 +196,13 @@ export const usePlaylistStore = defineStore('playlist', () => {
     } else if (playMode.value === 'list') {
       nextIndex = currentIndex < playlist.value.length - 1 ? currentIndex + 1 : 0
     } else if (playMode.value === 'loop') {
-      nextIndex = currentIndex // 单曲循环
+      // 如果是自动播放下一首，则保持单曲循环
+      // 如果是手动点击下一曲，则切换到下一首歌曲
+      if (isAutoPlayNext) {
+        nextIndex = currentIndex // 单曲循环
+      } else {
+        nextIndex = currentIndex < playlist.value.length - 1 ? currentIndex + 1 : 0
+      }
     }
 
     if (playlist.value[nextIndex]) {
@@ -205,9 +212,10 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   /**
    * 播放上一首
+   * @param isAutoPlayPrevious 是否为自动播放上一首
    */
-  function playPrevious() {
-    if (isPlayingListEmpty.value || !currentPlayingId.value) return
+  function playPrevious(isAutoPlayPrevious = false) {
+    if (isPlaylistEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
@@ -219,7 +227,13 @@ export const usePlaylistStore = defineStore('playlist', () => {
     } else if (playMode.value === 'list') {
       prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.value.length - 1
     } else if (playMode.value === 'loop') {
-      prevIndex = currentIndex
+      // 如果是自动播放上一首，则保持单曲循环
+      // 如果是手动点击上一曲，则切换到上一首歌曲
+      if (isAutoPlayPrevious) {
+        prevIndex = currentIndex
+      } else {
+        prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.value.length - 1
+      }
     }
 
     if (playlist.value[prevIndex]) {
@@ -232,19 +246,13 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * @returns 随机索引
    */
   function makeRandomIndex(): number {
-    if (playlist.value.length <= 1) {
-      const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
-      return currentIndex === -1 ? 0 : currentIndex
-    }
-
-    let randomIndex: number
-    const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
-
-    do {
-      randomIndex = Math.floor(Math.random() * playlist.value.length)
-    } while (randomIndex === currentIndex)
-
-    return randomIndex
+    const len = playlist.value.length
+    if (len <= 1) return 0
+    const current = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
+    let next
+    do next = Math.floor(Math.random() * len)
+    while (next === current)
+    return next
   }
 
   /**
@@ -280,6 +288,36 @@ export const usePlaylistStore = defineStore('playlist', () => {
     })
   }
 
+  /**
+   * 格式化时间（秒）为 mm:ss 格式
+   * @param seconds 时间（秒）
+   * @returns 格式化后的时间字符串 mm:ss
+   */
+  function formatTime(seconds: number): string {
+    if (isNaN(seconds) || seconds < 0) return '00:00'
+
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  /**
+   * 格式化时间为负数形式（用于显示剩余时间）
+   * @param currentTime 当前播放时间（秒）
+   * @param duration 总时长（秒）
+   * @returns 格式化后的负时间字符串 -mm:ss
+   */
+  function formatNegativeTime(currentTime: number, duration: number): string {
+    if (isNaN(currentTime) || currentTime < 0 || isNaN(duration) || duration <= 0) return '-00:00'
+
+    const remainingTime = duration - currentTime
+    const mins = Math.floor(remainingTime / 60)
+    const secs = Math.floor(remainingTime % 60)
+
+    return `-${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
   return {
     // state
     playlist,
@@ -294,7 +332,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     currentSongRemoveChinese,
 
     // getters
-    isPlayingListEmpty,
+    isPlaylistEmpty,
     currentPlaying,
     playModeIcon,
     playModeLabel,
@@ -309,5 +347,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     cyclePlayMode,
     updateCurrentPlayingTime,
     setSongChineseState,
+    formatTime,
+    formatNegativeTime,
   }
 })

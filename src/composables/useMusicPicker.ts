@@ -38,6 +38,7 @@ export function useMusicPicker() {
     try {
       const file = await entry.getFile()
       const musicInfo = (await parseMusicFile(file)) as MusicInfo
+
       musicInfo.url = URL.createObjectURL(file)
 
       // 检测歌词语言
