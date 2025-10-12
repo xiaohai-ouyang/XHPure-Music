@@ -19,13 +19,14 @@ function createDominantColor() {
   // 主背景渐变色
   const dominantColor = ref('linear-gradient(135deg, #222, #000)')
   // 主要文本颜色数组
-  const dominantTextColor = ref<string[] | string>(['#fff', '#fff', '#fff', '#fff', '#fff'])
+  const dominantTextColor = ref<string[] | string>(['#fff', '#fff', '#fff', '#fff', '#fff', '#fff'])
 
   // 颜色缓存，避免重复计算相同封面的颜色
   const colorCache = new Map<string, { color: string; textColors: string[] }>()
 
   // 本地存储中选中颜色索引的键名
   const SELECTED_COLOR_KEY = 'playback_selected_color_index'
+
   // 当前选中的颜色索引
   const selectedColorIndex = ref(Number(localStorage.getItem(SELECTED_COLOR_KEY)) || 0)
 
@@ -84,8 +85,8 @@ function createDominantColor() {
           selectedColors.push(tColor.toString())
         }
 
-        // 设置主文本颜色和备选颜色
-        dominantTextColor.value = [textColor.toString(), ...selectedColors]
+        // 设置主文本颜色和备选颜色，添加默认的白色选项
+        dominantTextColor.value = [textColor.toString(), ...selectedColors, '#fff']
 
         // 将计算结果缓存起来
         colorCache.set(coverUrl, {

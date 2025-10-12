@@ -112,13 +112,17 @@ export function useLrcParser(
 
   // 是否为双语歌词（直接使用musicPicker中判断的结果）
   const isBilingual = computed(() => {
-    const currentMusic = musicStore.musicList.find((music) => music.isPlaying)
+    const currentMusic = musicStore.musicList.find(
+      (music) => music.id === playlistStore.currentPlayingId,
+    )
     return !!currentMusic?.isBilingual
   })
 
   // 是否应该显示"去中文"按钮
   const showRemoveChineseButton = computed(() => {
-    const currentMusic = musicStore.musicList.find((music) => music.isPlaying)
+    const currentMusic = musicStore.musicList.find(
+      (music) => music.id === playlistStore.currentPlayingId,
+    )
     return !!currentMusic?.isBilingual
   })
 

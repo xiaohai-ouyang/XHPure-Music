@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, toRef, computed } from 'vue'
-
 import tinycolor from 'tinycolor2'
+import { ref, toRef, computed } from 'vue'
 import { useLrcParser } from '@/composables/useLrcParser'
 import { useDominantColor } from '@/composables/useDominantColor'
 
@@ -121,7 +120,7 @@ function isActiveLine(index: number) {
   .lyric-line {
     font-size: 18px;
     opacity: 0.5;
-    transition: all 0.5s linear;
+    transition: all 0.3s linear;
 
     &.active {
       opacity: 1;

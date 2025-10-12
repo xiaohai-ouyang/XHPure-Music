@@ -51,7 +51,11 @@ function autoScroll(event: MouseEvent) {
 
     <div class="right">
       <div class="controls">
-        <button class="controls-btn" @click="playlistStore.playPrevious" aria-label="上一首">
+        <button
+          class="controls-btn"
+          @click="() => playlistStore.playPrevious()"
+          aria-label="上一首"
+        >
           <i class="iconfont">&#xe722;</i>
         </button>
         <button
@@ -62,7 +66,11 @@ function autoScroll(event: MouseEvent) {
           <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
-        <button class="controls-btn" @click="playlistStore.playNext" aria-label="下一首">
+        <button
+          class="controls-btn"
+          @click="() => playlistStore.playPrevious()"
+          aria-label="下一首"
+        >
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
