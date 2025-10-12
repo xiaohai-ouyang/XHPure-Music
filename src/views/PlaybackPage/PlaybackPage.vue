@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import router from '@/router'
 import LrcParser from '@/components/Playback/LrcParser.vue'
+import { formatTime, formatNegativeTime } from '@/utils/formatTime'
 import { computed, ref, watch } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
@@ -128,7 +129,7 @@ const translationTooltip = computed(() =>
     <div class="content">
       <header>
         <!-- 返回按钮 -->
-        <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i>返回</button>
+        <button @click="back" class="back-btn iconfont">&#xe79c;</button>
 
         <!-- 颜色选择器 -->
         <div class="color-wheel">
@@ -207,10 +208,10 @@ const translationTooltip = computed(() =>
             </div>
 
             <div class="timer">
-              <span v-html="playlistStore.formatTime(playlistStore.currentPlayingTime)"></span>
+              <span v-html="formatTime(playlistStore.currentPlayingTime)"></span>
               <span
                 v-html="
-                  playlistStore.formatNegativeTime(
+                  formatNegativeTime(
                     playlistStore.currentPlayingTime,
                     playlistStore.currentPlayingDuration,
                   )
@@ -333,17 +334,22 @@ header {
   .row-flex();
   position: relative;
   height: 43px;
+
+  .back-btn,
+  .color-wheel {
+    .row-flex(@justify:center,@align:center);
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
 }
 
 header .back-btn {
-  .row-flex(@justify:center,@align:center);
   position: absolute;
   left: 0;
   top: 0;
-  font-size: 20px;
-  padding: 8px 12px;
+  font-size: 30px;
   border-radius: 10px;
-  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 
   .iconfont {
@@ -353,11 +359,9 @@ header .back-btn {
 }
 
 header .color-wheel {
-  .row-flex(@align: center, @justify: center, @gap: 15px);
+  gap: 15px;
   position: relative;
   margin: auto;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 10px;
   border-radius: 20px;
 
   .color-item {
@@ -438,6 +442,10 @@ main {
   .artist {
     font-size: 16px;
     opacity: 0.8;
+  }
+
+  .mleft {
+    max-width: 320px;
   }
 }
 

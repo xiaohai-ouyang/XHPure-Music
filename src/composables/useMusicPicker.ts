@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { parseMusicFile } from '@/utils/musicMeta'
+import { parseMusicFile } from '@/utils/getMusicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { isBilingualLyrics, detectLanguages } from '@/utils/lyricUtils'
 
@@ -79,7 +79,7 @@ export function useMusicPicker() {
         }
       }
 
-      alert('音乐添加完成')
+      console.log('音乐添加完成')
     } catch (err: unknown) {
       if ((err as { name?: string })?.name === 'AbortError') {
         console.log('用户取消了操作')

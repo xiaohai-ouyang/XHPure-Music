@@ -44,9 +44,11 @@ export function useAudioPlayer() {
     window.addEventListener('mouseup', onUp)
   }
 
-  onMounted(() => {
+  // 将onUnmounted移出onMounted之外，放到顶层作用域
+  const setupAudioEventListeners = () => {
     const audio = document.querySelector('audio') as HTMLAudioElement | null
     if (!audio) return
+
     const onPlay = () => (playlistStore.isPlaying = true)
     const onPause = () => (playlistStore.isPlaying = false)
     const onTimeUpdate = () => (playlistStore.currentPlayingTime = audio.currentTime)
@@ -66,12 +68,22 @@ export function useAudioPlayer() {
     audio.addEventListener('timeupdate', onTimeUpdate)
     audio.addEventListener('ended', onEnded)
 
-    onUnmounted(() => {
+    return () => {
       audio.removeEventListener('play', onPlay)
       audio.removeEventListener('pause', onPause)
       audio.removeEventListener('timeupdate', onTimeUpdate)
       audio.removeEventListener('ended', onEnded)
-    })
+    }
+  }
+
+  let cleanup: (() => void) | undefined
+
+  onMounted(() => {
+    cleanup = setupAudioEventListeners()
+  })
+
+  onUnmounted(() => {
+    if (cleanup) cleanup()
   })
 
   return { togglePlayPause, startDrag, seekByClick, progressBar, isDragging }

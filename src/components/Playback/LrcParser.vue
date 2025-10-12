@@ -120,7 +120,12 @@ function isActiveLine(index: number) {
   .lyric-line {
     font-size: 18px;
     opacity: 0.5;
-    transition: all 0.3s linear;
+    transition:
+      color 0.3s ease,
+      font-size 0.5s ease,
+      opacity 0.5s linear,
+      transform 0.5s cubic-bezier(0.65, 0.05, 0.36, 1),
+      font-weight 0.5s linear;
 
     &.active {
       opacity: 1;
