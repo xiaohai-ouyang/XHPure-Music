@@ -4,6 +4,7 @@ import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { useScrollRestore } from '@/composables/useScrollRestore'
 import { useMusicPicker } from '@/composables/useMusicPicker'
+import { formatTimeDetailed } from '@/utils/formatTime'
 
 const listContainer = ref<HTMLElement | null>(null)
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
@@ -18,6 +19,8 @@ function handleMusicClick(music: MusicInfo) {
   playlistStore.addToPlaylist(music)
 }
 
+console.log()
+
 interface MusicInfo {
   [key: string]: unknown
   id?: string
@@ -31,6 +34,22 @@ interface MusicInfo {
       <button @click="pickMusic" :disabled="loading" class="add-to-list-btn">
         <span>添加音乐</span>
       </button>
+    </div>
+
+    <div class="function-bar">
+      <button class="addAll-btn list">全部顺序播放</button>
+      <button class="addAll-btn random">全部随机播放</button>
+      <div class="music-num">
+        <span class="dot"></span>音乐库中有<span
+          class="num"
+          v-html="musicStore.musicList.length"
+        ></span
+        >首歌
+      </div>
+      <div class="music-time">
+        <span class="num" v-html="formatTimeDetailed(musicStore.totalDuration).totalMins"></span
+        >分钟
+      </div>
     </div>
 
     <div class="music-item-box">
@@ -73,6 +92,33 @@ interface MusicInfo {
     font-weight: 700;
     font-size: 25px;
     border-radius: 10px;
+  }
+}
+
+.function-bar {
+  gap: 10px;
+  padding: 5px;
+  background-color: white;
+  position: sticky;
+
+  .addAll-btn {
+    background-color: #0707072e;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .dot {
+    margin-right: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #0088ff;
+  }
+
+  &,
+  .music-num,
+  .music-time {
+    .row-flex(@align: center);
   }
 }
 
