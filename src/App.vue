@@ -72,10 +72,12 @@ button {
   border: none;
   outline: none;
   cursor: pointer;
+  .row-flex(@align: center,@justify: center);
 }
 
 body {
-  font-family: MiSans;
+  font-family: 'MiSans', sans-serif;
+  font-weight: 400;
 }
 
 .iconfont {

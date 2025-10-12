@@ -99,7 +99,6 @@ interface MusicInfo {
   gap: 10px;
   padding: 5px;
   background-color: white;
-  position: sticky;
 
   .addAll-btn {
     background-color: #0707072e;
@@ -135,6 +134,7 @@ interface MusicInfo {
   .row-flex(@align: center, @gap: 10px);
   cursor: pointer;
   position: relative;
+  font-weight: 500;
 
   .left {
     height: 130px;
