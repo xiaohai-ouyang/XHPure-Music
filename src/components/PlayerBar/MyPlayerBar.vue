@@ -8,6 +8,8 @@ import { useAudioPlayer } from '@/composables/useAudioPlayer'
 
 const playlistStore = usePlaylistStore()
 const infoRef = ref<HTMLElement | null>(null)
+// 在setup中调用useAudioPlayer以确保可以正确注册生命周期钩子
+const { togglePlayPause } = useAudioPlayer()
 
 function autoScroll(event: MouseEvent) {
   const target = event.target as HTMLElement
@@ -60,7 +62,7 @@ function autoScroll(event: MouseEvent) {
         </button>
         <button
           class="controls-btn play-pause"
-          @click="useAudioPlayer().togglePlayPause"
+          @click="togglePlayPause"
           aria-label="播放/暂停"
         >
           <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
@@ -68,7 +70,7 @@ function autoScroll(event: MouseEvent) {
         </button>
         <button
           class="controls-btn"
-          @click="() => playlistStore.playPrevious()"
+          @click="() => playlistStore.playNext()"
           aria-label="下一首"
         >
           <i class="iconfont">&#xe72a;</i>

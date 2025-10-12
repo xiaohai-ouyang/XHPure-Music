@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watchEffect } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 
 export interface MusicInfo {
   [key: string]: unknown
@@ -7,6 +7,7 @@ export interface MusicInfo {
   url?: string
   isBilingual?: boolean
   languages?: string[]
+  duration?: number
 }
 
 export const useMusicMetaStore = defineStore('musicMeta', () => {
@@ -29,9 +30,16 @@ export const useMusicMetaStore = defineStore('musicMeta', () => {
     isEmpty.value = musicList.value.length === 0
   })
 
+  const totalDuration = computed(() => {
+    return musicList.value.reduce((total, music) => {
+      return total + (typeof music.duration === 'number' ? music.duration : 0)
+    }, 0)
+  })
+
   return {
     musicList,
     isEmpty,
+    totalDuration,
     addMusic,
     clearMusic,
   }
