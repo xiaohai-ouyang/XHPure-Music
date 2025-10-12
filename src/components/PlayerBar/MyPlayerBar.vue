@@ -1,26 +1,19 @@
 <script lang="ts" setup>
 import defaultCover from '@assets/images/defaultCover-lightMode.png'
 import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
+import { ref } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
-import { ref } from 'vue'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
+import { useMarqueeScroll } from '@/composables/useTextAutoScroll'
 
 const playlistStore = usePlaylistStore()
 const infoRef = ref<HTMLElement | null>(null)
 // 在setup中调用useAudioPlayer以确保可以正确注册生命周期钩子
 const { togglePlayPause } = useAudioPlayer()
 
-function autoScroll(event: MouseEvent) {
-  const target = event.target as HTMLElement
-  target.classList.remove('scrolling')
-
-  if (target.scrollWidth > target.clientWidth) {
-    setTimeout(() => {
-      target.classList.add('scrolling')
-    }, 100)
-  }
-}
+// 使用文本自动滚动功能（默认滚动）
+const { containerRef } = useMarqueeScroll(25)
 </script>
 
 <template>
@@ -33,23 +26,18 @@ function autoScroll(event: MouseEvent) {
           class="music-cover"
         />
       </div>
-      <div class="info" ref="infoRef">
-        <div
-          class="title"
-          @mouseenter="autoScroll"
-          @mouseleave="(e) => (e.target as HTMLElement).classList.remove('scrolling')"
-        >
-          {{ playlistStore.currentPlaying?.title || '暂无播放' }}
+      <div class="info" ref="infoRef" @click="usePageStatusStore().isPlayBackExpand = true">
+        <!-- 滚动标题 -->
+        <div ref="containerRef" class="title xiaoHi-marquee-container">
+          <div class="xiaoHi-marquee-content">
+            {{ playlistStore.currentPlaying?.title || '暂无播放' }}
+          </div>
         </div>
         <div class="artist">
           {{ playlistStore.currentPlaying?.artist || '未知艺术家' }}
         </div>
       </div>
     </div>
-
-    <button class="to-playback-btn" @click="usePageStatusStore().isPlayBackExpand = true">
-      点击展开播放页
-    </button>
 
     <div class="right">
       <div class="controls">
@@ -60,19 +48,11 @@ function autoScroll(event: MouseEvent) {
         >
           <i class="iconfont">&#xe722;</i>
         </button>
-        <button
-          class="controls-btn play-pause"
-          @click="togglePlayPause"
-          aria-label="播放/暂停"
-        >
+        <button class="controls-btn play-pause" @click="togglePlayPause" aria-label="播放/暂停">
           <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
-        <button
-          class="controls-btn"
-          @click="() => playlistStore.playNext()"
-          aria-label="下一首"
-        >
+        <button class="controls-btn" @click="() => playlistStore.playNext()" aria-label="下一首">
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
@@ -138,6 +118,7 @@ i {
   max-width: 180px;
   overflow: hidden;
   white-space: nowrap;
+  cursor: pointer;
   .col-flex();
 
   .title {
@@ -167,31 +148,6 @@ i {
   background-color: @lightMode-playBar-btnBg;
   border-radius: 8px;
   padding: 0 8px;
-
-  &:hover {
-    background-color: @lightMode-playBar-btnHoverBg;
-  }
-}
-
-.scrolling {
-  display: inline-block;
-  position: relative;
-  animation: scrolling 15s linear infinite alternate;
-  animation-delay: 0.5s;
-}
-
-@keyframes scrolling {
-  to {
-    transform: translateX(calc(-100% - 50px));
-  }
-}
-
-.to-playback-btn {
-  margin-left: auto;
-  height: 80%;
-  padding: 10px;
-  border-radius: 10px;
-  transition: background-color 0.3s;
 
   &:hover {
     background-color: @lightMode-playBar-btnHoverBg;

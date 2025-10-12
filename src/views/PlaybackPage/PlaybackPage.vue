@@ -75,7 +75,14 @@ watch(
         </div>
 
         <!-- 歌词显示区域 -->
-        <div class="right">
+        <div
+          class="right"
+          v-if="
+            currentPlaying.lyrics &&
+            typeof currentPlaying.lyrics === 'string' &&
+            currentPlaying.lyrics.trim()
+          "
+        >
           <LrcParser
             :dominantTextColor="textColors[selectedColorIndex]"
             :lyrics="(currentPlaying.lyrics as string) || ''"
