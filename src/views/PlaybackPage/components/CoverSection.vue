@@ -129,7 +129,6 @@ const emit = defineEmits<{
   }
 
   .music-info-actions {
-    position: relative;
     .row-flex(@align: center,@gap: 10px);
 
     .iconfont {

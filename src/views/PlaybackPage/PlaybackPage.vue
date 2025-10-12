@@ -158,6 +158,10 @@ main {
     flex: 1;
     .col-flex(@align: center );
   }
+
+  .left {
+    position: relative;
+  }
 }
 
 .music-info,
@@ -172,8 +176,8 @@ main {
   position: absolute;
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  bottom: 15px;
-  left: 32px;
+  bottom: 145px;
+  right: -93px;
   width: 128px;
   border-radius: 5px;
   z-index: 999;
