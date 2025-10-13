@@ -21,35 +21,43 @@ const routes = [
     children: [
       {
         path: 'music',
-        component: () => import('@views/HomePage/Children/MusicPage.vue'),
+        component: () => import('@views/HomePage/ChildrenPages/MusicPage.vue'),
         meta: {
           title: '歌曲',
         },
       },
       {
         path: 'albums',
-        component: () => import('@views/HomePage/Children/AlbumsPage.vue'),
+        component: () => import('@views/HomePage/ChildrenPages/AlbumsPage.vue'),
         meta: {
           title: '专辑',
         },
       },
       {
         path: 'artists',
-        component: () => import('@views/HomePage/Children/ArtistsPage.vue'),
+        component: () => import('@views/HomePage/ChildrenPages/ArtistsPage.vue'),
         meta: {
           title: '艺术家',
         },
       },
       {
         path: 'playlists',
-        component: () => import('@views/HomePage/Children/PlaylistsPage.vue'),
+        component: () => import('@views/HomePage/ChildrenPages/PlaylistsPages/PlaylistsPage.vue'),
         meta: {
           title: '歌单',
         },
       },
       {
+        path: 'playlists/:id',
+        component: () =>
+          import('@views/HomePage/ChildrenPages/PlaylistsPages/PlaylistDetailPage.vue'),
+        meta: {
+          title: '歌单详情',
+        },
+      },
+      {
         path: 'folders',
-        component: () => import('@views/HomePage/Children/FoldersPage.vue'),
+        component: () => import('@views/HomePage/ChildrenPages/FoldersPage.vue'),
         meta: {
           title: '文件夹',
         },
