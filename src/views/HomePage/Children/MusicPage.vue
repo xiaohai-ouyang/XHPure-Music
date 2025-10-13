@@ -22,6 +22,12 @@ interface MusicInfo {
   id?: string
   url?: string
 }
+
+function pushAllToPlaylist() {
+  musicStore.musicList.forEach((music) => {
+    playlistStore.addToPlaylist(music)
+  })
+}
 </script>
 
 <template>
@@ -33,8 +39,7 @@ interface MusicInfo {
     </div>
 
     <div class="function-bar" v-if="!musicStore.isEmpty">
-      <button class="addAll-btn list">全部顺序播放</button>
-      <button class="addAll-btn random">全部随机播放</button>
+      <button class="addAll-btn" @click="pushAllToPlaylist">全部播放</button>
       <div class="music-num">
         <span class="dot"></span>音乐库中有<span
           class="num"
@@ -96,9 +101,13 @@ interface MusicInfo {
   gap: 10px;
   padding: 5px;
   background-color: @lightMode-secondary-bgColor;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
   .addAll-btn {
-    background-color: #0707072e;
+    background-color: @lightMode-dominant-textColor;
+    color: white;
     padding: 10px;
     border-radius: 8px;
   }
