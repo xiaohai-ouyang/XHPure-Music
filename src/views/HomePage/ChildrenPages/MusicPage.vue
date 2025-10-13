@@ -76,12 +76,6 @@ function pushAllToPlaylist() {
 </template>
 
 <style lang="less" scoped>
-.jiaoyan-music {
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
 .empty {
   .col-flex(@align:center, @justify: center);
   height: 100%;

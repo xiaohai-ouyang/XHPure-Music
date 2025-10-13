@@ -4,7 +4,14 @@
       <img :src="playlist.cover" :alt="playlist.name" class="playlist-cover" />
       <div class="playlist-info">
         <h1 class="playlist-name">{{ playlist.name }}</h1>
-        <p class="playlist-desc">{{ playlist.desc }}</p>
+        <div class="playlist-detail">
+          <p class="playlist-track-number">•共<span class="num">439</span>首歌</p>
+          <p class="playlist-total-time"><span class="num">4000</span>分钟</p>
+        </div>
+      </div>
+      <div class="playlist-actions">
+        <button class="play-all">播放全部</button>
+        <button class="add-to-queue">修改歌单信息</button>
       </div>
     </div>
     <div class="playlist-tracks">
@@ -39,7 +46,7 @@ defineProps<{
 
 <style scoped lang="less">
 .playlist-layout {
-  padding: 20px;
+  padding: 10px 20px;
 }
 
 .playlist-header {
@@ -48,32 +55,32 @@ defineProps<{
 }
 
 .playlist-cover {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   border-radius: 8px;
   margin-right: 20px;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .playlist-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  .col-flex(@justify: flex-end);
 }
 
 .playlist-name {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: bold;
-  margin-bottom: 10px;
 }
 
-.playlist-desc {
+.playlist-detail {
+  .row-flex(@align: center,@gap: 10px);
+  font-size: 15px;
   color: #666;
 }
 
 .playlist-tracks {
   .track-item {
-    display: flex;
-    justify-content: space-between;
+    .row-flex(@justify: space-between);
     padding: 10px 0;
     border-bottom: 1px solid #eee;
 
@@ -84,6 +91,19 @@ defineProps<{
     .track-artist {
       color: #666;
     }
+  }
+}
+
+.playlist-actions {
+  .row-flex(@align: center,@gap: 10px);
+  margin-top: auto;
+  margin-left: auto;
+
+  button {
+    padding: 5px;
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    background: @lightMode-dominant-textColor;
   }
 }
 </style>

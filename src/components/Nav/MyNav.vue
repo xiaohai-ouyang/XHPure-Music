@@ -67,22 +67,22 @@
         >
           <i class="iconfont">&#xe72c;</i>
           <p class="nav-item-name">文件夹</p>
-        </router-link>
-        <router-link
-          class="nav-item"
-          :class="{ active: pageStatusStore.currentPageTitle === '歌单' }"
-          to="/page/playlists"
-        >
-          <i class="iconfont">&#xe71f;</i>
-          <p class="nav-item-name">歌单</p>
-        </router-link> -->
+        </router-link>-->
+          <router-link
+            class="nav-item"
+            :class="{ active: pageStatusStore.currentPageTitle === '歌单' }"
+            to="/page/playlists"
+          >
+            <i class="iconfont">&#xe71f;</i>
+            <p class="nav-item-name">歌单</p>
+          </router-link>
         </div>
       </div>
 
       <div class="user-playlist">
         <div class="user-playlist-container">
-          <router-link class="user-playlist-item" to="/page/playlists/favorite"
-            >我最喜欢的</router-link
+          <router-link class="user-playlist-item" to="/page/playlists/favorite">
+            <i class="iconfont">&#xe761;</i>我喜欢的</router-link
           >
           <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
           <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
@@ -158,9 +158,10 @@ nav {
   text-decoration: none;
   padding: 5px 25px 5px 30px;
   width: 100%;
-  gap: 30px;
+  gap: 20px;
   transition: all 0.2s;
   border-radius: @nav-borderRadius;
+  white-space: nowrap;
 
   &:hover {
     background: @lightMode-nav-hoverColor;
