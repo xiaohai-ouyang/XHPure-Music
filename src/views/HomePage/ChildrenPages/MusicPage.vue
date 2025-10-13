@@ -1,20 +1,20 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
-import { usePlaylistStore } from '@/stores/playlistStore'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useScrollRestore } from '@/composables/useScrollRestore'
 import { useMusicPicker } from '@/composables/useMusicPicker'
 import { formatTimeDetailed } from '@/utils/formatTime'
 import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
 const listContainer = ref<HTMLElement | null>(null)
-const playlistStore = usePlaylistStore()
+const playbackQueueStores = useplaybackQueueStore()
 const musicStore = useMusicMetaStore()
 const { pickMusic } = useMusicPicker()
-const currentPlayingId = computed(() => playlistStore.currentPlayingId)
+const currentPlayingId = computed(() => playbackQueueStores.currentPlayingId)
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
 function handleMusicClick(music: MusicInfo) {
-  playlistStore.addToPlaylist(music)
+  playbackQueueStores.addToplaybackQueue(music)
 }
 
 interface MusicInfo {
@@ -25,7 +25,7 @@ interface MusicInfo {
 
 function pushAllToPlaylist() {
   musicStore.musicList.forEach((music) => {
-    playlistStore.addToPlaylist(music)
+    playbackQueueStores.addToplaybackQueue(music)
   })
 }
 </script>

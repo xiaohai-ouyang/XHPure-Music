@@ -34,16 +34,17 @@
         </button>
       </div>
 
-      <div class="navItem-container">
-        <router-link
-          class="nav-item"
-          :class="{ active: pageStatusStore.currentPageTitle === '歌曲' }"
-          to="/page/music"
-        >
-          <i class="iconfont">&#xe725;</i>
-          <p class="nav-item-name">歌曲</p>
-        </router-link>
-        <router-link
+      <div class="navigator">
+        <div class="navItem-container">
+          <router-link
+            class="nav-item"
+            :class="{ active: pageStatusStore.currentPageTitle === '歌曲' }"
+            to="/page/music"
+          >
+            <i class="iconfont">&#xe725;</i>
+            <p class="nav-item-name">歌曲</p>
+          </router-link>
+          <!-- <router-link
           class="nav-item"
           :class="{ active: pageStatusStore.currentPageTitle === '专辑' }"
           to="/page/albums"
@@ -74,7 +75,19 @@
         >
           <i class="iconfont">&#xe71f;</i>
           <p class="nav-item-name">歌单</p>
-        </router-link>
+        </router-link> -->
+        </div>
+      </div>
+
+      <div class="user-playlist">
+        <div class="user-playlist-container">
+          <router-link class="user-playlist-item" to="/page/playlists/favorite"
+            >我最喜欢的</router-link
+          >
+          <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
+          <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
+          <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
+        </div>
       </div>
     </nav>
   </div>
@@ -126,16 +139,22 @@ nav {
   }
 }
 
-.navItem-container {
+.navigator {
   margin-top: 20px;
+}
+
+.navItem-container,
+.user-playlist-container {
+  .col-flex(@justify: flex-start);
   width: 100%;
   padding: 2px;
 }
 
-.nav-item {
+.nav-item,
+.user-playlist-item {
   .row-flex(@justify: flex-start, @align: center);
   height: 40px;
-  color: initial;
+  color: @lightMode-nav-activeColor;
   text-decoration: none;
   padding: 5px 25px 5px 30px;
   width: 100%;
@@ -153,6 +172,12 @@ nav {
   white-space: nowrap;
 }
 
+.user-playlist {
+  position: relative;
+  margin-top: auto;
+  margin-bottom: 40px;
+}
+
 .iconfont {
   font-size: 35px;
 }
@@ -162,7 +187,8 @@ nav {
 }
 
 .color-mode-switch,
-.navItem-container {
+.navigator,
+.user-playlist {
   background: @lightMode-nav-bgItemColor;
   border-radius: @nav-borderRadius;
 }

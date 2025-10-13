@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { parseMusicFile } from '@/utils/getMusicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { isBilingualLyrics, detectLanguages } from '@/utils/lyricUtils'
+import { calcMusicMD5 } from '@/utils/getFilesMD5'
 
 declare global {
   interface Window {
@@ -19,6 +20,7 @@ interface MusicInfo {
   url?: string
   isBilingual?: boolean
   languages?: string[]
+  md5?: string
 }
 
 export function useMusicPicker() {
@@ -36,8 +38,10 @@ export function useMusicPicker() {
 
     try {
       const file = await entry.getFile()
+      const md5 = await calcMusicMD5(file)
       const musicInfo = (await parseMusicFile(file)) as MusicInfo
       musicInfo.url = URL.createObjectURL(file)
+      musicInfo.md5 = md5
 
       if (musicInfo.lyrics && typeof musicInfo.lyrics === 'string') {
         const lyricsWithoutTimestamps = musicInfo.lyrics

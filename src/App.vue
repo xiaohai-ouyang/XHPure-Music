@@ -2,9 +2,9 @@
 import { onMounted, ref, watch } from 'vue'
 import { useThemeStore } from './stores/themeStore'
 import { useGlobalShortcutKey } from './composables/useGlobalShortcutKey'
-import { usePlaylistStore } from './stores/playlistStore'
+import { useplaybackQueueStore } from './stores/playbackQueueStores'
 
-const playlistStore = usePlaylistStore()
+const playbackQueueStores = useplaybackQueueStore()
 const audioRef = ref<HTMLAudioElement | null>(null)
 
 document.title = '椒盐音乐'
@@ -15,7 +15,7 @@ onMounted(() => {
 })
 
 watch(
-  () => playlistStore.currentPlaying,
+  () => playbackQueueStores.currentPlaying,
   async (newSong) => {
     const audio = audioRef.value
     if (!audio) return
@@ -51,10 +51,10 @@ watch(
 <template>
   <audio
     ref="audioRef"
-    @timeupdate="playlistStore.updateCurrentPlayingTime"
-    @play="playlistStore.isPlaying = true"
-    @pause="playlistStore.isPlaying = false"
-    @ended="playlistStore.playNext(true)"
+    @timeupdate="playbackQueueStores.updateCurrentPlayingTime"
+    @play="playbackQueueStores.isPlaying = true"
+    @pause="playbackQueueStores.isPlaying = false"
+    @ended="playbackQueueStores.playNext(true)"
   />
 
   <router-view></router-view>

@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { ref, nextTick, watch, onMounted } from 'vue'
-import { usePlaylistStore } from '@/stores/playlistStore'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import type { MusicInfo } from '@/stores/musicMetaStores'
 
-const playlistStore = usePlaylistStore()
+const playbackQueueStores = useplaybackQueueStore()
 const musicItemRefs = ref<HTMLElement[]>([])
 
 function clearPlaylist() {
@@ -13,20 +14,20 @@ function clearPlaylist() {
     audio.src = ''
     audio.load()
   }
-  playlistStore.isPlaying = false
-  playlistStore.clearPlaylist()
+  playbackQueueStores.isPlaying = false
+  playbackQueueStores.clearplaybackQueue()
 }
 
 function handleRemove(musicId: string | undefined) {
   if (musicId) {
-    playlistStore.removeFromPlaylist(musicId)
+    playbackQueueStores.removeFromplaybackQueue(musicId)
   }
 }
 
 function scrollToPlayingItem() {
   nextTick(() => {
-    const index = playlistStore.playlist.findIndex(
-      (music) => music.id === playlistStore.currentPlayingId,
+    const index = playbackQueueStores.playbackQueue.findIndex(
+      (music: MusicInfo) => music.id === playbackQueueStores.currentPlayingId,
     )
     const el = musicItemRefs.value[index]
     if (el) {
@@ -39,7 +40,7 @@ function scrollToPlayingItem() {
 }
 
 watch(
-  () => [playlistStore.playlist, playlistStore.currentPlayingId],
+  () => [playbackQueueStores.playbackQueue, playbackQueueStores.currentPlayingId],
   () => {
     scrollToPlayingItem()
   },
@@ -52,35 +53,39 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="my-playlists">
-    <div v-if="playlistStore.isPlaylistEmpty" class="empty-playlist">
-      <p>播放列表为空</p>
+  <div class="my-playback-queue">
+    <div v-if="playbackQueueStores.isplaybackQueueEmpty" class="empty-playlist">
+      <p>播放队列为空</p>
     </div>
 
     <div v-else class="has-playlist">
       <div class="controls-btn">
         <button
           class="mode-switch"
-          :class="playlistStore.playMode"
-          @click="playlistStore.cyclePlayMode"
-          :aria-label="`${playlistStore.playModeLabel}`"
+          :class="playbackQueueStores.playMode"
+          @click="playbackQueueStores.cyclePlayMode"
+          :aria-label="`${playbackQueueStores.playModeLabel}`"
         >
-          <span class="iconfont" v-html="playlistStore.playModeIcon" aria-hidden="true"></span>
-          {{ playlistStore.playModeLabel }}
+          <span
+            class="iconfont"
+            v-html="playbackQueueStores.playModeIcon"
+            aria-hidden="true"
+          ></span>
+          {{ playbackQueueStores.playModeLabel }}
         </button>
 
-        <button class="clear-list" @click="clearPlaylist" aria-label="清空播放列表">
-          清空列表
+        <button class="clear-list" @click="clearPlaylist" aria-label="清空播放队列">
+          清空队列
         </button>
       </div>
 
-      <TransitionGroup name="fade" tag="div" class="my-playlists-container">
+      <TransitionGroup name="fade" tag="div" class="my-playback-queue-container">
         <div
-          v-for="(music, index) in playlistStore.playlist"
+          v-for="(music, index) in playbackQueueStores.playbackQueue"
           :key="music.id"
           class="music-item"
-          :class="{ playing: music.id === playlistStore.currentPlayingId }"
-          @click="playlistStore.setCurrentPlaying(music)"
+          :class="{ playing: music.id === playbackQueueStores.currentPlayingId }"
+          @click="playbackQueueStores.setCurrentPlaying(music)"
           :ref="
             (el) => {
               if (el) musicItemRefs[index] = el as HTMLElement
@@ -112,7 +117,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
-.my-playlists {
+.my-playback-queue {
   position: fixed;
   right: 0;
   bottom: 50px;
@@ -123,7 +128,7 @@ onMounted(() => {
   overflow: hidden;
   z-index: 999;
 
-  .my-playlists-container {
+  .my-playback-queue-container {
     .col-flex();
     max-height: 516px;
     overflow-y: auto;

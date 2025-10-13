@@ -1,4 +1,4 @@
-// stores/playlistStore.ts
+// stores/playbackQueueStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -29,14 +29,14 @@ const MODE_LABELS: Record<PlayMode, string> = {
   loop: '单曲循环',
 }
 
-export const usePlaylistStore = defineStore('playlist', () => {
+export const useplaybackQueueStore = defineStore('playbackQueue', () => {
   // ============
   // 🔹 State
   // ============
   /**
    * 播放列表
    */
-  const playlist = ref<MusicInfo[]>([])
+  const playbackQueue = ref<MusicInfo[]>([])
   /**
    * 是否正在播放
    */
@@ -78,14 +78,14 @@ export const usePlaylistStore = defineStore('playlist', () => {
   /**
    * 播放列表是否为空
    */
-  const isPlaylistEmpty = computed(() => playlist.value.length === 0)
+  const isplaybackQueueEmpty = computed(() => playbackQueue.value.length === 0)
 
   /**
    * 当前播放的歌曲信息
    */
   const currentPlaying = computed<MusicInfo | null>(() => {
     if (!currentPlayingId.value) return null
-    return playlist.value.find((music) => music.id === currentPlayingId.value) || null
+    return playbackQueue.value.find((music) => music.id === currentPlayingId.value) || null
   })
 
   // 当前播放歌曲的中文显示状态
@@ -120,17 +120,17 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * 添加歌曲到播放列表（去重）
    * @param music 要添加的歌曲信息
    */
-  function addToPlaylist(music: MusicInfo) {
+  function addToplaybackQueue(music: MusicInfo) {
     const musicWithId = ensureMusicHasId(music)
-    const existsIndex = playlist.value.findIndex((item) => item.url === musicWithId.url)
+    const existsIndex = playbackQueue.value.findIndex((item) => item.url === musicWithId.url)
 
     if (existsIndex !== -1) {
       // 已存在 -> 直接切换当前播放
-      setCurrentPlaying(playlist.value[existsIndex])
+      setCurrentPlaying(playbackQueue.value[existsIndex])
       return
     }
 
-    playlist.value.push(musicWithId)
+    playbackQueue.value.push(musicWithId)
     setCurrentPlaying(musicWithId)
   }
 
@@ -151,8 +151,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
   /**
    * 清空播放列表
    */
-  function clearPlaylist() {
-    playlist.value = []
+  function clearplaybackQueue() {
+    playbackQueue.value = []
     currentPlayingId.value = null
     isPlaying.value = false
   }
@@ -161,23 +161,23 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * 从播放列表中移除歌曲
    * @param musicId 要移除的歌曲ID
    */
-  function removeFromPlaylist(musicId: string) {
-    const index = playlist.value.findIndex((music) => music.id === musicId)
+  function removeFromplaybackQueue(musicId: string) {
+    const index = playbackQueue.value.findIndex((music) => music.id === musicId)
     if (index === -1) return
 
     const wasCurrent = musicId === currentPlayingId.value
-    playlist.value.splice(index, 1)
+    playbackQueue.value.splice(index, 1)
 
     // 同时删除该歌曲的中文显示状态
     delete songChineseStates.value[musicId]
 
-    if (playlist.value.length === 0) {
+    if (playbackQueue.value.length === 0) {
       currentPlayingId.value = null
       isPlaying.value = false
     } else if (wasCurrent) {
       // 播放下一个合理位置的曲目
-      const nextIndex = Math.min(index, playlist.value.length - 1)
-      setCurrentPlaying(playlist.value[nextIndex])
+      const nextIndex = Math.min(index, playbackQueue.value.length - 1)
+      setCurrentPlaying(playbackQueue.value[nextIndex])
     }
   }
 
@@ -186,9 +186,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * @param isAutoPlayNext 是否为自动播放下一首（如歌曲播放结束触发）
    */
   function playNext(isAutoPlayNext = false) {
-    if (isPlaylistEmpty.value || !currentPlayingId.value) return
+    if (isplaybackQueueEmpty.value || !currentPlayingId.value) return
 
-    const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
+    const currentIndex = playbackQueue.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
 
     let nextIndex = currentIndex
@@ -196,19 +196,19 @@ export const usePlaylistStore = defineStore('playlist', () => {
     if (playMode.value === 'random') {
       nextIndex = makeRandomIndex()
     } else if (playMode.value === 'list') {
-      nextIndex = currentIndex < playlist.value.length - 1 ? currentIndex + 1 : 0
+      nextIndex = currentIndex < playbackQueue.value.length - 1 ? currentIndex + 1 : 0
     } else if (playMode.value === 'loop') {
       // 如果是自动播放下一首，则保持单曲循环
       // 如果是手动点击下一曲，则切换到下一首歌曲
       if (isAutoPlayNext) {
         nextIndex = currentIndex // 单曲循环
       } else {
-        nextIndex = currentIndex < playlist.value.length - 1 ? currentIndex + 1 : 0
+        nextIndex = currentIndex < playbackQueue.value.length - 1 ? currentIndex + 1 : 0
       }
     }
 
-    if (playlist.value[nextIndex]) {
-      setCurrentPlaying(playlist.value[nextIndex])
+    if (playbackQueue.value[nextIndex]) {
+      setCurrentPlaying(playbackQueue.value[nextIndex])
     }
   }
 
@@ -217,9 +217,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * @param isAutoPlayPrevious 是否为自动播放上一首
    */
   function playPrevious(isAutoPlayPrevious = false) {
-    if (isPlaylistEmpty.value || !currentPlayingId.value) return
+    if (isplaybackQueueEmpty.value || !currentPlayingId.value) return
 
-    const currentIndex = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
+    const currentIndex = playbackQueue.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
 
     let prevIndex = currentIndex
@@ -227,19 +227,19 @@ export const usePlaylistStore = defineStore('playlist', () => {
     if (playMode.value === 'random') {
       prevIndex = makeRandomIndex()
     } else if (playMode.value === 'list') {
-      prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.value.length - 1
+      prevIndex = currentIndex > 0 ? currentIndex - 1 : playbackQueue.value.length - 1
     } else if (playMode.value === 'loop') {
       // 如果是自动播放上一首，则保持单曲循环
       // 如果是手动点击上一曲，则切换到上一首歌曲
       if (isAutoPlayPrevious) {
         prevIndex = currentIndex
       } else {
-        prevIndex = currentIndex > 0 ? currentIndex - 1 : playlist.value.length - 1
+        prevIndex = currentIndex > 0 ? currentIndex - 1 : playbackQueue.value.length - 1
       }
     }
 
-    if (playlist.value[prevIndex]) {
-      setCurrentPlaying(playlist.value[prevIndex])
+    if (playbackQueue.value[prevIndex]) {
+      setCurrentPlaying(playbackQueue.value[prevIndex])
     }
   }
 
@@ -248,9 +248,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * @returns 随机索引
    */
   function makeRandomIndex(): number {
-    const len = playlist.value.length
+    const len = playbackQueue.value.length
     if (len <= 1) return 0
-    const current = playlist.value.findIndex((m) => m.id === currentPlayingId.value)
+    const current = playbackQueue.value.findIndex((m) => m.id === currentPlayingId.value)
     let next
     do next = Math.floor(Math.random() * len)
     while (next === current)
@@ -292,7 +292,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   return {
     // state
-    playlist,
+    playbackQueue,
     isPlaying,
     playMode,
     currentPlayingId,
@@ -304,16 +304,16 @@ export const usePlaylistStore = defineStore('playlist', () => {
     currentSongRemoveChinese,
 
     // getters
-    isPlaylistEmpty,
+    isplaybackQueueEmpty,
     currentPlaying,
     playModeIcon,
     playModeLabel,
 
     // actions
-    addToPlaylist,
+    addToplaybackQueue,
     setCurrentPlaying,
-    removeFromPlaylist,
-    clearPlaylist,
+    removeFromplaybackQueue,
+    clearplaybackQueue,
     playNext,
     playPrevious,
     cyclePlayMode,
