@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import PlaylistLayout from '@/components/Playlist/PlaylistLayout.vue'
+import { usePlaylistStore } from '@/stores/playlistStores'
 
 const route = useRoute()
+const playlistStore = usePlaylistStore()
+
 // 定义播放列表数据类型
 interface Track {
   title: string
@@ -18,32 +21,22 @@ interface PlaylistData {
   tracks: Track[]
 }
 
-interface PlaylistMap {
-  [key: string]: PlaylistData
-}
-
 const playlist = ref<PlaylistData | null>(null)
 
 onMounted(() => {
   const id = route.params.id as string
-  // 模拟数据（实际可从 store / API 加载）
-  const data: PlaylistMap = {
-    favorite: {
-      id: 1,
-      name: '我最喜欢的',
-      cover: '/covers/p1.jpg',
-      desc: '青葱记忆里的经典歌曲',
-      tracks: [{ title: '轨迹', artist: '周杰伦' }],
-    },
-    '2': {
-      id: '2',
-      name: '重返2009',
-      cover: '/covers/p2.jpg',
-      desc: '怀旧流行精选',
-      tracks: [{ title: '稻香', artist: '周杰伦' }],
-    },
+
+  const playlists = playlistStore.getPlaylists()
+  const foundPlaylist = playlists.find((p) => p.id === id)
+
+  if (foundPlaylist) {
+    playlist.value = {
+      id: foundPlaylist.id,
+      name: foundPlaylist.name,
+      cover: foundPlaylist.cover,
+      tracks: foundPlaylist.tracks,
+    }
   }
-  playlist.value = data[id]
 
   if (playlist.value) {
     route.meta.title = playlist.value.name
@@ -53,7 +46,25 @@ onMounted(() => {
 
 <template>
   <div v-if="playlist" class="playlist-detail-page">
+    <RouterLink to="/page/playlists" class="back-btn">
+      <i class="iconfont">&#xe79c;</i>
+    </RouterLink>
+
     <PlaylistLayout :playlist="playlist" />
   </div>
   <div v-else class="no-playlist">播放列表未找到</div>
 </template>
+
+<style lang="less" scoped>
+.back-btn {
+  .row-flex(@align: center, @justify: center);
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  text-decoration: none;
+
+  i {
+    font-size: 30px;
+  }
+}
+</style>

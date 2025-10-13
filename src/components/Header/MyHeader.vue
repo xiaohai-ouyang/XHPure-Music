@@ -18,7 +18,7 @@ header {
   padding: 5px 10px;
   position: fixed;
   top: 0;
-  z-index: 1000;
+  z-index: 5;
   background-color: @lightMode-header-bgColor;
 
   h3 {
