@@ -1,0 +1,25 @@
+.jy-music-marquee-container {
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.jy-music-marquee-content,
+.jy-music-clone {
+  display: inline-block;
+  padding-right: 2rem;
+  white-space: nowrap;
+}
+
+.jy-music-scrolling .jy-music-marquee-content,
+.jy-music-scrolling .jy-music-clone {
+  animation: var(--scroll-anim) var(--scroll-duration) linear infinite;
+}
+
+// 确保克隆元素正确显示
+.jy-music-clone {
+  display: inline-block;
+}

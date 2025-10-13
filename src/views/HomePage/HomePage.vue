@@ -49,7 +49,7 @@ onUnmounted(() => {
 <style lang="less" scoped>
 .homePage {
   .row-flex();
-  background-color: @lightMode-mainPage-bgColor;
+  background-color: @lightMode-dominant-bgColor;
 }
 
 .main-container {

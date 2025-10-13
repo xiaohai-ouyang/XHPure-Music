@@ -66,7 +66,8 @@ export function useLrcParser(
         // 根据removeChinese决定显示文本
         let displayText = originalText
         if (shouldRemoveChinese && index > lastColonLineIndex) {
-          displayText = originalText.replace(/[\u4e00-\u9fff]+/g, '')
+          // 移除中文字符 + 中文标点
+          displayText = originalText.replace(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]+/g, '')
         }
 
         lyricLines.push({

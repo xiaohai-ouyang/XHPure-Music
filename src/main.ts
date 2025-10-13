@@ -4,7 +4,6 @@ import router from './router'
 import { createPinia } from 'pinia'
 
 import '@/assets/styles/main.less'
-import '@/assets/styles/variables.less'
 import 'animate.css'
 
 const pinia = createPinia()
