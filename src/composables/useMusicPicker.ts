@@ -3,7 +3,6 @@ import { parseMusicFile } from '@/utils/getMusicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { isBilingualLyrics, detectLanguages } from '@/utils/lyricUtils'
 
-// 扩展 Window 接口以添加 showDirectoryPicker
 declare global {
   interface Window {
     showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>
@@ -38,28 +37,22 @@ export function useMusicPicker() {
     try {
       const file = await entry.getFile()
       const musicInfo = (await parseMusicFile(file)) as MusicInfo
-
       musicInfo.url = URL.createObjectURL(file)
 
-      // 检测歌词语言
       if (musicInfo.lyrics && typeof musicInfo.lyrics === 'string') {
-        // 移除时间戳以进行语言检测
         const lyricsWithoutTimestamps = musicInfo.lyrics
           .split('\n')
           .map((line) => line.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim())
           .join('\n')
 
-        // 判断是否为双语歌词
         musicInfo.isBilingual = isBilingualLyrics(lyricsWithoutTimestamps)
-
-        // 检测歌词语言
         const lines = lyricsWithoutTimestamps.split('\n')
         musicInfo.languages = Array.from(new Set(lines.flatMap((line) => detectLanguages(line))))
       }
 
       musicStore.addMusic(musicInfo)
     } catch (fileError) {
-      showError(`解析文件 ${name} 时出错，请检查文件格式`, fileError)
+      console.log(`解析文件 ${name} 时出错，请检查文件格式`, fileError)
     }
   }
 

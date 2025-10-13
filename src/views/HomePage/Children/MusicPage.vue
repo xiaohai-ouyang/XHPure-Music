@@ -5,21 +5,17 @@ import { usePlaylistStore } from '@/stores/playlistStore'
 import { useScrollRestore } from '@/composables/useScrollRestore'
 import { useMusicPicker } from '@/composables/useMusicPicker'
 import { formatTimeDetailed } from '@/utils/formatTime'
+import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
 const listContainer = ref<HTMLElement | null>(null)
-useScrollRestore({ containerRef: listContainer, key: 'music-list' })
-
 const playlistStore = usePlaylistStore()
 const musicStore = useMusicMetaStore()
 const { pickMusic } = useMusicPicker()
-
 const currentPlayingId = computed(() => playlistStore.currentPlayingId)
-
+useScrollRestore({ containerRef: listContainer, key: 'music-list' })
 function handleMusicClick(music: MusicInfo) {
   playlistStore.addToPlaylist(music)
 }
-
-console.log()
 
 interface MusicInfo {
   [key: string]: unknown
@@ -36,7 +32,7 @@ interface MusicInfo {
       </button>
     </div>
 
-    <div class="function-bar">
+    <div class="function-bar" v-if="!musicStore.isEmpty">
       <button class="addAll-btn list">全部顺序播放</button>
       <button class="addAll-btn random">全部随机播放</button>
       <div class="music-num">
@@ -64,10 +60,10 @@ interface MusicInfo {
           <img :src="(music.cover as string) || ''" class="music-cover" />
         </div>
         <div class="right">
-          <div class="music-title">{{ music.title }}</div>
-          <div class="music-artist">
+          <SmartMarquee class="music-title">{{ music.title }}</SmartMarquee>
+          <SmartMarquee class="music-artist">
             {{ music.artist }} - <span class="music-album">{{ music.album }}</span>
-          </div>
+          </SmartMarquee>
         </div>
       </div>
     </div>
@@ -78,6 +74,7 @@ interface MusicInfo {
 .jiaoyan-music {
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .empty {
@@ -87,8 +84,8 @@ interface MusicInfo {
 
   .add-to-list-btn {
     padding: 10px;
-    background-color: #0088ff;
     color: white;
+    background-color: @lightMode-dominant-textColor;
     font-weight: 700;
     font-size: 25px;
     border-radius: 10px;
@@ -98,7 +95,7 @@ interface MusicInfo {
 .function-bar {
   gap: 10px;
   padding: 5px;
-  background-color: white;
+  background-color: @lightMode-secondary-bgColor;
 
   .addAll-btn {
     background-color: #0707072e;
@@ -141,7 +138,10 @@ interface MusicInfo {
   }
 
   .right {
-    .col-flex();
+    .col-flex(@align: center);
+    max-width: 800px;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .right,
@@ -158,7 +158,7 @@ interface MusicInfo {
   background-color: @lightMode-music-playingBgColor;
 
   .music-title {
-    color: @lightMode-music-playingTextColor;
+    color: @lightMode-dominant-textColor;
     font-weight: 600;
   }
   .music-artist {

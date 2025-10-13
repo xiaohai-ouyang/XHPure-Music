@@ -118,7 +118,7 @@ onMounted(() => {
   bottom: 50px;
   width: 350px;
   max-height: 600px;
-  background-color: #fff;
+  background-color: @lightMode-secondary-bgColor;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   z-index: 999;
@@ -145,7 +145,7 @@ onMounted(() => {
     background-color: rgba(0, 0, 0, 0.05);
 
     .title {
-      color: @lightMode-music-playingTextColor;
+      color: @lightMode-dominant-textColor;
     }
   }
 }
@@ -244,7 +244,7 @@ onMounted(() => {
   }
 
   .title {
-    color: @lightMode-music-playingTextColor;
+    color: @lightMode-dominant-textColor;
   }
 }
 
