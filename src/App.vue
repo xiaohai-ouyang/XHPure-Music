@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useThemeStore } from './stores/themeStore'
-import { useGlobalShortcutKey } from './composables/globalShortcutKey'
+import { useGlobalShortcutKey } from './composables/useGlobalShortcutKey'
 import { usePlaylistStore } from './stores/playlistStore'
 
 const playlistStore = usePlaylistStore()

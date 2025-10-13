@@ -47,9 +47,12 @@ export async function parseMusicFile(file: Blob): Promise<{
   duration?: number
 }> {
   const metadata = await parseBlob(file)
-  const { title, album, artist, year, picture } = metadata.common
+
+  const { title, album, year, picture, artists } = metadata.common
   const lyrics = metadata.common.lyrics
   const duration = metadata.format.duration
+  const artist = artists?.join('/')
+
   return {
     title,
     album,
