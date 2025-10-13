@@ -32,7 +32,7 @@ export function generateTimestampId(withRandomSuffix: boolean = true): string {
   if (!withRandomSuffix) {
     return timestamp
   }
-  
+
   const randomSuffix = Math.random().toString(36).substring(2, 8)
   return `${timestamp}-${randomSuffix}`
 }

@@ -100,7 +100,8 @@ watch(
   .row-flex(@align:center);
   position: relative;
   height: 100vh;
-  width: 100vw;
+  min-width: 840px;
+  min-height: 670px;
   overflow: hidden;
   background-size: 300% 300%;
   animation: gradientMove 10s ease infinite;
@@ -179,7 +180,7 @@ main {
   position: absolute;
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  bottom: 25px;
+  bottom: 30px;
   right: -130px;
   width: 128px;
   border-radius: 5px;
