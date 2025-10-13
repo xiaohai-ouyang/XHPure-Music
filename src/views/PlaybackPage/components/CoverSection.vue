@@ -112,6 +112,7 @@ const onToggleMoreList = () => {
   margin: 20px 0;
   white-space: nowrap;
   transition: all 0.25s ease;
+  position: relative;
 
   .music-info-main {
     max-width: 280px;
@@ -151,8 +152,7 @@ const onToggleMoreList = () => {
 
 .more-btn {
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
+  background-color: rgba(255, 255, 255, 0.1);
   transition: 0.3s;
   @size: 32px;
   width: @size;
@@ -164,7 +164,7 @@ const onToggleMoreList = () => {
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.2);
   }
 }
 </style>

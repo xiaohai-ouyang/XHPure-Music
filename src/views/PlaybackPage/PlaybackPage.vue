@@ -180,7 +180,7 @@ main {
   position: absolute;
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  bottom: 25px;
+  bottom: 30px;
   right: -130px;
   width: 128px;
   border-radius: 5px;
