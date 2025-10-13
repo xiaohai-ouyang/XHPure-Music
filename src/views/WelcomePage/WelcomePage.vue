@@ -68,7 +68,7 @@ const btnHover = ref('btn1')
     height: 45px;
     margin: 0 10px;
     border-radius: 8px;
-    background-color: #ffffff;
+    background-color: @lightMode-secondary-bgColor;
     text-align: center;
     transition: all 0.3s ease-in-out;
     line-height: 45px;

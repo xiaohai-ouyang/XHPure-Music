@@ -1,176 +1,161 @@
-# Flex 工具 & Light Theme 使用说明
+# xiaohi-Marquee 组件文档
 
-## 目录
+## 简介
 
-- [安装与导入](#安装与导入)
-- [Flex 工具概述](#flex-工具概述)
-- [通用 flex 容器 `.flex-common()`](#通用-flex-容器-flex-common)
-- [行布局 `.row-flex()` / 列布局 `.col-flex()`](#行布局-row-flex--列布局-col-flex)
-- [居中快捷 `.flex-center()`](#居中快捷-flex-center)
-- [Light Theme 变量](#light-theme-变量)
-- [使用示例](#使用示例)
-- [注意事项](#注意事项)
+xiaohi-Marquee 是一个用于实现文本滚动效果（跑马灯）的 Vue 组件库。它提供了两种使用方式：组合式函数 `useMarquee` 和指令 `v-marquee`。最新版本增加了对多种滚动控制模式的支持。
 
-------
+## 特性
 
-## 安装与导入
+- 支持自定义滚动速度
+- 支持自动滚动和手动控制
+- 提供两种交互模式：
+  - 默认模式：自动滚动，鼠标悬停时暂停
+  - 鼠标悬停模式：仅在鼠标悬停时滚动
+- 响应式设计，自动适配容器大小变化
+- 无缝滚动效果
 
-假设项目目录结构如下：
+## 安装和使用
 
-```bash
-styles/
-│
-├─ mixins/
-│   └─ _flex.less          // Flex 工具
-├─ themes/
-│   └─ _light.less         // 亮色主题
-└─ variables.less          // 公共变量
-```
+### 组合式函数方式
 
-在入口 Less 文件（如 `main.less`）中导入：
+```typescript
+import { useMarquee } from '@/composables/marquee'
 
-```less
-@import "variables.less";
-@import "mixins/flex.less";
-@import "themes/light.less";
-```
+// 在组件中使用
+export default {
+  setup() {
+    const marquee = useMarquee({
+      speed: 30, // 滚动速度 (像素/秒)
+      autoScroll: true, // 是否自动开始滚动
+      pauseOnHover: true, // 鼠标悬停时是否暂停 (默认模式)
+      mouseHover: false, // 是否使用鼠标悬停模式
+    })
 
-------
-
-## Flex 工具概述
-
-提供了通用 flex 容器 mixin，以及行/列/居中快捷 mixin：
-
-|      Mixin       |                    描述                     |
-| :--------------: | :-----------------------------------------: |
-| `.flex-common()` | 通用 flex 布局，可指定方向、对齐、换行、gap |
-|  `.row-flex()`   |                 快捷行布局                  |
-|  `.col-flex()`   |                 快捷列布局                  |
-| `.flex-center()` |              水平+垂直居中布局              |
-
-------
-
-## 通用 flex 容器 `.flex-common()`
-
-### 参数
-
-|     参数     |    默认值    |                    描述                     |
-| :----------: | :----------: | :-----------------------------------------: |
-| `@direction` |    `row`     |        flex 方向，`row` 或 `column`         |
-|  `@justify`  | `flex-start` |   主轴对齐，如 `center`, `space-between`    |
-|   `@align`   |  `stretch`   |     侧轴对齐，如 `center`, `flex-start`     |
-|   `@wrap`    |   `nowrap`   |             是否换行，如 `wrap`             |
-|    `@gap`    |     `0`      | 子元素间距，单位 `px/rem/em` 等，0 则不输出 |
-
-### 使用示例
-
-```less
-.flex-container {
-  .flex-common(direction: row, justify: space-between, align: center, wrap: wrap, gap: 16px);
+    return {
+      marquee,
+    }
+  },
+  mounted() {
+    this.marquee.init()
+  },
 }
 ```
 
-------
-
-## 行布局 `.row-flex()` / 列布局 `.col-flex()`
-
-### 参数
-
-|    参数    |    默认值    |    描述    |
-| :--------: | :----------: | :--------: |
-| `@justify` | `flex-start` |  主轴对齐  |
-|  `@align`  |  `stretch`   |  侧轴对齐  |
-|  `@wrap`   |   `nowrap`   |  换行控制  |
-|   `@gap`   |     `0`      | 子元素间距 |
-
-> 支持具名参数调用，顺序可随意：
-
-```less
-.row-flex(justify: space-evenly, align: center, gap: 12px);
-.col-flex(align: center, gap: 16px, wrap: wrap);
+```html
+<template>
+  <div ref="marquee.container" class="XiaoHi-marquee-container">
+    <span class="XiaoHi-marquee-content">这是要滚动的文本内容</span>
+  </div>
+</template>
 ```
 
-------
+### 指令方式
 
-## 居中快捷 `.flex-center()`
+```html
+<!-- 基础用法 -->
+<div v-marquee>要滚动的文本</div>
 
-|  参数  | 默认值 |    描述    |
-| :----: | :----: | :--------: |
-| `@gap` |  `0`   | 子元素间距 |
+<!-- 设置滚动速度 -->
+<div v-marquee="30">要滚动的文本</div>
 
-```less
-.flex-center(gap: 10px);
+<!-- 配置详细参数 -->
+<div v-marquee="{speed: 30, pauseOnHover: true, mouseHover: false, auto: true}">要滚动的文本</div>
 ```
 
-------
+## 配置参数
 
-## Light Theme 变量
+| 参数名       | 类型    | 默认值 | 描述                           |
+| ------------ | ------- | ------ | ------------------------------ |
+| speed        | Number  | 50     | 滚动速度（像素/秒）            |
+| autoScroll   | Boolean | true   | 是否启用自动滚动（组合式函数） |
+| auto         | Boolean | true   | 是否启用自动滚动（指令）       |
+| pauseOnHover | Boolean | true   | 鼠标悬停时是否暂停（默认模式） |
+| mouseHover   | Boolean | false  | 是否启用鼠标悬停模式           |
 
-|                变量                 |        用途         |
-| :---------------------------------: | :-----------------: |
-|    `@lightMode-mainPage-bgColor`    |    主页面背景色     |
-|      `@lightMode-nav-bgColor`       |     导航栏背景      |
-|    `@lightMode-nav-bgItemColor`     |    导航子项背景     |
-|     `@lightMode-nav-textColor`      |    导航文字颜色     |
-|    `@lightMode-nav-activeColor`     |    导航选中颜色     |
-|     `@lightMode-nav-hoverColor`     |   导航 hover 颜色   |
-|     `@lightMode-header-bgColor`     |     页头背景色      |
-| `@lightMode-music-playingTextColor` |  音乐播放高亮文字   |
-|  `@lightMode-music-playingBgColor`  |  音乐播放高亮背景   |
-|     `@lightMode-playBar-btnBg`      |    播放按钮背景     |
-|   `@lightMode-playBar-btnHoverBg`   | 播放按钮 hover 背景 |
-|         `@nav-borderRadius`         |      导航圆角       |
+## 滚动模式说明
 
-使用示例：
+### 默认模式 (`mouseHover: false`)
 
-```less
-.nav {
-  background-color: @lightMode-nav-bgColor;
-  border-radius: @nav-borderRadius;
-}
-```
+在这种模式下，文本会自动开始滚动，当鼠标悬停在文本上时会暂停滚动，鼠标离开后继续滚动。
 
-------
+适用场景：通知栏、歌曲标题等需要持续展示但又希望用户能够暂停阅读的场景。
 
-## 使用示例
+### 鼠标悬停模式 (`mouseHover: true`)
 
-### 1. 行布局
+在这种模式下，文本默认是静止的，只有当鼠标悬停在文本上时才开始滚动，鼠标离开后停止滚动。
 
-```less
-.header {
-  .row-flex(justify: space-between, align: center, gap: 16px);
-}
-```
-
-### 2. 列布局 + 居中
-
-```less
-.sidebar {
-  .col-flex(align: center, gap: 12px);
-}
-```
-
-### 3. 快捷居中
-
-```less
-.center-box {
-  .flex-center(gap: 10px);
-}
-```
-
-### 4. 带换行的卡片列表
-
-```less
-.gallery {
-  .row-flex(wrap: wrap, gap: 20px, justify: space-evenly);
-}
-```
-
-------
+适用场景：列表项、菜单项等平时保持静态，仅在用户关注时展示完整信息的场景。
 
 ## 注意事项
 
-1. `.flex-common()` 的 `@gap` 为 **非零值才会生效**；
-2. `.row-flex()`、`.col-flex()` 支持 **具名参数**，顺序可任意调整；
-3. 建议在团队项目中将 **theme、mixins、variables** 分开管理，便于维护和扩展；
-4. 如果要支持 **暗色模式**，只需创建 `_dark.less` 并覆盖变量即可。
+1. 确保容器具有明确的宽度限制，以便正确计算是否需要滚动
+2. 内容文本应该放在带有 `XiaoHi-marquee-content` 类的元素中（组合式函数方式）
+3. 当文本长度不超过容器宽度时，不会触发滚动效果
+4. 组件会在组件卸载时自动清理事件监听器和动画
+
+## 示例
+
+### 基础示例
+
+```html
+<template>
+  <div class="demo">
+    <h3>默认模式</h3>
+    <div v-marquee="40" class="marquee-item">
+      这是一段很长的文本，用来演示默认的滚动效果，它会自动开始滚动。
+    </div>
+
+    <h3>鼠标悬停模式</h3>
+    <div v-marquee="{speed: 40, mouseHover: true}" class="marquee-item">
+      这是另一段很长的文本，用来演示鼠标悬停模式，只有悬停时才会滚动。
+    </div>
+  </div>
+</template>
+
+<style scoped>
+  .marquee-item {
+    width: 200px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    margin: 10px 0;
+  }
+</style>
+```
+
+## API
+
+### useMarquee(options)
+
+创建一个 marquee 实例
+
+#### 参数
+
+- options: MarqueeOptions
+  - speed?: number - 滚动速度（像素/秒），默认 50
+  - autoScroll?: boolean - 是否启用自动滚动，默认 true
+  - pauseOnHover?: boolean - 鼠标悬停时是否暂停，默认 true
+  - mouseHover?: boolean - 是否使用鼠标悬停模式，默认 false
+
+#### 返回值
+
+```typescript
+interface MarqueeInstance {
+  containerRef: HTMLElement | null // 容器引用
+  init: () => void // 初始化函数
+  start: () => void // 开始滚动
+  stop: () => void // 停止滚动
+  update: () => void // 更新内容
+}
+```
+
+### v-marquee 指令
+
+文本滚动指令
+
+#### 用法
+
+```html
+<div v-marquee>滚动文本</div>
+<div v-marquee="25">滚动文本（速度25px/s）</div>
+<div v-marquee="{speed: 30, pauseOnHover: false, mouseHover: true}">滚动文本</div>
+```

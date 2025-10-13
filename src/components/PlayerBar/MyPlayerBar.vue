@@ -5,12 +5,10 @@ import { ref } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { usePlaylistStore } from '@/stores/playlistStore'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
-import { useMarqueeScroll } from '@/composables/useTextAutoScroll'
 
 const playlistStore = usePlaylistStore()
 const infoRef = ref<HTMLElement | null>(null)
 const { togglePlayPause } = useAudioPlayer()
-const { containerRef } = useMarqueeScroll(25)
 </script>
 
 <template>
@@ -24,10 +22,8 @@ const { containerRef } = useMarqueeScroll(25)
         />
       </div>
       <div class="info" ref="infoRef" @click="usePageStatusStore().isPlayBackExpand = true">
-        <div ref="containerRef" class="title xiaoHi-marquee-container">
-          <div class="xiaoHi-marquee-content">
-            {{ playlistStore.currentPlaying?.title || '暂无播放' }}
-          </div>
+        <div class="title">
+          {{ playlistStore.currentPlaying?.title || '暂无播放' }}
         </div>
         <div class="artist">
           {{ playlistStore.currentPlaying?.artist || '未知艺术家' }}
@@ -66,10 +62,7 @@ const { containerRef } = useMarqueeScroll(25)
 
 <style scoped lang="less">
 .player-bar,
-.right {
-  .row-flex();
-}
-
+.right,
 .controls-btn,
 .playlist-btn {
   .row-flex(@align: center);
@@ -81,7 +74,7 @@ i {
 
 .player-bar {
   height: 50px;
-  background-color: white;
+  background-color: @lightMode-secondary-bgColor;
   align-items: center;
   position: fixed;
   bottom: 0;
@@ -111,7 +104,6 @@ i {
 
 .info {
   margin-left: 10px;
-  max-width: 180px;
   overflow: hidden;
   white-space: nowrap;
   cursor: pointer;
@@ -119,9 +111,7 @@ i {
 
   .title {
     font-weight: 500;
-    color: @lightMode-music-playingTextColor;
-    display: inline-block;
-    position: relative;
+    color: @lightMode-dominant-textColor;
   }
 
   .artist {
