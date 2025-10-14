@@ -30,28 +30,24 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { MusicInfo } from '@/stores/musicMetaStores'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 
 interface Props {
   music: MusicInfo
   currentPlayingId: string | null
 }
 
-interface Emits {
-  (e: 'setCurrentPlaying', music: MusicInfo): void
-  (e: 'remove', musicId: string): void
-}
-
 defineProps<Props>()
-const emit = defineEmits<Emits>()
 
 const itemRef = ref<HTMLElement | null>(null)
+const playbackQueueStore = useplaybackQueueStore()
 
 const setCurrentPlaying = (music: MusicInfo) => {
-  emit('setCurrentPlaying', music)
+  playbackQueueStore.setCurrentPlaying(music)
 }
 
 const handleRemove = (musicId: string) => {
-  emit('remove', musicId)
+  playbackQueueStore.removeFromplaybackQueue(musicId)
 }
 
 defineExpose({

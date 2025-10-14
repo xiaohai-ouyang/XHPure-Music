@@ -28,14 +28,6 @@ function clearplaybackQueue() {
   playbackQueueStores.clearplaybackQueue()
 }
 
-function handleRemove(musicId: string) {
-  playbackQueueStores.removeFromplaybackQueue(musicId)
-}
-
-function setCurrentPlaying(music: MusicInfo) {
-  playbackQueueStores.setCurrentPlaying(music)
-}
-
 function setMusicItemRef(el: InstanceType<typeof PlaybackQueueItem> | null, index: number) {
   if (el) {
     if (musicItemRefs.value.length <= index) {
@@ -119,8 +111,6 @@ onMounted(() => {
           :key="music.id"
           :music="music"
           :current-playing-id="playbackQueueStores.currentPlayingId"
-          @set-current-playing="setCurrentPlaying"
-          @remove="handleRemove"
           :ref="(el) => setMusicItemRef(el as InstanceType<typeof PlaybackQueueItem> | null, index)"
         />
       </TransitionGroup>

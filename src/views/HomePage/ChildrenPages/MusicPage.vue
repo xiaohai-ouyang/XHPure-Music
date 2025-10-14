@@ -41,13 +41,10 @@ function pushAllToPlaylist() {
 
 <template>
   <div class="jiaoyan-music" ref="listContainer">
-    <EmptyMusicState 
-      v-if="musicStore.isEmpty" 
-      @pick-music="pickMusic" 
-    />
+    <EmptyMusicState v-if="musicStore.isEmpty" @pick-music="pickMusic" />
 
     <template v-else>
-      <MusicFunctionBar 
+      <MusicFunctionBar
         :music-count="musicStore.musicList.length"
         :total-minutes="formatTimeDetailed(musicStore.totalDuration).totalMins.toString()"
         @push-all-to-playlist="pushAllToPlaylist"
