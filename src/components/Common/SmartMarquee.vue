@@ -94,6 +94,7 @@ watch(
   overflow: hidden;
   width: 100%;
   white-space: nowrap;
+  z-index: 0;
 }
 
 .smart-marquee-content,
