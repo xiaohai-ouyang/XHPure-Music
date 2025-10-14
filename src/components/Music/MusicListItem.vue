@@ -46,16 +46,12 @@ const handleAddToPlaylist = (event: Event) => {
 </script>
 
 <style lang="less" scoped>
-.music-cover {
-  width: 130px;
-  height: 130px;
-}
-
 .music-item {
   .row-flex(@align: center, @gap: 10px);
   cursor: pointer;
   position: relative;
   font-weight: 500;
+  padding: 8px 10px;
 
   .left {
     height: 130px;
@@ -63,9 +59,8 @@ const handleAddToPlaylist = (event: Event) => {
 
   .right {
     .col-flex(@align: center);
-    max-width: 800px;
+    max-width: 450px;
     white-space: nowrap;
-    overflow: hidden;
   }
 
   .right,
@@ -76,6 +71,13 @@ const handleAddToPlaylist = (event: Event) => {
   .music-title {
     font-size: 24px;
   }
+}
+
+.music-cover {
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
 .isPlaying {

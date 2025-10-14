@@ -2,7 +2,7 @@
   <div
     class="myNav"
     :class="{ myNavContracted: pageStatusStore.isNavContracted }"
-    @click="pageStatusStore.isPlaylistShow = false"
+    @click="pageStatusStore.isPlayQueueShow = false"
   >
     <nav>
       <ThemeSwitch />
