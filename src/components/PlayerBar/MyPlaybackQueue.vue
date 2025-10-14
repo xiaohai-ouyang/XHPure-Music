@@ -2,11 +2,12 @@
 import { ref, nextTick, watch, onMounted } from 'vue'
 import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import type { MusicInfo } from '@/stores/musicMetaStores'
+import PlaybackQueueItem from './PlaybackQueueItem.vue'
 
 const playbackQueueStores = useplaybackQueueStore()
-const musicItemRefs = ref<HTMLElement[]>([])
+const musicItemRefs = ref<InstanceType<typeof PlaybackQueueItem>[]>([])
 
-function clearPlaylist() {
+function clearplaybackQueue() {
   const audio = document.querySelector('audio')
   if (audio) {
     audio.pause()
@@ -18,10 +19,8 @@ function clearPlaylist() {
   playbackQueueStores.clearplaybackQueue()
 }
 
-function handleRemove(musicId: string | undefined) {
-  if (musicId) {
-    playbackQueueStores.removeFromplaybackQueue(musicId)
-  }
+function handleRemove(musicId: string) {
+  playbackQueueStores.removeFromplaybackQueue(musicId)
 }
 
 function scrollToPlayingItem() {
@@ -29,7 +28,7 @@ function scrollToPlayingItem() {
     const index = playbackQueueStores.playbackQueue.findIndex(
       (music: MusicInfo) => music.id === playbackQueueStores.currentPlayingId,
     )
-    const el = musicItemRefs.value[index]
+    const el = musicItemRefs.value[index]?.$el
     if (el) {
       el.scrollIntoView({
         behavior: 'smooth',
@@ -37,6 +36,21 @@ function scrollToPlayingItem() {
       })
     }
   })
+}
+
+function setCurrentPlaying(music: MusicInfo) {
+  playbackQueueStores.setCurrentPlaying(music)
+}
+
+// 更新 ref 处理函数，使其更安全
+function setMusicItemRef(el: InstanceType<typeof PlaybackQueueItem> | null, index: number) {
+  if (el) {
+    // 确保数组长度足够
+    if (musicItemRefs.value.length <= index) {
+      musicItemRefs.value = new Array(index + 1)
+    }
+    musicItemRefs.value[index] = el
+  }
 }
 
 watch(
@@ -54,11 +68,11 @@ onMounted(() => {
 
 <template>
   <div class="my-playback-queue">
-    <div v-if="playbackQueueStores.isplaybackQueueEmpty" class="empty-playlist">
+    <div v-show="playbackQueueStores.isplaybackQueueEmpty" class="empty-playlist">
       <p>播放队列为空</p>
     </div>
 
-    <div v-else class="has-playlist">
+    <div v-show="!playbackQueueStores.isplaybackQueueEmpty" class="has-playlist">
       <div class="controls-btn">
         <button
           class="mode-switch"
@@ -74,43 +88,21 @@ onMounted(() => {
           {{ playbackQueueStores.playModeLabel }}
         </button>
 
-        <button class="clear-list" @click="clearPlaylist" aria-label="清空播放队列">
+        <button class="clear-list" @click="clearplaybackQueue" aria-label="清空播放队列">
           清空队列
         </button>
       </div>
 
       <TransitionGroup name="fade" tag="div" class="my-playback-queue-container">
-        <div
+        <PlaybackQueueItem
           v-for="(music, index) in playbackQueueStores.playbackQueue"
           :key="music.id"
-          class="music-item"
-          :class="{ playing: music.id === playbackQueueStores.currentPlayingId }"
-          @click="playbackQueueStores.setCurrentPlaying(music)"
-          :ref="
-            (el) => {
-              if (el) musicItemRefs[index] = el as HTMLElement
-            }
-          "
-        >
-          <div class="cover">
-            <img :src="String(music.cover)" :alt="`专辑封面：${music.album}`" class="music-cover" />
-          </div>
-
-          <div class="info">
-            <div class="title">{{ music.title }}</div>
-            <div class="artist">{{ music.artist }} - {{ music.album }}</div>
-          </div>
-
-          <div class="remove-btn">
-            <button
-              class="iconfont"
-              @click.stop="handleRemove(music.id)"
-              :aria-label="`${music.id}`"
-            >
-              &#xe721;
-            </button>
-          </div>
-        </div>
+          :music="music"
+          :current-playing-id="playbackQueueStores.currentPlayingId"
+          @set-current-playing="setCurrentPlaying"
+          @remove="handleRemove"
+          :ref="(el) => setMusicItemRef(el as InstanceType<typeof PlaybackQueueItem> | null, index)"
+        />
       </TransitionGroup>
     </div>
   </div>
@@ -126,7 +118,7 @@ onMounted(() => {
   background-color: @lightMode-secondary-bgColor;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  z-index: 999;
+  z-index: 5;
 
   .my-playback-queue-container {
     .col-flex();
@@ -137,21 +129,7 @@ onMounted(() => {
 
   .has-playlist {
     width: 100%;
-  }
-}
-
-.music-item {
-  .row-flex(@align:center,@gap: 5px);
-  cursor: pointer;
-  padding: 8px 10px;
-  transition: all 0.1s ease-in-out;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-
-    .title {
-      color: @lightMode-dominant-textColor;
-    }
+    transition: all 0.2s ease-in-out;
   }
 }
 
@@ -184,73 +162,6 @@ onMounted(() => {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(0px);
-}
-
-.cover {
-  width: 70px;
-  height: 70px;
-  overflow: hidden;
-  border-radius: 4px;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.remove-btn {
-  margin-left: auto;
-  margin-right: 8px;
-
-  button {
-    font-size: 24px;
-    color: #999;
-    transition: color 0.2s;
-
-    &:hover {
-      color: #f00;
-    }
-  }
-}
-
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  max-width: 200px;
-
-  .title {
-    font-size: 15px;
-    font-weight: 400;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: all 0.1s ease-in-out;
-  }
-
-  .artist {
-    font-size: 13px;
-    color: #666;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-.playing {
-  background-color: rgba(133, 133, 133, 0.24);
-
-  .title,
-  .artist {
-    font-weight: 500;
-  }
-
-  .title {
-    color: @lightMode-dominant-textColor;
-  }
 }
 
 .empty-playlist {
