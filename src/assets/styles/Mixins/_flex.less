@@ -1,43 +1,87 @@
-// 通用 flex 容器
+// ===============================
+// ⚙️ 通用 Flex 工具库
+// ===============================
+
+// 通用 flex 容器，可只输出传入的属性
 .flex-common(
-  @direction: row,
-  @justify: flex-start,
-  @align: stretch,
-  @wrap: nowrap,
-  @gap: 0
+  @direction: ~'',
+  @justify: ~'',
+  @align: ~'',
+  @wrap: ~'',
+  @gap: ~''
 ) {
   display: flex;
-  flex-direction: @direction;
-  justify-content: @justify;
-  align-items: @align;
-  flex-wrap: @wrap;
 
-  .gap-mixin() when (default()) {
+  & when not (@direction = '') {
+    flex-direction: @direction;
   }
-  .gap-mixin() when not (@gap = 0) {
+
+  & when not (@justify = '') {
+    justify-content: @justify;
+  }
+
+  & when not (@align = '') {
+    align-items: @align;
+  }
+
+  & when not (@wrap = '') {
+    flex-wrap: @wrap;
+  }
+
+  & when not (@gap = '') and not (@gap = 0) {
     gap: @gap;
   }
-  .gap-mixin();
 }
 
-.row-flex(
-  @justify: flex-start,
-  @align: stretch,
-  @wrap: nowrap,
-  @gap: 0
-) {
+// -------------------------------
+// 🎯 常用方向封装
+// -------------------------------
+
+// 水平排列
+.row-flex(@justify: '', @align: '', @wrap: '', @gap: '') {
   .flex-common(row, @justify, @align, @wrap, @gap);
 }
 
-.col-flex(
-  @justify: flex-start,
-  @align: stretch,
-  @wrap: nowrap,
-  @gap: 0
-) {
+// 垂直排列
+.col-flex(@justify: '', @align: '', @wrap: '', @gap: '') {
   .flex-common(column, @justify, @align, @wrap, @gap);
 }
 
-.flex-center(@gap: 0) {
-  .flex-common(row, center, center, nowrap, @gap);
+// -------------------------------
+// 💡 常用布局快捷方式
+// -------------------------------
+
+// 居中对齐
+.flex-center(@gap: '') {
+  .flex-common(row, center, center, '', @gap);
+}
+
+// 垂直方向居中对齐
+.flex-col-center(@gap: '') {
+  .flex-common(column, center, center, '', @gap);
+}
+
+// 水平居中（主轴居中）
+.flex-x-center(@gap: '') {
+  .flex-common(row, center, '', '', @gap);
+}
+
+// 垂直居中（交叉轴居中）
+.flex-y-center(@gap: '') {
+  .flex-common(row, '', center, '', @gap);
+}
+
+// 两端对齐（space-between）
+.flex-between(@align: center, @gap: '') {
+  .flex-common(row, space-between, @align, '', @gap);
+}
+
+// 平均分布（space-around）
+.flex-around(@align: center, @gap: '') {
+  .flex-common(row, space-around, @align, '', @gap);
+}
+
+// 均匀分布（space-evenly）
+.flex-evenly(@align: center, @gap: '') {
+  .flex-common(row, space-evenly, @align, '', @gap);
 }

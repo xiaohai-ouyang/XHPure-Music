@@ -60,5 +60,10 @@ onUnmounted(() => {
   padding: 35px 0 50px 0;
   height: 100vh;
   overflow: hidden;
+
+  div:nth-child(1) {
+    height: 100%;
+    overflow-y: auto;
+  }
 }
 </style>

@@ -1,27 +1,26 @@
 <script setup lang="ts">
 import LrcParser from '@/components/Playback/LrcParser.vue'
 import { computed, ref, watch } from 'vue'
-
-import { usePlaylistStore } from '@/stores/playlistStore'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useDominantColor } from '@/composables/useDominantColor'
 import HeaderSection from './components/HeaderSection.vue'
 import CoverSection from './components/CoverSection.vue'
 import ControlSection from './components/ControlSection.vue'
 
 // 播放列表和页面状态管理
-const playlistStore = usePlaylistStore()
+const playbackQueueStores = useplaybackQueueStore()
+
+// 创建默认的音乐信息对象，避免重复创建
+const defaultMusicInfo = {
+  title: '',
+  artist: '',
+  album: '',
+  cover: '',
+  lyrics: '',
+}
 
 // 当前播放的音乐信息
-const currentPlaying = computed(
-  () =>
-    playlistStore.currentPlaying || {
-      title: '',
-      artist: '',
-      album: '',
-      cover: '',
-      lyrics: '',
-    },
-)
+const currentPlaying = computed(() => playbackQueueStores.currentPlaying || defaultMusicInfo)
 
 // 更多菜单显示状态
 const moreListShow = ref(false)
@@ -32,7 +31,7 @@ const moreListShow = ref(false)
 const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
 
 // 播放状态
-const isPlaying = computed(() => playlistStore.isPlaying)
+const isPlaying = computed(() => playbackQueueStores.isPlaying)
 
 // 主题颜色相关功能
 const { pageStyle, setCover, backgroundStyle, coverUrl, textColors, selectedColorIndex } =
@@ -86,8 +85,8 @@ watch(
           <LrcParser
             :dominantTextColor="textColors[selectedColorIndex]"
             :lyrics="(currentPlaying.lyrics as string) || ''"
-            :current-time="playlistStore.currentPlayingTime"
-            :remove-chinese="playlistStore.removeChinese"
+            :current-time="playbackQueueStores.currentPlayingTime"
+            :remove-chinese="playbackQueueStores.removeChinese"
           />
         </div>
       </main>

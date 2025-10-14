@@ -2,6 +2,8 @@ import { ref } from 'vue'
 import { parseMusicFile } from '@/utils/getMusicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { isBilingualLyrics, detectLanguages } from '@/utils/lyricUtils'
+import { calcMusicMD5 } from '@/utils/getFilesMD5'
+import { usePlaylistStore } from '@/stores/playlistStores'
 
 declare global {
   interface Window {
@@ -19,11 +21,13 @@ interface MusicInfo {
   url?: string
   isBilingual?: boolean
   languages?: string[]
+  md5?: string
 }
 
 export function useMusicPicker() {
   const loading = ref(false)
   const musicStore = useMusicMetaStore()
+  const playlistStore = usePlaylistStore()
 
   function showError(msg: string, err?: unknown) {
     if (err) console.error(msg, err)
@@ -36,8 +40,10 @@ export function useMusicPicker() {
 
     try {
       const file = await entry.getFile()
+      const md5 = await calcMusicMD5(file)
       const musicInfo = (await parseMusicFile(file)) as MusicInfo
       musicInfo.url = URL.createObjectURL(file)
+      musicInfo.md5 = md5
 
       if (musicInfo.lyrics && typeof musicInfo.lyrics === 'string') {
         const lyricsWithoutTimestamps = musicInfo.lyrics
@@ -51,6 +57,9 @@ export function useMusicPicker() {
       }
 
       musicStore.addMusic(musicInfo)
+
+      // 更新歌单中对应歌曲的ID
+      playlistStore.updateTrackIdByMusic(musicInfo)
     } catch (fileError) {
       console.log(`解析文件 ${name} 时出错，请检查文件格式`, fileError)
     }

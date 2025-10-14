@@ -1,7 +1,7 @@
 import { ref, computed, watch, nextTick, onMounted, type Ref } from 'vue'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { detectLanguages } from '@/utils/lyricUtils'
-import { usePlaylistStore } from '@/stores/playlistStore'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 
 export interface LyricLine {
   time: number
@@ -23,7 +23,7 @@ export function useLrcParser(
   containerRef: Ref<HTMLElement | null>,
   removeChinese?: Ref<boolean>,
 ) {
-  const playlistStore = usePlaylistStore()
+  const playbackQueueStores = useplaybackQueueStore()
   const lyricLineRefs = ref<HTMLElement[]>([])
   const spacerHeight = ref(250)
   const parsedLyrics = ref<LyricLine[]>([])
@@ -51,7 +51,7 @@ export function useLrcParser(
     })
 
     // 是否应该移除中文：当用户开启 removeChinese 时替换中文
-    const shouldRemoveChinese = removeChinese?.value ?? playlistStore.removeChinese
+    const shouldRemoveChinese = removeChinese?.value ?? playbackQueueStores.removeChinese
 
     lines.forEach((line, index) => {
       const timeMatch = line.match(/\[(\d+):(\d+)(?:\.(\d+))?\]/)
@@ -86,8 +86,12 @@ export function useLrcParser(
   // 当前行索引
   const activeLineIndex = computed(() => {
     if (!currentTime.value || parsedLyrics.value.length === 0) return -1
-    for (let i = parsedLyrics.value.length - 1; i >= 0; i--) {
-      if (parsedLyrics.value[i].time <= (currentTime.value || 0)) return i
+    
+    // 从后向前查找，提高性能
+    const currentTimeValue = currentTime.value
+    const lyrics = parsedLyrics.value
+    for (let i = lyrics.length - 1; i >= 0; i--) {
+      if (lyrics[i].time <= currentTimeValue) return i
     }
     return -1
   })
@@ -114,7 +118,7 @@ export function useLrcParser(
   // 是否为双语歌词（直接使用musicPicker中判断的结果）
   const isBilingual = computed(() => {
     const currentMusic = musicStore.musicList.find(
-      (music) => music.id === playlistStore.currentPlayingId,
+      (music) => music.id === playbackQueueStores.currentPlayingId,
     )
     return !!currentMusic?.isBilingual
   })
@@ -122,7 +126,7 @@ export function useLrcParser(
   // 是否应该显示"去中文"按钮
   const showRemoveChineseButton = computed(() => {
     const currentMusic = musicStore.musicList.find(
-      (music) => music.id === playlistStore.currentPlayingId,
+      (music) => music.id === playbackQueueStores.currentPlayingId,
     )
     return !!currentMusic?.isBilingual
   })
@@ -130,27 +134,30 @@ export function useLrcParser(
   // 监听歌词变化
   watch(
     lyrics,
-    (val) => {
-      parseLyrics(val)
-      updateSpacerHeight()
+    (newLyrics, oldLyrics) => {
+      // 只有当歌词真正改变时才重新解析
+      if (newLyrics !== oldLyrics) {
+        parseLyrics(newLyrics)
+        updateSpacerHeight()
+      }
     },
     { immediate: true },
   )
 
   if (removeChinese) {
     watch(removeChinese, (val) => {
-      if (playlistStore.currentPlayingId) {
-        playlistStore.setSongChineseState(playlistStore.currentPlayingId, val ?? false)
+      if (playbackQueueStores.currentPlayingId) {
+        playbackQueueStores.setSongChineseState(playbackQueueStores.currentPlayingId, val ?? false)
       }
       parseLyrics(lyrics.value)
     })
   } else {
-    // 即使没有传入 removeChinese，也要监听 playlistStore 中的状态
+    // 即使没有传入 removeChinese，也要监听 playbackQueueStores 中的状态
     watch(
-      () => playlistStore.removeChinese,
+      () => playbackQueueStores.removeChinese,
       (val) => {
-        if (playlistStore.currentPlayingId) {
-          playlistStore.setSongChineseState(playlistStore.currentPlayingId, val)
+        if (playbackQueueStores.currentPlayingId) {
+          playbackQueueStores.setSongChineseState(playbackQueueStores.currentPlayingId, val)
         }
         parseLyrics(lyrics.value)
       },

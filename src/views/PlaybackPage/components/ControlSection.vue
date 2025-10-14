@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { usePlaylistStore } from '@/stores/playlistStore'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { formatTime, formatNegativeTime } from '@/utils/formatTime'
 
-const playlistStore = usePlaylistStore()
+const playbackQueueStores = useplaybackQueueStore()
 const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
 
 // 静音状态
@@ -42,16 +42,16 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
         class="progress-filled"
         :style="{
           width:
-            (playlistStore.currentPlayingTime / playlistStore.currentPlayingDuration) * 100 + '%',
+            (playbackQueueStores.currentPlayingTime / playbackQueueStores.currentPlayingDuration) * 100 + '%',
         }"
       ></div>
     </div>
 
     <div class="timer">
-      <span v-html="formatTime(playlistStore.currentPlayingTime)"></span>
+      <span v-html="formatTime(playbackQueueStores.currentPlayingTime)"></span>
       <span
         v-html="
-          formatNegativeTime(playlistStore.currentPlayingTime, playlistStore.currentPlayingDuration)
+          formatNegativeTime(playbackQueueStores.currentPlayingTime, playbackQueueStores.currentPlayingDuration)
         "
       ></span>
     </div>
@@ -59,14 +59,14 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
     <!-- 控制按钮 -->
     <div class="ctl-btns">
       <div class="controls-btn">
-        <button class="prev-btn" @click="() => playlistStore.playPrevious()">
+        <button class="prev-btn" @click="() => playbackQueueStores.playPrevious()">
           <i class="iconfont">&#xe722;</i>
         </button>
         <button class="play-pause" @click="togglePlayPause">
-          <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
+          <i class="iconfont" v-if="!playbackQueueStores.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
-        <button class="next-btn" @click="() => playlistStore.playNext()">
+        <button class="next-btn" @click="() => playbackQueueStores.playNext()">
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
@@ -74,11 +74,11 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
       <div class="function-btn">
         <button
           class="mode-switch-btn"
-          :class="playlistStore.playMode"
-          @click="playlistStore.cyclePlayMode"
-          :aria-label="`${playlistStore.playModeLabel}`"
+          :class="playbackQueueStores.playMode"
+          @click="playbackQueueStores.cyclePlayMode"
+          :aria-label="`${playbackQueueStores.playModeLabel}`"
         >
-          <i class="iconfont" v-html="playlistStore.playModeIcon"></i>
+          <i class="iconfont" v-html="playbackQueueStores.playModeIcon"></i>
         </button>
 
         <button class="mute-btn iconfont" @click="toggleMute" :title="muteTitle">
