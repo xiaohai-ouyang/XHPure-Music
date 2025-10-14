@@ -4,14 +4,14 @@ interface FileSystemDirectoryHandle {
 }
 
 interface Track {
+  duration: number
+  md5: string
   title: string
-  artist: string
 }
 
 interface Playlist {
   id: string
   name: string
   cover: string
-  desc?: string
   tracks: Track[]
 }

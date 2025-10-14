@@ -19,6 +19,13 @@
           />
           <span :class="{ inputing: inputing }"></span>
         </div>
+        <div class="inp-field">
+          <p>封面图片:</p>
+          <input type="file" accept="image/*" @change="handleCoverUpload" />
+        </div>
+        <div v-if="coverPreview" class="cover-preview">
+          <img :src="coverPreview" alt="Cover preview" />
+        </div>
       </div>
       <div class="dialog-footer">
         <button class="create-btn" @click="createPlaylist">创建</button>
@@ -31,21 +38,57 @@
 import { ref } from 'vue'
 import { generateShortId } from '@/utils/idGenerator'
 import { usePlaylistStore } from '@/stores/playlistStores'
+import { useCoverStorage } from '@/composables/useCoverStorage'
+
 const emit = defineEmits(['false'])
 
 const playlistStore = usePlaylistStore()
+const { saveCover } = useCoverStorage()
+
 const playlistName = ref('')
 const inputing = ref(false)
+const coverFile = ref<File | null>(null)
+const coverPreview = ref<string | null>(null)
 
-function createPlaylist() {
+function handleCoverUpload(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (file) {
+    coverFile.value = file
+    coverPreview.value = URL.createObjectURL(file)
+  }
+}
+
+async function createPlaylist() {
+  // 生成播放列表ID
+  const playlistId = generateShortId()
+
+  // 处理封面
+  let coverUrl = '/src/assets/images/logo.png'
+  if (coverFile.value) {
+    // 保存到IndexedDB
+    try {
+      await saveCover(playlistId, coverFile.value)
+      // 使用特殊标识符表示该播放列表有自定义封面
+      coverUrl = `indexeddb://${playlistId}`
+    } catch (error) {
+      console.error('Failed to save cover:', error)
+    }
+  }
+
   playlistStore.createPlaylist({
-    id: generateShortId(),
-    name: playlistName?.value,
-    cover: '/src/assets/images/logo.png',
+    id: playlistId,
+    name: playlistName.value,
+    cover: coverUrl,
     tracks: [],
   })
 
   if (playlistStore.msg === '添加歌单成功') {
+    // 清空表单
+    playlistName.value = ''
+    coverFile.value = null
+    coverPreview.value = null
     emit('false')
   } else {
     alert(playlistStore.msg)
@@ -71,6 +114,8 @@ function createPlaylist() {
   background-color: aliceblue;
   padding: 20px;
   border-radius: @page-boder-radius;
+  max-width: 500px;
+  width: 90%;
 }
 
 .my-dialog-contant header {
@@ -88,8 +133,9 @@ function createPlaylist() {
   .row-flex(@align: center);
   font-size: 18px;
   position: relative;
+  margin-bottom: 15px;
 
-  input {
+  input[type='text'] {
     height: 40px;
     width: 300px;
     outline: unset;
@@ -97,6 +143,10 @@ function createPlaylist() {
     padding: 0 5px;
     background: transparent;
     transition: all 0.2s linear;
+  }
+
+  input[type='file'] {
+    padding: 5px;
   }
 
   span {
@@ -115,6 +165,15 @@ function createPlaylist() {
 
   p {
     margin-right: 10px;
+    min-width: 120px;
+  }
+}
+
+.cover-preview {
+  img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
   }
 }
 
@@ -123,5 +182,7 @@ function createPlaylist() {
   color: rgb(255, 255, 255);
   padding: 10px 20px;
   border-radius: @page-boder-radius;
+  align-self: flex-end;
+  margin-top: 10px;
 }
 </style>

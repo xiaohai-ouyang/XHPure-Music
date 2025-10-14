@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 export const usePageStatusStore = defineStore('pageStatus', () => {
   const isNavContracted = ref(false)
-  const isPlaylistShow = ref(false)
+  const isPlayQueueShow = ref(false)
   const isPlayBackExpand = ref(false)
   const pageWidth = ref<number>(0)
   const currentPageTitle = ref<string>('歌曲')
@@ -12,17 +12,17 @@ export const usePageStatusStore = defineStore('pageStatus', () => {
     isNavContracted.value = !isNavContracted.value
   }
 
-  function togglePlaylist() {
-    isPlaylistShow.value = !isPlaylistShow.value
+  function toggleisPlayQueueShow() {
+    isPlayQueueShow.value = !isPlayQueueShow.value
   }
 
   return {
     isNavContracted,
     pageWidth,
     currentPageTitle,
-    isPlaylistShow,
+    isPlayQueueShow,
     isPlayBackExpand,
     toggleNav,
-    togglePlaylist,
+    toggleisPlayQueueShow,
   }
 })

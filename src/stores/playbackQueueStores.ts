@@ -229,8 +229,6 @@ export const useplaybackQueueStore = defineStore('playbackQueue', () => {
     } else if (playMode.value === 'list') {
       prevIndex = currentIndex > 0 ? currentIndex - 1 : playbackQueue.value.length - 1
     } else if (playMode.value === 'loop') {
-      // 如果是自动播放上一首，则保持单曲循环
-      // 如果是手动点击上一曲，则切换到上一首歌曲
       if (isAutoPlayPrevious) {
         prevIndex = currentIndex
       } else {

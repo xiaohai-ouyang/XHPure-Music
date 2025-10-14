@@ -1,21 +1,30 @@
 <script lang="ts" setup>
 import { ref, nextTick, watch, onMounted } from 'vue'
 import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePageStatusStore } from '@/stores/pageStatusStores'
 import type { MusicInfo } from '@/stores/musicMetaStores'
 import PlaybackQueueItem from './PlaybackQueueItem.vue'
 
 const playbackQueueStores = useplaybackQueueStore()
+const pageStatusStore = usePageStatusStore()
 const musicItemRefs = ref<InstanceType<typeof PlaybackQueueItem>[]>([])
 
 function clearplaybackQueue() {
+  // 获取页面中的audio元素
   const audio = document.querySelector('audio')
   if (audio) {
+    // 暂停音频播放
     audio.pause()
+    // 重置播放时间
     audio.currentTime = 0
+    // 清空音频源
     audio.src = ''
+    // 重新加载音频元素
     audio.load()
   }
+  // 设置播放状态为停止
   playbackQueueStores.isPlaying = false
+  // 清空播放列表
   playbackQueueStores.clearplaybackQueue()
 }
 
@@ -42,10 +51,8 @@ function setCurrentPlaying(music: MusicInfo) {
   playbackQueueStores.setCurrentPlaying(music)
 }
 
-// 更新 ref 处理函数，使其更安全
 function setMusicItemRef(el: InstanceType<typeof PlaybackQueueItem> | null, index: number) {
   if (el) {
-    // 确保数组长度足够
     if (musicItemRefs.value.length <= index) {
       musicItemRefs.value = new Array(index + 1)
     }
@@ -61,13 +68,26 @@ watch(
   { flush: 'post' },
 )
 
+import { heightTransition } from '@/utils/heightTransition'
+const playbackQueueRef = ref<HTMLElement | null>(null)
+
+// 监听播放队列显示状态变化，每次显示时执行 heightTransition
+watch(
+  () => pageStatusStore.isPlayQueueShow,
+  (newVal) => {
+    if (playbackQueueRef.value) {
+      heightTransition({ value: playbackQueueRef.value }, newVal)
+    }
+  },
+)
+
 onMounted(() => {
   scrollToPlayingItem()
 })
 </script>
 
 <template>
-  <div class="my-playback-queue">
+  <div class="my-playback-queue" ref="playbackQueueRef">
     <div v-show="playbackQueueStores.isplaybackQueueEmpty" class="empty-playlist">
       <p>播放队列为空</p>
     </div>
@@ -114,7 +134,7 @@ onMounted(() => {
   right: 0;
   bottom: 50px;
   width: 350px;
-  max-height: 600px;
+  height: 0;
   background-color: @lightMode-secondary-bgColor;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;

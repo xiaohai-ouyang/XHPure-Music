@@ -41,7 +41,6 @@ interface Emits {
   (e: 'remove', musicId: string): void
 }
 
-// 使用下划线前缀告诉 TypeScript 我们故意不使用这个变量
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
