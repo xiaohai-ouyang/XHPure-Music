@@ -1,15 +1,51 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { useThemeStore } from '@/stores/themeStore'
 
+/**
+ * useAudioPlayer()
+ * 全面整合版：包含音频播放逻辑 + 交互控制逻辑（进度条拖动、点击跳转）
+ */
 export function useAudioPlayer() {
-  const playbackQueueStores = useplaybackQueueStore()
-  const isDragging = ref(false)
-  const progressBar = ref<HTMLElement | null>(null)
+  const playbackQueueStore = useplaybackQueueStore()
 
-  const togglePlayPause = () => {
-    const audio = document.querySelector('audio') as HTMLAudioElement | null
+  // ======= 音频控制引用 =======
+  const getAudioElement = (): HTMLAudioElement | null => {
+    return document.querySelector('audio')
+  }
+
+  // ======= 进度条交互状态 =======
+  const progressBar = ref<HTMLElement | null>(null)
+  const isDragging = ref(false)
+
+  // ======= 初始化主题 =======
+  onMounted(() => {
+    document.title = '椒盐音乐'
+    useThemeStore().initTheme()
+  })
+
+  // ======= 音频事件回调 =======
+  const handleTimeUpdate = () => playbackQueueStore.updateCurrentPlayingTime()
+  const handlePlay = () => (playbackQueueStore.isPlaying = true)
+  const handlePause = () => (playbackQueueStore.isPlaying = false)
+
+  const handleEnded = () => {
+    const audio = getAudioElement()
     if (!audio) return
-    if (playbackQueueStores.isPlaying) audio.pause()
+
+    if (playbackQueueStore.playMode === 'loop' && playbackQueueStore.currentPlaying) {
+      audio.currentTime = 0
+      audio.play().catch(console.error)
+    } else {
+      playbackQueueStore.playNext(true)
+    }
+  }
+
+  // ======= 控制逻辑（播放/暂停、进度条） =======
+  const togglePlayPause = () => {
+    const audio = getAudioElement()
+    if (!audio) return
+    if (playbackQueueStore.isPlaying) audio.pause()
     else audio.play().catch(console.error)
   }
 
@@ -18,14 +54,14 @@ export function useAudioPlayer() {
     if (!bar) return
     const rect = bar.getBoundingClientRect()
     const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1)
-    const audio = document.querySelector('audio') as HTMLAudioElement | null
+    const audio = getAudioElement()
     if (!audio) return
-    audio.currentTime = ratio * playbackQueueStores.currentPlayingDuration
+    audio.currentTime = ratio * playbackQueueStore.currentPlayingDuration
   }
 
   const startDrag = () => {
     isDragging.value = true
-    const audio = document.querySelector('audio') as HTMLAudioElement | null
+    const audio = getAudioElement()
     if (!audio) return
 
     const onMove = (e: MouseEvent) => {
@@ -33,7 +69,7 @@ export function useAudioPlayer() {
       if (!bar) return
       const rect = bar.getBoundingClientRect()
       const ratio = Math.min(Math.max(e.clientX - rect.left, 0), rect.width) / rect.width
-      audio.currentTime = ratio * playbackQueueStores.currentPlayingDuration
+      audio.currentTime = ratio * playbackQueueStore.currentPlayingDuration
     }
     const onUp = () => {
       isDragging.value = false
@@ -44,47 +80,26 @@ export function useAudioPlayer() {
     window.addEventListener('mouseup', onUp)
   }
 
-  // 将onUnmounted移出onMounted之外，放到顶层作用域
-  const setupAudioEventListeners = () => {
-    const audio = document.querySelector('audio') as HTMLAudioElement | null
-    if (!audio) return
-
-    const onPlay = () => (playbackQueueStores.isPlaying = true)
-    const onPause = () => (playbackQueueStores.isPlaying = false)
-    const onTimeUpdate = () => (playbackQueueStores.currentPlayingTime = audio.currentTime)
-    const onEnded = () => {
-      // 在单曲循环模式下，重新播放当前歌曲
-      if (playbackQueueStores.playMode === 'loop' && playbackQueueStores.currentPlaying) {
-        audio.currentTime = 0
-        audio.play().catch(console.error)
-      } else {
-        // 传入true表示这是自动播放结束触发的下一首
-        playbackQueueStores.playNext(true)
-      }
-    }
-
-    audio.addEventListener('play', onPlay)
-    audio.addEventListener('pause', onPause)
-    audio.addEventListener('timeupdate', onTimeUpdate)
-    audio.addEventListener('ended', onEnded)
-
-    return () => {
-      audio.removeEventListener('play', onPlay)
-      audio.removeEventListener('pause', onPause)
-      audio.removeEventListener('timeupdate', onTimeUpdate)
-      audio.removeEventListener('ended', onEnded)
-    }
-  }
-
-  let cleanup: (() => void) | undefined
-
-  onMounted(() => {
-    cleanup = setupAudioEventListeners()
-  })
-
+  // ======= 卸载清理 =======
   onUnmounted(() => {
-    if (cleanup) cleanup()
+    // 不需要清理，因为 audio 元素在 App.vue 中管理
   })
 
-  return { togglePlayPause, startDrag, seekByClick, progressBar, isDragging }
+  // ======= 返回可用接口 =======
+  return {
+    // 音频事件绑定
+    handleTimeUpdate,
+    handlePlay,
+    handlePause,
+    handleEnded,
+
+    // 播放控制逻辑
+    togglePlayPause,
+    seekByClick,
+    startDrag,
+
+    // 进度条控制
+    progressBar,
+    isDragging,
+  }
 }

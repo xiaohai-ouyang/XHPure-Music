@@ -32,6 +32,19 @@ function handleRemove(musicId: string) {
   playbackQueueStores.removeFromplaybackQueue(musicId)
 }
 
+function setCurrentPlaying(music: MusicInfo) {
+  playbackQueueStores.setCurrentPlaying(music)
+}
+
+function setMusicItemRef(el: InstanceType<typeof PlaybackQueueItem> | null, index: number) {
+  if (el) {
+    if (musicItemRefs.value.length <= index) {
+      musicItemRefs.value = new Array(index + 1)
+    }
+    musicItemRefs.value[index] = el
+  }
+}
+
 function scrollToPlayingItem() {
   nextTick(() => {
     const index = playbackQueueStores.playbackQueue.findIndex(
@@ -45,19 +58,6 @@ function scrollToPlayingItem() {
       })
     }
   })
-}
-
-function setCurrentPlaying(music: MusicInfo) {
-  playbackQueueStores.setCurrentPlaying(music)
-}
-
-function setMusicItemRef(el: InstanceType<typeof PlaybackQueueItem> | null, index: number) {
-  if (el) {
-    if (musicItemRefs.value.length <= index) {
-      musicItemRefs.value = new Array(index + 1)
-    }
-    musicItemRefs.value[index] = el
-  }
 }
 
 watch(
@@ -131,109 +131,76 @@ onMounted(() => {
 <style scoped lang="less">
 .my-playback-queue {
   position: fixed;
-  right: 0;
   bottom: 50px;
-  width: 350px;
+  right: 0;
+  width: 380px;
   height: 0;
-  background-color: @lightMode-secondary-bgColor;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  z-index: 5;
-
-  .my-playback-queue-container {
-    .col-flex();
-    max-height: 516px;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  .has-playlist {
-    width: 100%;
-    transition: all 0.2s ease-in-out;
-  }
+  background-color: @lightMode-secondary-bgColor;
+  border-radius: 8px 8px 0 0;
+  z-index: 1000;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
 }
 
-.fade-enter-active,
-.fade-leave-active,
-.fade-move {
-  transition: all 0.4s ease-in-out;
-}
-
-.fade-enter-from {
-  opacity: 0;
-  transform: translateY(50px);
-}
-
-.fade-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.fade-leave-active {
-  position: absolute;
-  width: 100%;
-}
-
-.fade-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.fade-leave-to {
-  opacity: 0;
-  transform: translateY(0px);
-}
-
-.empty-playlist {
-  .col-flex(@align:center,@justify: center);
-  height: 100px;
-
-  p {
-    font-size: 18px;
-    color: #999;
-  }
+.has-playlist {
+  .col-flex();
+  max-height: 500px;
 }
 
 .controls-btn {
-  gap: 10px;
-  padding: 5px 12px;
-  background-color: #f8f8f8;
+  .row-flex(@justify:space-between, @align:center);
+  padding: 10px 15px;
   border-bottom: 1px solid #eee;
+  gap: 20px;
+  font-size: 16px;
 
   button {
-    gap: 6px;
     flex: 1;
-    padding: 8px;
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 5px;
-    color: white;
+    height: 40px;
     cursor: pointer;
-    transition: all 0.2s ease;
   }
 
-  .iconfont {
-    font-size: 17px;
+  .mode-switch {
+    .row-flex(@align:center);
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 15px;
+    background-color: #f0f0f0;
+    transition: all 0.3s ease;
+
+    &.loop {
+      background-color: #ff5c5c;
+      color: white;
+    }
+
+    &.random {
+      background-color: #5c9dff;
+      color: white;
+    }
   }
 
   .clear-list {
-    background-color: #000814;
-  }
+    padding: 5px 10px;
+    border-radius: 15px;
+    background-color: #f0f0f0;
+    transition: all 0.3s ease;
 
-  &,
-  button {
-    .row-flex(@align:center ,@justify: center);
+    &:hover {
+      background-color: #ff5c5c;
+      color: white;
+    }
   }
-  .loop {
-    background-color: #e63946;
-  }
+}
 
-  .random {
-    background-color: #8338ec;
-  }
+.my-playback-queue-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
 
-  .list {
-    background-color: #0088ff;
-  }
+.empty-playlist {
+  height: 100px;
+  .col-flex(@align:center, @justify:center);
+  color: #999;
 }
 </style>

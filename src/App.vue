@@ -4,18 +4,22 @@ import { useThemeStore } from './stores/themeStore'
 import { useGlobalShortcutKey } from './composables/useGlobalShortcutKey'
 import { useplaybackQueueStore } from './stores/playbackQueueStores'
 
-const playbackQueueStores = useplaybackQueueStore()
+// --------- 初始化全局状态 ---------
+const playbackQueueStore = useplaybackQueueStore()
 const audioRef = ref<HTMLAudioElement | null>(null)
 
+// 页面标题与快捷键
 document.title = '椒盐音乐'
 useGlobalShortcutKey()
 
+// 初始化主题
 onMounted(() => {
   useThemeStore().initTheme()
 })
 
+// --------- 监听歌曲变化，自动播放 ---------
 watch(
-  () => playbackQueueStores.currentPlaying,
+  () => playbackQueueStore.currentPlaying,
   async (newSong) => {
     const audio = audioRef.value
     if (!audio) return
@@ -23,11 +27,14 @@ watch(
     try {
       audio.pause()
 
-      if (!newSong || !newSong.url) return
+      // 没有歌曲或没有 URL，直接退出
+      if (!newSong?.url) return
 
+      // 设置音频源并加载
       audio.src = newSong.url
       audio.load()
 
+      // 等待音频可播放后再调用 play()
       audio.addEventListener(
         'canplay',
         () => {
@@ -46,18 +53,39 @@ watch(
     }
   },
 )
+
+// --------- 事件处理函数 ---------
+const handleTimeUpdate = () => playbackQueueStore.updateCurrentPlayingTime()
+const handlePlay = () => (playbackQueueStore.isPlaying = true)
+const handlePause = () => (playbackQueueStore.isPlaying = false)
+
+// 处理播放结束
+const handleEnded = () => {
+  const audio = audioRef.value
+  if (!audio) return
+
+  if (playbackQueueStore.playMode === 'loop' && playbackQueueStore.currentPlaying) {
+    audio.currentTime = 0
+    audio.play().catch(console.error)
+  } else {
+    playbackQueueStore.playNext(true)
+  }
+}
 </script>
 
 <template>
+  <!-- 全局唯一音频播放器 -->
   <audio
     ref="audioRef"
-    @timeupdate="playbackQueueStores.updateCurrentPlayingTime"
-    @play="playbackQueueStores.isPlaying = true"
-    @pause="playbackQueueStores.isPlaying = false"
-    @ended="playbackQueueStores.playNext(true)"
-  />
+    preload="auto"
+    @timeupdate="handleTimeUpdate"
+    @play="handlePlay"
+    @pause="handlePause"
+    @ended="handleEnded"
+  ></audio>
 
-  <router-view></router-view>
+  <!-- 页面主体 -->
+  <router-view />
 </template>
 
 <style lang="less">
@@ -72,7 +100,7 @@ button {
   border: none;
   outline: none;
   cursor: pointer;
-  .row-flex(@align: center,@justify: center);
+  .row-flex(@align: center, @justify: center);
 }
 
 body {
@@ -103,7 +131,6 @@ img {
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 9999;
 
-  // 添加模态框内容样式
   .modal-content {
     position: absolute;
     top: 50%;
