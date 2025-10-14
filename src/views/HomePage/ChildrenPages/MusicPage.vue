@@ -131,7 +131,7 @@ function pushAllToPlaylist() {
 }
 
 .music-item-box {
-  .col-flex(@justify:flex-start,@gap:5px);
+  .col-flex(@align: stretch,@gap: 5px);
 }
 
 .music-item {

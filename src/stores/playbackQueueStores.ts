@@ -85,7 +85,10 @@ export const useplaybackQueueStore = defineStore('playbackQueue', () => {
    */
   const currentPlaying = computed<MusicInfo | null>(() => {
     if (!currentPlayingId.value) return null
-    return playbackQueue.value.find((music) => music.id === currentPlayingId.value) || null
+
+    // 使用find方法直接查找，避免每次都遍历整个播放列表
+    const currentId = currentPlayingId.value
+    return playbackQueue.value.find((music) => music.id === currentId) || null
   })
 
   // 当前播放歌曲的中文显示状态
@@ -125,7 +128,6 @@ export const useplaybackQueueStore = defineStore('playbackQueue', () => {
     const existsIndex = playbackQueue.value.findIndex((item) => item.url === musicWithId.url)
 
     if (existsIndex !== -1) {
-      // 已存在 -> 直接切换当前播放
       setCurrentPlaying(playbackQueue.value[existsIndex])
       return
     }
@@ -296,7 +298,6 @@ export const useplaybackQueueStore = defineStore('playbackQueue', () => {
     currentPlayingId,
     currentPlayingTime,
     currentPlayingDuration,
-
     removeChinese,
     songChineseStates,
     currentSongRemoveChinese,

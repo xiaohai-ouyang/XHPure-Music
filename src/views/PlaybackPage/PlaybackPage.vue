@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import LrcParser from '@/components/Playback/LrcParser.vue'
 import { computed, ref, watch } from 'vue'
-
 import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useDominantColor } from '@/composables/useDominantColor'
 import HeaderSection from './components/HeaderSection.vue'
@@ -11,17 +10,17 @@ import ControlSection from './components/ControlSection.vue'
 // 播放列表和页面状态管理
 const playbackQueueStores = useplaybackQueueStore()
 
+// 创建默认的音乐信息对象，避免重复创建
+const defaultMusicInfo = {
+  title: '',
+  artist: '',
+  album: '',
+  cover: '',
+  lyrics: '',
+}
+
 // 当前播放的音乐信息
-const currentPlaying = computed(
-  () =>
-    playbackQueueStores.currentPlaying || {
-      title: '',
-      artist: '',
-      album: '',
-      cover: '',
-      lyrics: '',
-    },
-)
+const currentPlaying = computed(() => playbackQueueStores.currentPlaying || defaultMusicInfo)
 
 // 更多菜单显示状态
 const moreListShow = ref(false)

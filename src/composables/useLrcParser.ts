@@ -86,8 +86,12 @@ export function useLrcParser(
   // 当前行索引
   const activeLineIndex = computed(() => {
     if (!currentTime.value || parsedLyrics.value.length === 0) return -1
-    for (let i = parsedLyrics.value.length - 1; i >= 0; i--) {
-      if (parsedLyrics.value[i].time <= (currentTime.value || 0)) return i
+    
+    // 从后向前查找，提高性能
+    const currentTimeValue = currentTime.value
+    const lyrics = parsedLyrics.value
+    for (let i = lyrics.length - 1; i >= 0; i--) {
+      if (lyrics[i].time <= currentTimeValue) return i
     }
     return -1
   })
@@ -130,9 +134,12 @@ export function useLrcParser(
   // 监听歌词变化
   watch(
     lyrics,
-    (val) => {
-      parseLyrics(val)
-      updateSpacerHeight()
+    (newLyrics, oldLyrics) => {
+      // 只有当歌词真正改变时才重新解析
+      if (newLyrics !== oldLyrics) {
+        parseLyrics(newLyrics)
+        updateSpacerHeight()
+      }
     },
     { immediate: true },
   )

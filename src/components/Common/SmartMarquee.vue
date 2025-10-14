@@ -48,10 +48,18 @@ const checkOverflow = async () => {
 
   if (props.vertical) {
     // 垂直检测高度
-    overflow.value = props.force || el.scrollHeight > el.clientHeight + 2
+    const newOverflow = props.force || el.scrollHeight > el.clientHeight + 2
+    // 只有当溢出状态真正改变时才更新
+    if (newOverflow !== overflow.value) {
+      overflow.value = newOverflow
+    }
   } else {
     // 水平检测宽度
-    overflow.value = props.force || el.scrollWidth > el.clientWidth + 2
+    const newOverflow = props.force || el.scrollWidth > el.clientWidth + 2
+    // 只有当溢出状态真正改变时才更新
+    if (newOverflow !== overflow.value) {
+      overflow.value = newOverflow
+    }
   }
 }
 
@@ -60,8 +68,9 @@ onMounted(() => {
   window.addEventListener('resize', checkOverflow)
 })
 
+// 优化监听器，避免不必要的重复计算
 watch(
-  () => props.text,
+  () => [props.text, props.force],
   () => checkOverflow(),
 )
 </script>

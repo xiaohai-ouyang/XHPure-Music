@@ -65,6 +65,7 @@ defineExpose({
   cursor: pointer;
   padding: 8px 10px;
   transition: all 0.1s ease-in-out;
+  border-radius: 8px;
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
