@@ -4,9 +4,10 @@ interface FileSystemDirectoryHandle {
 }
 
 interface Track {
+  id: string
+  title: string
   duration: number
   md5: string
-  title: string
 }
 
 interface Playlist {
@@ -15,3 +16,5 @@ interface Playlist {
   cover: string
   tracks: Track[]
 }
+
+export type { FileSystemDirectoryHandle, Track, Playlist }

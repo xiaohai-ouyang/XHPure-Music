@@ -8,12 +8,10 @@
 </template>
 
 <script setup lang="ts">
+import type { Playlist } from '@/types/fileSystem'
+
 defineProps<{
-  playlist: {
-    id: string
-    name: string
-    cover: string
-  }
+  playlist: Playlist
 }>()
 </script>
 
@@ -45,6 +43,9 @@ defineProps<{
     margin-top: 6px;
     font-size: 14px;
     color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 </style>
