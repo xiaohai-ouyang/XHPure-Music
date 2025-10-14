@@ -1,32 +1,49 @@
 <script lang="ts" setup>
 import defaultCover from '@assets/images/defaultCover-lightMode.png'
-import myPlayList from '@/components/PlayerBar/MyPlaylists.vue'
+import myPlaybackQueue from '@/components/PlayerBar/MyPlaybackQueue.vue'
 import { ref } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
-import { usePlaylistStore } from '@/stores/playlistStore'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
+import { useRouter } from 'vue-router'
 
-const playlistStore = usePlaylistStore()
+const playbackQueueStores = useplaybackQueueStore()
+const pageStatusStore = usePageStatusStore()
 const infoRef = ref<HTMLElement | null>(null)
 const { togglePlayPause } = useAudioPlayer()
+const router = useRouter()
+
+/**
+ * 跳转到播放页面
+ * @param event 点击事件
+ */
+const goToPlayback = (event: Event) => {
+  // 阻止事件冒泡，避免与子元素的点击事件冲突
+  event.stopPropagation()
+  router.push('/playback')
+}
 </script>
 
 <template>
-  <div class="player-bar" :style="{ width: usePageStatusStore().pageWidth + 'px' }">
+  <div
+    class="player-bar"
+    :style="{ width: pageStatusStore.pageWidth + 'px' }"
+    @click="goToPlayback"
+  >
     <div class="left">
       <div class="cover">
         <img
-          :src="(playlistStore.currentPlaying?.cover as string) || defaultCover"
+          :src="(playbackQueueStores.currentPlaying?.cover as string) || defaultCover"
           alt="专辑封面"
           class="music-cover"
         />
       </div>
-      <div class="info" ref="infoRef" @click="usePageStatusStore().isPlayBackExpand = true">
+      <div class="info" ref="infoRef" @click.stop="pageStatusStore.isPlayBackExpand = true">
         <div class="title">
-          {{ playlistStore.currentPlaying?.title || '暂无播放' }}
+          {{ playbackQueueStores.currentPlaying?.title || '暂无播放' }}
         </div>
         <div class="artist">
-          {{ playlistStore.currentPlaying?.artist || '未知艺术家' }}
+          {{ playbackQueueStores.currentPlaying?.artist || '未知艺术家' }}
         </div>
       </div>
     </div>
@@ -35,28 +52,34 @@ const { togglePlayPause } = useAudioPlayer()
       <div class="controls">
         <button
           class="controls-btn"
-          @click="() => playlistStore.playPrevious()"
+          @click.stop="() => playbackQueueStores.playPrevious()"
           aria-label="上一首"
         >
           <i class="iconfont">&#xe722;</i>
         </button>
-        <button class="controls-btn play-pause" @click="togglePlayPause" aria-label="播放/暂停">
-          <i class="iconfont" v-if="!playlistStore.isPlaying">&#xe63d;</i>
+        <button
+          class="controls-btn play-pause"
+          @click.stop="togglePlayPause"
+          :disabled="playbackQueueStores.currentPlaying === null"
+          aria-label="播放/暂停"
+        >
+          <i class="iconfont" v-if="!playbackQueueStores.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
-        <button class="controls-btn" @click="() => playlistStore.playNext()" aria-label="下一首">
+        <button
+          class="controls-btn"
+          @click.stop="() => playbackQueueStores.playNext()"
+          aria-label="下一首"
+        >
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
-      <button class="playlist-btn" @click="usePageStatusStore().togglePlaylist">
+      <button class="playlist-btn" @click.stop="pageStatusStore.toggleisPlayQueueShow">
         <i class="iconfont">&#xe716;</i>
         <span class="playlist-count">播放列表</span>
       </button>
     </div>
-    <my-play-list
-      v-show="usePageStatusStore().isPlaylistShow"
-      @close="usePageStatusStore().isPlaylistShow = false"
-    />
+    <my-playback-queue />
   </div>
 </template>
 

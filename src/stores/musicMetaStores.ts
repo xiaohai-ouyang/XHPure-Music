@@ -9,6 +9,7 @@ export interface MusicInfo {
   isBilingual?: boolean
   languages?: string[]
   duration?: number
+  md5?: string
 }
 
 export const useMusicMetaStore = defineStore('musicMeta', () => {
