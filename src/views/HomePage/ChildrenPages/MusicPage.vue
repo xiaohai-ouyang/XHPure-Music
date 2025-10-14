@@ -6,7 +6,9 @@ import { useScrollRestore } from '@/composables/useScrollRestore'
 import { useMusicPicker } from '@/composables/useMusicPicker'
 import { formatTimeDetailed } from '@/utils/formatTime'
 import { usePlaylistStore } from '@/stores/playlistStores'
-import SmartMarquee from '@/components/Common/SmartMarquee.vue'
+import MusicListItem from '@/components/Music/MusicListItem.vue'
+import MusicFunctionBar from '@/components/Music/MusicFunctionBar.vue'
+import EmptyMusicState from '@/components/Music/EmptyMusicState.vue'
 
 const listContainer = ref<HTMLElement | null>(null)
 const playbackQueueStores = useplaybackQueueStore()
@@ -15,8 +17,13 @@ const playlistStore = usePlaylistStore()
 const { pickMusic } = useMusicPicker()
 const currentPlayingId = computed(() => playbackQueueStores.currentPlayingId)
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
+
 function handleMusicClick(music: MusicInfo) {
   playbackQueueStores.addToplaybackQueue(music)
+}
+
+function handleAddToPlaylist(music: MusicInfo) {
+  playlistStore.addInPlaylist('favorite', music)
 }
 
 interface MusicInfo {
@@ -34,153 +41,34 @@ function pushAllToPlaylist() {
 
 <template>
   <div class="jiaoyan-music" ref="listContainer">
-    <div class="empty" v-if="musicStore.isEmpty">
-      <button @click="pickMusic" class="add-to-list-btn">
-        <span>添加音乐</span>
-      </button>
-    </div>
+    <EmptyMusicState 
+      v-if="musicStore.isEmpty" 
+      @pick-music="pickMusic" 
+    />
 
-    <div class="function-bar" v-if="!musicStore.isEmpty">
-      <button class="addAll-btn" @click="pushAllToPlaylist">全部播放</button>
-      <div class="music-num">
-        <span class="dot"></span>音乐库中有<span
-          class="num"
-          v-html="musicStore.musicList.length"
-        ></span
-        >首歌
-      </div>
-      <div class="music-time">
-        <span class="num" v-html="formatTimeDetailed(musicStore.totalDuration).totalMins"></span
-        >分钟
-      </div>
-    </div>
+    <template v-else>
+      <MusicFunctionBar 
+        :music-count="musicStore.musicList.length"
+        :total-minutes="formatTimeDetailed(musicStore.totalDuration).totalMins.toString()"
+        @push-all-to-playlist="pushAllToPlaylist"
+      />
 
-    <div class="music-item-box">
-      <div
-        class="music-item"
-        :class="{ isPlaying: currentPlayingId === music.id }"
-        v-for="music in musicStore.musicList"
-        :key="music.id"
-      >
-        <div class="left">
-          <img :src="(music.cover as string) || ''" class="music-cover" />
-        </div>
-        <div class="right" @click="handleMusicClick(music)">
-          <SmartMarquee class="music-title">{{ music.title }}</SmartMarquee>
-          <SmartMarquee class="music-artist">
-            {{ music.artist }} - <span class="music-album">{{ music.album }}</span>
-          </SmartMarquee>
-        </div>
-        <div class="add">
-          <button @click="playlistStore.addInPlaylist('favorite', music)">添加到播放列表</button>
-        </div>
+      <div class="music-item-box">
+        <MusicListItem
+          v-for="music in musicStore.musicList"
+          :key="music.id"
+          :music="music"
+          :current-playing-id="currentPlayingId"
+          @click="handleMusicClick"
+          @add-to-playlist="handleAddToPlaylist"
+        />
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <style lang="less" scoped>
-.empty {
-  .col-flex(@align:center, @justify: center);
-  height: 100%;
-  width: 100%;
-
-  .add-to-list-btn {
-    padding: 10px;
-    color: white;
-    background-color: @lightMode-dominant-textColor;
-    font-weight: 700;
-    font-size: 25px;
-    border-radius: 10px;
-  }
-}
-
-.function-bar {
-  gap: 10px;
-  padding: 5px;
-  background-color: @lightMode-secondary-bgColor;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-
-  .addAll-btn {
-    background-color: @lightMode-dominant-textColor;
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-  }
-
-  .dot {
-    margin-right: 3px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: #0088ff;
-  }
-
-  &,
-  .music-num,
-  .music-time {
-    .row-flex(@align: center);
-  }
-}
-
-.music-cover {
-  width: 130px;
-  height: 130px;
-}
-
 .music-item-box {
   .col-flex(@align: stretch,@gap: 5px);
-}
-
-.music-item {
-  .row-flex(@align: center, @gap: 10px);
-  cursor: pointer;
-  position: relative;
-  font-weight: 500;
-
-  .left {
-    height: 130px;
-  }
-
-  .right {
-    .col-flex(@align: center);
-    max-width: 800px;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  .right,
-  .music-item {
-    gap: 10px;
-  }
-
-  .music-title {
-    font-size: 24px;
-  }
-}
-
-.isPlaying {
-  background-color: @lightMode-music-playingBgColor;
-
-  .music-title {
-    color: @lightMode-dominant-textColor;
-    font-weight: 600;
-  }
-  .music-artist {
-    font-weight: 500;
-  }
-}
-
-.add {
-  margin-left: auto;
-
-  button {
-    padding: 10px;
-    background: #ff4b4b;
-    border-radius: 10px;
-    color: white;
-  }
 }
 </style>
