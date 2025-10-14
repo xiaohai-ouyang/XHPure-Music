@@ -5,11 +5,13 @@ import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useScrollRestore } from '@/composables/useScrollRestore'
 import { useMusicPicker } from '@/composables/useMusicPicker'
 import { formatTimeDetailed } from '@/utils/formatTime'
+import { usePlaylistStore } from '@/stores/playlistStores'
 import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
 const listContainer = ref<HTMLElement | null>(null)
 const playbackQueueStores = useplaybackQueueStore()
 const musicStore = useMusicMetaStore()
+const playlistStore = usePlaylistStore()
 const { pickMusic } = useMusicPicker()
 const currentPlayingId = computed(() => playbackQueueStores.currentPlayingId)
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
@@ -59,16 +61,18 @@ function pushAllToPlaylist() {
         :class="{ isPlaying: currentPlayingId === music.id }"
         v-for="music in musicStore.musicList"
         :key="music.id"
-        @click="handleMusicClick(music)"
       >
         <div class="left">
           <img :src="(music.cover as string) || ''" class="music-cover" />
         </div>
-        <div class="right">
+        <div class="right" @click="handleMusicClick(music)">
           <SmartMarquee class="music-title">{{ music.title }}</SmartMarquee>
           <SmartMarquee class="music-artist">
             {{ music.artist }} - <span class="music-album">{{ music.album }}</span>
           </SmartMarquee>
+        </div>
+        <div class="add">
+          <button @click="playlistStore.addInPlaylist('favorite', music)">添加到播放列表</button>
         </div>
       </div>
     </div>
@@ -166,6 +170,17 @@ function pushAllToPlaylist() {
   }
   .music-artist {
     font-weight: 500;
+  }
+}
+
+.add {
+  margin-left: auto;
+
+  button {
+    padding: 10px;
+    background: #ff4b4b;
+    border-radius: 10px;
+    color: white;
   }
 }
 </style>

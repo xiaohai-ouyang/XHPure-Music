@@ -44,19 +44,20 @@ const { togglePlayPause } = useAudioPlayer()
           <i class="iconfont" v-if="!playbackQueueStores.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
-        <button class="controls-btn" @click="() => playbackQueueStores.playNext()" aria-label="下一首">
+        <button
+          class="controls-btn"
+          @click="() => playbackQueueStores.playNext()"
+          aria-label="下一首"
+        >
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
-      <button class="playlist-btn" @click="usePageStatusStore().togglePlaylist">
+      <button class="playlist-btn" @click="usePageStatusStore().toggleisPlayQueueShow">
         <i class="iconfont">&#xe716;</i>
         <span class="playlist-count">播放列表</span>
       </button>
     </div>
-    <my-playback-queue
-      v-show="usePageStatusStore().isPlaylistShow"
-      @close="usePageStatusStore().isPlaylistShow = false"
-    />
+    <my-playback-queue />
   </div>
 </template>
 
