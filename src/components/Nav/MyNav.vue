@@ -1,109 +1,27 @@
 <template>
   <div
     class="myNav"
-    :class="{ myNavContracted: usePageStatusStore().isNavContracted }"
-    @click="usePageStatusStore().isPlaylistShow = false"
+    :class="{ myNavContracted: pageStatusStore.isNavContracted }"
+    @click="pageStatusStore.isPlaylistShow = false"
   >
     <nav>
-      <div class="color-mode-switch">
-        <button
-          class="dark-mode"
-          :class="{ active: useThemeStore().colorMode === 'dark' }"
-          title="暗色模式"
-          @click="useThemeStore().setColorMode('dark')"
-        >
-          <i class="iconfont">&#xe620;</i>
-        </button>
-
-        <button
-          class="floow-system"
-          :class="{ active: useThemeStore().colorMode === 'system' }"
-          title="跟随系统"
-          @click="useThemeStore().setColorMode('system')"
-        >
-          <i class="iconfont">&#xe799;</i>
-        </button>
-
-        <button
-          class="light-mode"
-          :class="{ active: useThemeStore().colorMode === 'light' }"
-          title="亮色模式"
-          @click="useThemeStore().setColorMode('light')"
-        >
-          <i class="iconfont">&#xe61b;</i>
-        </button>
-      </div>
-
-      <div class="navigator">
-        <div class="navItem-container">
-          <router-link
-            class="nav-item"
-            :class="{ active: pageStatusStore.currentPageTitle === '歌曲' }"
-            to="/page/music"
-          >
-            <i class="iconfont">&#xe725;</i>
-            <p class="nav-item-name">歌曲</p>
-          </router-link>
-          <!-- <router-link
-          class="nav-item"
-          :class="{ active: pageStatusStore.currentPageTitle === '专辑' }"
-          to="/page/albums"
-        >
-          <i class="iconfont">&#xe717;</i>
-          <p class="nav-item-name">专辑</p>
-        </router-link>
-        <router-link
-          class="nav-item"
-          :class="{ active: pageStatusStore.currentPageTitle === '艺术家' }"
-          to="/page/artists"
-        >
-          <i class="iconfont">&#xe71d;</i>
-          <p class="nav-item-name">艺术家</p>
-        </router-link>
-        <router-link
-          class="nav-item"
-          :class="{ active: pageStatusStore.currentPageTitle === '文件夹' }"
-          to="/page/folders"
-        >
-          <i class="iconfont">&#xe72c;</i>
-          <p class="nav-item-name">文件夹</p>
-        </router-link>-->
-          <router-link
-            class="nav-item"
-            :class="{ active: pageStatusStore.currentPageTitle === '歌单' }"
-            to="/page/playlists"
-          >
-            <i class="iconfont">&#xe71f;</i>
-            <p class="nav-item-name">歌单</p>
-          </router-link>
-        </div>
-      </div>
-
-      <div class="user-playlist">
-        <div class="user-playlist-container">
-          <router-link class="user-playlist-item" to="/page/playlists/favorite">
-            <i class="iconfont">&#xe761;</i>我喜欢的</router-link
-          >
-          <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
-          <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
-          <router-link class="user-playlist-item" to="/page/music">周杰伦</router-link>
-        </div>
-      </div>
+      <ThemeSwitch />
+      <NavigationMenu :current-page-title="pageStatusStore.currentPageTitle" />
+      <UserPlaylists />
     </nav>
   </div>
 </template>
 
 <script setup lang="ts">
 import { usePageStatusStore } from '@/stores/pageStatusStores'
-import { useThemeStore } from '@/stores/themeStore'
+import ThemeSwitch from './ThemeSwitch.vue'
+import NavigationMenu from './NavigationMenu.vue'
+import UserPlaylists from './UserPlaylists.vue'
+
 const pageStatusStore = usePageStatusStore()
 </script>
 
 <style scoped lang="less">
-.active {
-  color: @lightMode-nav-activeColor !important;
-}
-
 .myNav {
   width: 200px;
   transition: width 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -117,66 +35,6 @@ nav {
   padding: 20px 10px;
   height: 100vh;
   width: 200px;
-  // min-height: 560px;
-}
-
-.color-mode-switch {
-  .row-flex(@justify: space-evenly, @align: center);
-  width: 100%;
-  padding: 5px;
-
-  i {
-    font-size: 25px;
-  }
-
-  button {
-    .row-flex(@justify: center, @align: center);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    background: transparent;
-    cursor: pointer;
-  }
-}
-
-.navigator {
-  margin-top: 20px;
-}
-
-.navItem-container,
-.user-playlist-container {
-  .col-flex(@justify: flex-start);
-  width: 100%;
-  padding: 2px;
-}
-
-.nav-item,
-.user-playlist-item {
-  .row-flex(@justify: flex-start, @align: center);
-  height: 40px;
-  color: @lightMode-nav-activeColor;
-  text-decoration: none;
-  padding: 5px 25px 5px 30px;
-  width: 100%;
-  gap: 20px;
-  transition: all 0.2s;
-  border-radius: @nav-borderRadius;
-  white-space: nowrap;
-
-  &:hover {
-    background: @lightMode-nav-hoverColor;
-  }
-}
-
-.nav-item-name {
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.user-playlist {
-  position: relative;
-  margin-top: auto;
-  margin-bottom: 40px;
 }
 
 .iconfont {
@@ -185,12 +43,5 @@ nav {
 
 .myNavContracted {
   width: 0;
-}
-
-.color-mode-switch,
-.navigator,
-.user-playlist {
-  background: @lightMode-nav-bgItemColor;
-  border-radius: @nav-borderRadius;
 }
 </style>

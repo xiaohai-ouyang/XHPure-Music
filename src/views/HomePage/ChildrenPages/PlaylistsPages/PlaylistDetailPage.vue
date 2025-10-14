@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import PlaylistLayout from '@/components/Playlist/PlaylistLayout.vue'
 import { usePlaylistStore } from '@/stores/playlistStores'
@@ -23,7 +23,7 @@ interface PlaylistData {
 
 const playlist = ref<PlaylistData | null>(null)
 
-onMounted(() => {
+function loadPlaylist() {
   const id = route.params.id as string
 
   const playlists = playlistStore.getPlaylists()
@@ -36,12 +36,26 @@ onMounted(() => {
       cover: foundPlaylist.cover,
       tracks: foundPlaylist.tracks,
     }
+  } else {
+    playlist.value = null
   }
 
   if (playlist.value) {
     route.meta.title = playlist.value.name
   }
+}
+
+onMounted(() => {
+  loadPlaylist()
 })
+
+// 监听路由参数变化
+watch(
+  () => route.params.id,
+  () => {
+    loadPlaylist()
+  },
+)
 </script>
 
 <template>
