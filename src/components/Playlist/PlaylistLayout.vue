@@ -24,44 +24,117 @@
       </div>
     </div>
     <div class="playlist-tracks">
-      <div v-for="(track, index) in playlist.tracks" :key="index" class="track-item">
+      <div
+        v-for="(track, index) in playlist.tracks"
+        :key="index"
+        class="track-item"
+        :class="{ 'not-imported': !isTrackImported(track) }"
+        @click="playTrack(track)"
+      >
         <span class="track-title">{{ track.title }}</span>
-        <span class="track-artist">{{ track.artist }}</span>
+        <span class="track-artist">{{ getArtistByTrack(track) }}</span>
+        <!-- 如果track已导入，显示更多歌曲信息 -->
+        <div v-if="isTrackImported(track)" class="track-details">
+          <span class="track-album">{{ getMusicById(track.id)?.album || '未知专辑' }}</span>
+          <span class="track-duration">{{ formatDuration(track.duration) }}</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
-
-interface Track {
-  title: string
-  artist: string
-}
-
-interface Playlist {
-  id: string
-  name: string
-  cover: string
-  tracks: Track[]
-}
+import { defineProps, defineEmits } from 'vue'
+import { useMusicMetaStore } from '@/stores/musicMetaStores'
+import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import type { MusicInfo } from '@/stores/musicMetaStores'
+import type { Track, Playlist } from '@/types/fileSystem'
+import { formatTime } from '@/utils/formatTime'
 
 const props = defineProps<{
   playlist: Playlist
   trackNum: number
 }>()
 
+const emit = defineEmits(['clear-tracks'])
+
+const musicStore = useMusicMetaStore()
+const playbackQueueStore = useplaybackQueueStore()
+
+/**
+ * 检查歌曲是否已导入（通过检查track.id是否存在且能找到对应的音乐）
+ * @param track 歌曲track信息
+ * @returns 是否已导入
+ */
+function isTrackImported(track: Track): boolean {
+  if (!track.id) return false
+  return !!getMusicById(track.id)
+}
+
+/**
+ * 播放指定的歌曲
+ * @param track 要播放的歌曲track信息
+ */
+function playTrack(track: Track) {
+  // 如果歌曲未导入，则不执行任何操作
+  if (!isTrackImported(track)) {
+    return
+  }
+
+  // 根据track.id找到对应的音乐信息
+  const music = getMusicById(track.id)
+  if (music) {
+    // 将歌曲添加到播放队列并播放
+    playbackQueueStore.addToplaybackQueue(music)
+  }
+}
+
+/**
+ * 根据track信息获取艺术家信息
+ * @param track 歌曲track信息
+ * @returns 艺术家名称
+ */
+function getArtistByTrack(track: Track): string {
+  // 如果track已导入，使用id查找
+  if (isTrackImported(track)) {
+    const musicById = getMusicById(track.id)
+    if (musicById) {
+      return (musicById.artist as string) || '未知艺术家'
+    }
+  }
+
+  // 否则使用md5和duration查找
+  const music = musicStore.musicList.find(
+    (m: MusicInfo) => m.md5 === track.md5 && m.duration === track.duration,
+  )
+  return (music?.artist as string) || '未知艺术家'
+}
+
+/**
+ * 根据歌曲ID获取歌曲完整信息
+ * @param id 歌曲ID
+ * @returns 歌曲信息对象
+ */
+function getMusicById(id: string): MusicInfo | undefined {
+  return musicStore.musicList.find((music: MusicInfo) => music.id === id)
+}
+
+/**
+ * 格式化歌曲时长
+ * @param duration 歌曲时长（秒）
+ * @returns 格式化后的时长字符串
+ */
+function formatDuration(duration: number): string {
+  return formatTime(duration)
+}
+
 /**
  * 清空播放列表
  * 该方法会清空当前播放列表中的所有歌曲
  */
 function clearPlaylistTracks() {
-  // 清空播放列表
-  props.playlist.tracks = []
-
-  // TODO: 根据实际需求，可能还需要暂停当前播放的音频
-  // 例如调用 audio.pause() 或相关的音频控制方法
+  // 触发父组件清空播放列表事件
+  emit('clear-tracks', props.playlist.id)
 }
 
 function handleCoverError(event: Event) {
@@ -111,9 +184,23 @@ function handleCoverError(event: Event) {
 
 .playlist-tracks {
   .track-item {
-    .row-flex(@justify: space-between);
+    .col-flex(@align: flex-start);
     padding: 10px 0;
     border-bottom: 1px solid #eee;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    &.not-imported {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
 
     .track-title {
       font-weight: 500;
@@ -121,6 +208,15 @@ function handleCoverError(event: Event) {
 
     .track-artist {
       color: #666;
+      font-size: 14px;
+    }
+
+    .track-details {
+      .row-flex(@justify: space-between);
+      width: 100%;
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
     }
   }
 }

@@ -3,6 +3,7 @@ import { parseMusicFile } from '@/utils/getMusicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { isBilingualLyrics, detectLanguages } from '@/utils/lyricUtils'
 import { calcMusicMD5 } from '@/utils/getFilesMD5'
+import { usePlaylistStore } from '@/stores/playlistStores'
 
 declare global {
   interface Window {
@@ -26,6 +27,7 @@ interface MusicInfo {
 export function useMusicPicker() {
   const loading = ref(false)
   const musicStore = useMusicMetaStore()
+  const playlistStore = usePlaylistStore()
 
   function showError(msg: string, err?: unknown) {
     if (err) console.error(msg, err)
@@ -55,6 +57,9 @@ export function useMusicPicker() {
       }
 
       musicStore.addMusic(musicInfo)
+
+      // 更新歌单中对应歌曲的ID
+      playlistStore.updateTrackIdByMusic(musicInfo)
     } catch (fileError) {
       console.log(`解析文件 ${name} 时出错，请检查文件格式`, fileError)
     }

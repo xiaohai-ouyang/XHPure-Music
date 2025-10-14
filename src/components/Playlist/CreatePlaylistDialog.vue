@@ -19,10 +19,7 @@
           />
           <span :class="{ inputing: inputing }"></span>
         </div>
-        <div class="inp-field">
-          <p>封面图片:</p>
-          <input type="file" accept="image/*" @change="handleCoverUpload" />
-        </div>
+
         <div v-if="coverPreview" class="cover-preview">
           <img :src="coverPreview" alt="Cover preview" />
         </div>
@@ -50,17 +47,13 @@ const inputing = ref(false)
 const coverFile = ref<File | null>(null)
 const coverPreview = ref<string | null>(null)
 
-function handleCoverUpload(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-
-  if (file) {
-    coverFile.value = file
-    coverPreview.value = URL.createObjectURL(file)
-  }
-}
-
 async function createPlaylist() {
+  // 检查输入
+  if (!playlistName.value.trim()) {
+    alert('请输入播放列表名称')
+    return
+  }
+
   // 生成播放列表ID
   const playlistId = generateShortId()
 
@@ -133,7 +126,6 @@ async function createPlaylist() {
   .row-flex(@align: center);
   font-size: 18px;
   position: relative;
-  margin-bottom: 15px;
 
   input[type='text'] {
     height: 40px;
@@ -143,10 +135,6 @@ async function createPlaylist() {
     padding: 0 5px;
     background: transparent;
     transition: all 0.2s linear;
-  }
-
-  input[type='file'] {
-    padding: 5px;
   }
 
   span {
