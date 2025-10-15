@@ -66,6 +66,10 @@ export const useplaybackQueueStore = defineStore('playbackQueue', () => {
   // 每首歌曲的中文显示状态
   const songChineseStates = ref<Record<string, boolean>>({})
 
+  // 用于节流的变量
+  const lastUpdateTime = ref(0)
+  const UPDATE_INTERVAL = 100 // 约60fps
+
   /**
    * 设置特定歌曲的中文显示状态
    * @param songId 歌曲ID
@@ -108,9 +112,16 @@ export const useplaybackQueueStore = defineStore('playbackQueue', () => {
   const playModeLabel = computed(() => MODE_LABELS[playMode.value])
 
   /**
-   * 更新当前播放时间和总时长
+   * 更新当前播放时间和总时长（带节流）
    */
   function updateCurrentPlayingTime() {
+    // 节流控制，避免过于频繁的更新
+    const now = Date.now()
+    if (now - lastUpdateTime.value < UPDATE_INTERVAL) {
+      return
+    }
+    lastUpdateTime.value = now
+
     if (!currentPlayingId.value) return
     const audioElement = document.querySelector('audio')
     if (!audioElement || isNaN(audioElement.duration)) return

@@ -52,6 +52,7 @@ const handleAddToPlaylist = (event: Event) => {
   position: relative;
   font-weight: 500;
   padding: 8px 10px;
+  transition: all 0.2s ease-in-out;
 
   .left {
     height: 130px;

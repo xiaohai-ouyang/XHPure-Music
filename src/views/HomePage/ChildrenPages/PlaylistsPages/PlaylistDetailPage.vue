@@ -35,7 +35,7 @@ async function loadPlaylist() {
         playlist.value = {
           id: foundPlaylist.id,
           name: foundPlaylist.name,
-          cover: '/src/assets/images/logo.png',
+          cover: '/src/assets/images/favorite.png',
           tracks: foundPlaylist.tracks,
         }
       }
@@ -81,9 +81,9 @@ watch(
       <i class="iconfont">&#xe79c;</i>
     </RouterLink>
 
-    <PlaylistLayout 
-      :playlist="playlist" 
-      :trackNum="playlist.tracks.length" 
+    <PlaylistLayout
+      :playlist="playlist"
+      :trackNum="playlist.tracks.length"
       @clear-tracks="clearPlaylistTracks"
     />
   </div>

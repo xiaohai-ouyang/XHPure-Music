@@ -79,7 +79,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="my-playback-queue" ref="playbackQueueRef">
+  <div class="my-playback-queue" ref="playbackQueueRef" @click.stop>
     <div v-show="playbackQueueStores.isplaybackQueueEmpty" class="empty-playlist">
       <p>播放队列为空</p>
     </div>
@@ -89,7 +89,7 @@ onMounted(() => {
         <button
           class="mode-switch"
           :class="playbackQueueStores.playMode"
-          @click="playbackQueueStores.cyclePlayMode"
+          @click.stop="playbackQueueStores.cyclePlayMode"
           :aria-label="`${playbackQueueStores.playModeLabel}`"
         >
           <span
@@ -100,7 +100,7 @@ onMounted(() => {
           {{ playbackQueueStores.playModeLabel }}
         </button>
 
-        <button class="clear-list" @click="clearplaybackQueue" aria-label="清空播放队列">
+        <button class="clear-list" @click.stop="clearplaybackQueue" aria-label="清空播放队列">
           清空队列
         </button>
       </div>
@@ -123,7 +123,7 @@ onMounted(() => {
   position: fixed;
   bottom: 50px;
   right: 0;
-  width: 380px;
+  width: 350px;
   height: 0;
   overflow: hidden;
   background-color: @lightMode-secondary-bgColor;
@@ -134,27 +134,25 @@ onMounted(() => {
 
 .has-playlist {
   .col-flex();
-  max-height: 500px;
+  max-height: 510px;
 }
 
 .controls-btn {
-  .row-flex(@justify:space-between, @align:center);
+  .row-flex(@justify:space-between, @align:center,@gap: 20px);
   padding: 10px 15px;
   border-bottom: 1px solid #eee;
-  gap: 20px;
   font-size: 16px;
 
   button {
     flex: 1;
     height: 40px;
     cursor: pointer;
+    border-radius: 10px;
   }
 
   .mode-switch {
-    .row-flex(@align:center);
-    gap: 5px;
+    .row-flex(@align:center,@gap: 5px);
     padding: 5px 10px;
-    border-radius: 15px;
     background-color: #f0f0f0;
     transition: all 0.3s ease;
 
@@ -171,7 +169,6 @@ onMounted(() => {
 
   .clear-list {
     padding: 5px 10px;
-    border-radius: 15px;
     background-color: #f0f0f0;
     transition: all 0.3s ease;
 
@@ -186,11 +183,12 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: 10px;
+  .col-flex(@align:center,@gap:5px);
 }
 
 .empty-playlist {
-  height: 100px;
   .col-flex(@align:center, @justify:center);
+  height: 100px;
   color: #999;
 }
 </style>

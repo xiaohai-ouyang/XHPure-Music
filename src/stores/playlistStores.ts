@@ -19,7 +19,7 @@ const loadPlaylistsFromLocalStorage = (): Playlist[] => {
     {
       id: 'favorite',
       name: '我最喜欢的',
-      cover: '/src/assets/images/logo.png',
+      cover: '/src/assets/images/favorite.png',
       tracks: [],
     },
   ]
