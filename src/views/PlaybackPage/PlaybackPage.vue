@@ -62,9 +62,12 @@ watch(
               <!-- 更多操作菜单 -->
               <transition name="fade-slide">
                 <div class="more-menu" v-show="moreListShow">
-                  <button class="more-menu-item"><i class="iconfont">&#xe761;</i>我喜欢</button>
-                  <button class="more-menu-item"><i class="iconfont">&#xe730;</i>添加到歌单</button>
-                  <button class="more-menu-item"><i class="iconfont">&#xe66e;</i>再放一次</button>
+                  <button class="more-menu-item">
+                    <i class="iconfont">&#xe761;</i><span>我喜欢</span>
+                  </button>
+                  <button class="more-menu-item">
+                    <i class="iconfont add">&#xe730;</i><span>添加到歌单</span>
+                  </button>
                 </div>
               </transition>
             </template>
@@ -180,24 +183,35 @@ main {
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   bottom: 30px;
-  right: -130px;
-  width: 128px;
+  right: -125px;
+  padding: 0 8px;
   border-radius: 5px;
   z-index: 999;
   overflow: hidden;
 
   .iconfont {
+    .row-flex(@align: center,@justify: center);
     font-size: 28px;
-    margin: 0 5px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .add {
+    font-size: 32px;
   }
 
   .more-menu-item {
-    .row-flex(@align: center);
+    .row-flex(@align: center,@justify: flex-start);
     width: 100%;
     height: 40px;
     cursor: pointer;
     padding: 3px 0;
     user-select: none;
+  }
+
+  span {
+    margin: auto;
+    text-align: center;
   }
 }
 

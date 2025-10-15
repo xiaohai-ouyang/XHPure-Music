@@ -32,26 +32,29 @@ const toggleMute = () => {
 
 const muteTitle = computed(() => (isMuted.value ? '取消静音' : '静音'))
 const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
+
+// 计算进度条的比例值
+const progressRatio = computed(() => {
+  if (playbackQueueStores.currentPlayingDuration <= 0) return 0
+  return playbackQueueStores.currentPlayingTime / playbackQueueStores.currentPlayingDuration
+})
 </script>
 
 <template>
   <div class="controlers">
     <!-- 进度条 -->
     <div class="progress-line" ref="progressBar" @mousedown="startDrag" @click="seekByClick">
-      <div
-        class="progress-filled"
-        :style="{
-          width:
-            (playbackQueueStores.currentPlayingTime / playbackQueueStores.currentPlayingDuration) * 100 + '%',
-        }"
-      ></div>
+      <div class="progress-filled" :style="{ transform: `scaleX(${progressRatio})` }"></div>
     </div>
 
     <div class="timer">
       <span v-html="formatTime(playbackQueueStores.currentPlayingTime)"></span>
       <span
         v-html="
-          formatNegativeTime(playbackQueueStores.currentPlayingTime, playbackQueueStores.currentPlayingDuration)
+          formatNegativeTime(
+            playbackQueueStores.currentPlayingTime,
+            playbackQueueStores.currentPlayingDuration,
+          )
         "
       ></span>
     </div>
@@ -101,6 +104,7 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
 
     button,
     .iconfont {
+      .col-flex(@align:center);
       color: inherit;
     }
   }
@@ -140,13 +144,15 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
   margin-bottom: 5px;
   cursor: pointer;
   position: relative;
+  transform-origin: left center;
 
   .progress-filled {
     height: 100%;
     background: currentColor;
     border-radius: 3px;
-    width: 0%;
-    transition: width 0.1s linear;
+    width: 100%;
+    transform-origin: left center;
+    transform: scaleX(0);
   }
 }
 
