@@ -6,9 +6,11 @@ import { useDominantColor } from '@/composables/useDominantColor'
 import HeaderSection from './components/HeaderSection.vue'
 import CoverSection from './components/CoverSection.vue'
 import ControlSection from './components/ControlSection.vue'
+import { usePlaylistStore } from '@/stores/playlistStores'
 
 // 播放列表和页面状态管理
 const playbackQueueStores = useplaybackQueueStore()
+const playlistStore = usePlaylistStore()
 
 // 创建默认的音乐信息对象，避免重复创建
 const defaultMusicInfo = {
@@ -62,7 +64,10 @@ watch(
               <!-- 更多操作菜单 -->
               <transition name="fade-slide">
                 <div class="more-menu" v-show="moreListShow">
-                  <button class="more-menu-item">
+                  <button
+                    class="more-menu-item"
+                    @click="playlistStore.addInPlaylist('favorite', currentPlaying)"
+                  >
                     <i class="iconfont">&#xe761;</i><span>我喜欢</span>
                   </button>
                   <button class="more-menu-item">

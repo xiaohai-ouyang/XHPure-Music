@@ -41,7 +41,7 @@ defineProps<{
 
   .name {
     margin-top: 6px;
-    font-size: 14px;
+
     color: #333;
     white-space: nowrap;
     overflow: hidden;
