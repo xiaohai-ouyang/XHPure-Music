@@ -68,7 +68,14 @@ export const usePlaylistStore = defineStore('playlist', () => {
    */
   function addInPlaylist(id: string, music: MusicInfo) {
     const pl = playlist.value.find((pl: Playlist) => pl.id === id)
-    if (pl && music.md5 && music.duration && music.title && typeof music.title === 'string') {
+    if (
+      pl &&
+      music.md5 &&
+      music.duration &&
+      music.title &&
+      typeof music.title === 'string' &&
+      music.id
+    ) {
       // 检查是否重复歌曲（md5、duration相同）
       const isDuplicate = pl.tracks.some(
         (track: Track) => track.md5 === music.md5 && track.duration === music.duration,
@@ -78,10 +85,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
         return (msg.value = `歌单中已有“${music.title}”`)
       }
 
-      // 只存储歌曲的基本信息，不包含完整ID
-      // ID将在播放时通过比对md5和duration来关联
       const track: Track = {
-        id: '', // ID将在播放时动态关联
+        id: music.id,
         title: music.title,
         duration: music.duration,
         md5: music.md5,
