@@ -24,6 +24,12 @@
       </div>
     </div>
     <div class="playlist-tracks">
+      <div class="playlist-bar">
+        <div class="bar-title">标题</div>
+        <div class="bar-artist">歌手</div>
+        <div class="bar-cover">专辑</div>
+        <div class="bar-duration">时长</div>
+      </div>
       <div
         v-for="(track, index) in playlist.tracks"
         :key="index"
@@ -33,18 +39,17 @@
       >
         <span class="track-title">{{ track.title }}</span>
         <span class="track-artist">{{ getArtistByTrack(track) }}</span>
-        <!-- 如果track已导入，显示更多歌曲信息 -->
-        <div v-if="isTrackImported(track)" class="track-details">
-          <span class="track-album">{{ getMusicById(track.id)?.album || '未知专辑' }}</span>
-          <span class="track-duration">{{ formatDuration(track.duration) }}</span>
-        </div>
+
+        <span class="track-album" v-if="getMusicById(track.id)?.album">{{
+          getMusicById(track.id)?.album
+        }}</span>
+        <span class="track-duration">{{ formatDuration(track.duration) }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import type { MusicInfo } from '@/stores/musicMetaStores'
@@ -99,7 +104,7 @@ function getArtistByTrack(track: Track): string {
   if (isTrackImported(track)) {
     const musicById = getMusicById(track.id)
     if (musicById) {
-      return (musicById.artist as string) || '未知艺术家'
+      return musicById.artist as string
     }
   }
 
@@ -107,7 +112,7 @@ function getArtistByTrack(track: Track): string {
   const music = musicStore.musicList.find(
     (m: MusicInfo) => m.md5 === track.md5 && m.duration === track.duration,
   )
-  return (music?.artist as string) || '未知艺术家'
+  return music?.artist as string
 }
 
 /**
@@ -152,72 +157,33 @@ function handleCoverError(event: Event) {
 .playlist-header {
   display: flex;
   margin-bottom: 20px;
-}
 
-.playlist-cover {
-  width: 150px;
-  height: 150px;
-  border-radius: 8px;
-  margin-right: 20px;
-  object-fit: cover;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.playlist-info {
-  .col-flex(@justify: flex-end);
-}
-
-.playlist-name {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.playlist-detail {
-  .row-flex(@align: center,@gap: 10px);
-  font-size: 15px;
-  color: #666;
-  .num {
-    color: #333;
+  .playlist-cover {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    margin-right: 20px;
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
-  margin-bottom: 10px;
-}
 
-.playlist-tracks {
-  .track-item {
-    .col-flex(@align: flex-start);
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
+  .playlist-info {
+    .col-flex(@justify: flex-end);
+  }
 
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+  .playlist-name {
+    font-size: 22px;
+    font-weight: bold;
+  }
+
+  .playlist-detail {
+    .row-flex(@align: center,@gap: 10px);
+    font-size: 15px;
+    color: #666;
+    .num {
+      color: #333;
     }
-
-    &.not-imported {
-      opacity: 0.5;
-      cursor: not-allowed;
-
-      &:hover {
-        background-color: transparent;
-      }
-    }
-
-    .track-title {
-      font-weight: 500;
-    }
-
-    .track-artist {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .track-details {
-      .row-flex(@justify: space-between);
-      width: 100%;
-      font-size: 12px;
-      color: #999;
-      margin-top: 4px;
-    }
+    margin-bottom: 10px;
   }
 }
 
@@ -229,6 +195,64 @@ function handleCoverError(event: Event) {
     border-radius: 20px;
     color: rgb(255, 255, 255);
     background: @lightMode-dominant-textColor;
+  }
+}
+
+.playlist-bar {
+  .row-flex(@align: center,@gap: 10px);
+  padding: 0 10px;
+  font-size: 18px;
+  height: 28px;
+  color: #666;
+
+  .bar-title {
+    width: 500px;
+  }
+
+  .bar-artist,
+  .bar-cover {
+    flex: 1;
+  }
+
+  .bar-duration {
+    flex: 0.3;
+  }
+}
+
+.playlist-tracks .track-item {
+  .row-flex(@align: flex-start,@gap: 10px);
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .track-artist,
+  .track-album {
+    flex: 1;
+  }
+
+  .track-duration {
+    flex: 0.3;
+  }
+
+  .track-title {
+    font-weight: 500;
+    width: 500px;
+  }
+}
+
+.playlist-tracks .track-item {
+  &.not-imported {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: transparent;
+    }
   }
 }
 </style>

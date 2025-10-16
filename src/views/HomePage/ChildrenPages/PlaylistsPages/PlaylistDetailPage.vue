@@ -60,7 +60,7 @@ async function loadPlaylist() {
 // 清空播放列表
 function clearPlaylistTracks(playlistId: string) {
   playlistStore.clearPlaylistTracks(playlistId)
-  loadPlaylist() // 重新加载数据
+  loadPlaylist()
 }
 
 onMounted(() => {
