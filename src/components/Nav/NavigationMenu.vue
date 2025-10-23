@@ -30,44 +30,52 @@ defineProps<{
 <style scoped lang="less">
 .active {
   color: @lightMode-nav-activeColor !important;
+
+  .nav-item-name {
+    font-weight: 600;
+  }
+
 }
 
 .navigator {
   margin-top: 20px;
+  width: 100%;
   border-radius: @nav-borderRadius;
   background: white;
 }
 
-.navItem-container,
-.user-playlist-container {
+.navItem-container {
   .col-flex(@justify: flex-start);
   width: 100%;
   padding: 2px;
 }
 
 .nav-item {
-  .row-flex(@justify: flex-start, @align: center);
+  .row-flex(@align: center);
   height: 40px;
-  color: @lightMode-nav-activeColor;
+  color: #333;
   text-decoration: none;
-  padding: 5px 25px 5px 30px;
+  padding: 5px 30px;
   width: 100%;
-  gap: 20px;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   border-radius: @nav-borderRadius;
   white-space: nowrap;
 
   &:hover {
     background: @lightMode-nav-hoverColor;
   }
+
+  i, p {
+    flex: 1;
+    text-align: center;
+  }
 }
 
 .nav-item-name {
-  font-weight: 600;
   white-space: nowrap;
 }
 
 i {
-  font-size: 28px;
+  font-size: 30px;
 }
 </style>

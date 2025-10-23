@@ -55,4 +55,9 @@ const themeStore = useThemeStore()
     cursor: pointer;
   }
 }
+
+.active {
+  color: @lightMode-nav-activeColor;
+}
+
 </style>

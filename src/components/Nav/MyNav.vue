@@ -31,7 +31,7 @@ const pageStatusStore = usePageStatusStore()
 }
 
 nav {
-  .col-flex();
+  .col-flex(@align: center;);
   padding: 20px 10px;
   height: 100vh;
   width: 200px;

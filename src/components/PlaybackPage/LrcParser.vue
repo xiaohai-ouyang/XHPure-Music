@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import tinycolor from 'tinycolor2'
+import tinyColor from 'tinycolor2'
 import { ref, toRef, computed } from 'vue'
 import { useLrcParser } from '@/composables/useLrcParser'
 import { useDominantColor } from '@/composables/useDominantColor'
@@ -47,7 +47,7 @@ const effectiveColor = computed(
  */
 const inactiveColor = computed(() => {
   try {
-    const rgb = tinycolor(effectiveColor.value).toRgb()
+    const rgb = tinyColor(effectiveColor.value).toRgb()
     return `rgba(${rgb.r},${rgb.g},${rgb.b},0.6)`
   } catch {
     return 'rgba(255,255,255,0.6)'

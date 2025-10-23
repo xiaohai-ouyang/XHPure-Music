@@ -14,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-// 用户播放列表组件
 
 import { usePlaylistStore } from '@/stores/playlistStores'
 import { useRouter } from 'vue-router'

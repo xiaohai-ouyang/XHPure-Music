@@ -6,9 +6,9 @@ import { useScrollRestore } from '@/composables/useScrollRestore'
 import { useMusicPicker } from '@/composables/useMusicPicker'
 import { formatTimeDetailed } from '@/utils/formatTime'
 import { usePlaylistStore } from '@/stores/playlistStores'
-import MusicListItem from '@/components/Music/MusicListItem.vue'
-import MusicFunctionBar from '@/components/Music/MusicFunctionBar.vue'
-import EmptyMusicState from '@/components/Music/EmptyMusicState.vue'
+import MusicListItem from '@/components/MusicPage/MusicListItem.vue'
+import MusicFunctionBar from '@/components/MusicPage/MusicFunctionBar.vue'
+import EmptyMusicState from '@/components/MusicPage/EmptyMusicState.vue'
 
 const listContainer = ref<HTMLElement | null>(null)
 const playbackQueueStores = useplaybackQueueStore()

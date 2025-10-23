@@ -44,14 +44,14 @@ watch(
             }
           })
         },
-        { once: true },
+        { once: true }
       )
     } catch (error: unknown) {
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('播放音频时出错:', error)
       }
     }
-  },
+  }
 )
 
 // --------- 事件处理函数 ---------
