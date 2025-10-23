@@ -13,6 +13,7 @@ app.use(pinia)
 app.use(router)
 
 import { usePageStatusStore } from '@/stores/pageStatusStores'
+
 const pageStore = usePageStatusStore()
 
 pageStore.$subscribe((mutation, state) => {

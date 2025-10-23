@@ -4,6 +4,13 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      less: {
+        additionalData: `@import "@assets/styles/main.less";`
+      }
+    }
+  },
   plugins: [vue()],
   resolve: {
     alias: {
@@ -12,14 +19,7 @@ export default defineConfig({
       '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
       '@views': fileURLToPath(new URL('./src/views', import.meta.url)),
       '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
-      '@stores': fileURLToPath(new URL('./src/stores', import.meta.url)),
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      less: {
-        additionalData: `@import "@assets/styles/main.less";`,
-      },
-    },
-  },
+      '@stores': fileURLToPath(new URL('./src/stores', import.meta.url))
+    }
+  }
 })

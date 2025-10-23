@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LrcParser from '@/components/Playback/LrcParser.vue'
+import LrcParser from '@/components/PlaybackPage/LrcParser.vue'
 import { computed, ref, watch } from 'vue'
 import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useDominantColor } from '@/composables/useDominantColor'
