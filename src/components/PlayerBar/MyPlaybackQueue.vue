@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { ref, nextTick, watch, onMounted } from 'vue'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import type { MusicInfo } from '@/stores/musicMetaStores'
 import PlaybackQueueItem from './PlaybackQueueItem.vue'
 
-const playbackQueueStores = useplaybackQueueStore()
+const playbackQueueStores = usePlaybackQueueStore()
 const pageStatusStore = usePageStatusStore()
 const musicItemRefs = ref<InstanceType<typeof PlaybackQueueItem>[]>([])
 

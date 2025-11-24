@@ -2,10 +2,10 @@
 import { onMounted, ref, watch } from 'vue'
 import { useThemeStore } from './stores/themeStore'
 import { useGlobalShortcutKey } from './composables/useGlobalShortcutKey'
-import { useplaybackQueueStore } from './stores/playbackQueueStores'
+import { usePlaybackQueueStore } from './stores/playbackQueueStores'
 
 // --------- 初始化全局状态 ---------
-const playbackQueueStore = useplaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 const audioRef = ref<HTMLAudioElement | null>(null)
 
 // 页面标题与快捷键

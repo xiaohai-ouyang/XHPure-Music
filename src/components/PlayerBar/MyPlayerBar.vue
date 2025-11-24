@@ -3,11 +3,11 @@ import defaultCover from '@assets/images/defaultCover-lightMode.png'
 import myPlaybackQueue from '@/components/PlayerBar/MyPlaybackQueue.vue'
 import { ref } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useRouter } from 'vue-router'
 
-const playbackQueueStores = useplaybackQueueStore()
+const playbackQueueStores = usePlaybackQueueStore()
 const pageStatusStore = usePageStatusStore()
 const infoRef = ref<HTMLElement | null>(null)
 const { togglePlayPause } = useAudioPlayer()
