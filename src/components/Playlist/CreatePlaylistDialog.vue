@@ -60,7 +60,7 @@ async function createPlaylist() {
   const playlistId = generateShortId()
 
   // 处理封面
-  let coverUrl = '/src/assets/images/logo.png'
+  let coverUrl = '/src/assets/images/XHPureMusic.jpg'
   if (coverFile.value) {
     // 保存到IndexedDB
     try {
