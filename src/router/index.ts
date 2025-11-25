@@ -11,6 +11,10 @@ const routes = [
     component: () => import('@views/WelcomePage/WelcomePage.vue'),
   },
   {
+    path: '/guide',
+    component: () => import('@views/GuidePage.vue'),
+  },
+  {
     path: '/playback',
     component: () => import('@views/PlaybackPage/PlaybackPage.vue'),
   },
