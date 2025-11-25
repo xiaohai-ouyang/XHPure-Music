@@ -4,12 +4,12 @@ import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useLrcParser } from '@/composables/useLrcParser'
 import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
-const playbackQueueStores = usePlaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 
 // 当前播放的音乐信息
 const currentPlaying = computed(
   () =>
-    playbackQueueStores.currentPlaying || {
+    playbackQueueStore.currentPlaying || {
       title: '',
       artist: '',
       album: '',
@@ -26,22 +26,22 @@ const { showRemoveChineseButton } = useLrcParser(
   lyricsText,
   ref(undefined),
   ref(null),
-  computed(() => playbackQueueStores.removeChinese),
+  computed(() => playbackQueueStore.removeChinese),
 )
 
 const shouldShowRemoveChinese = computed(() => showRemoveChineseButton.value)
 const translationTooltip = computed(() =>
-  playbackQueueStores.removeChinese ? '显示中文' : '隐藏中文',
+  playbackQueueStore.removeChinese ? '显示中文' : '隐藏中文',
 )
 
 /**
  * 切换中文显示状态
  */
 const onToggleChinese = () => {
-  if (playbackQueueStores.currentPlayingId) {
-    const newState = !playbackQueueStores.removeChinese
-    playbackQueueStores.setSongChineseState(playbackQueueStores.currentPlayingId, newState)
-    playbackQueueStores.removeChinese = newState
+  if (playbackQueueStore.currentPlayingId) {
+    const newState = !playbackQueueStore.removeChinese
+    playbackQueueStore.setSongChineseState(playbackQueueStore.currentPlayingId, newState)
+    playbackQueueStore.removeChinese = newState
   }
 }
 

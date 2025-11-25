@@ -23,7 +23,7 @@ export function useLrcParser(
   containerRef: Ref<HTMLElement | null>,
   removeChinese?: Ref<boolean>,
 ) {
-  const playbackQueueStores = usePlaybackQueueStore()
+  const playbackQueueStore = usePlaybackQueueStore()
   const lyricLineRefs = ref<HTMLElement[]>([])
   const spacerHeight = ref(250)
   const parsedLyrics = ref<LyricLine[]>([])
@@ -51,7 +51,7 @@ export function useLrcParser(
     })
 
     // 是否应该移除中文：当用户开启 removeChinese 时替换中文
-    const shouldRemoveChinese = removeChinese?.value ?? playbackQueueStores.removeChinese
+    const shouldRemoveChinese = removeChinese?.value ?? playbackQueueStore.removeChinese
 
     lines.forEach((line, index) => {
       const timeMatch = line.match(/\[(\d+):(\d+)(?:\.(\d+))?\]/)
@@ -86,7 +86,7 @@ export function useLrcParser(
   // 当前行索引
   const activeLineIndex = computed(() => {
     if (!currentTime.value || parsedLyrics.value.length === 0) return -1
-    
+
     // 从后向前查找，提高性能
     const currentTimeValue = currentTime.value
     const lyrics = parsedLyrics.value
@@ -118,7 +118,7 @@ export function useLrcParser(
   // 是否为双语歌词（直接使用musicPicker中判断的结果）
   const isBilingual = computed(() => {
     const currentMusic = musicStore.musicList.find(
-      (music) => music.id === playbackQueueStores.currentPlayingId,
+      (music) => music.id === playbackQueueStore.currentPlayingId,
     )
     return !!currentMusic?.isBilingual
   })
@@ -126,7 +126,7 @@ export function useLrcParser(
   // 是否应该显示"去中文"按钮
   const showRemoveChineseButton = computed(() => {
     const currentMusic = musicStore.musicList.find(
-      (music) => music.id === playbackQueueStores.currentPlayingId,
+      (music) => music.id === playbackQueueStore.currentPlayingId,
     )
     return !!currentMusic?.isBilingual
   })
@@ -146,18 +146,18 @@ export function useLrcParser(
 
   if (removeChinese) {
     watch(removeChinese, (val) => {
-      if (playbackQueueStores.currentPlayingId) {
-        playbackQueueStores.setSongChineseState(playbackQueueStores.currentPlayingId, val ?? false)
+      if (playbackQueueStore.currentPlayingId) {
+        playbackQueueStore.setSongChineseState(playbackQueueStore.currentPlayingId, val ?? false)
       }
       parseLyrics(lyrics.value)
     })
   } else {
-    // 即使没有传入 removeChinese，也要监听 playbackQueueStores 中的状态
+    // 即使没有传入 removeChinese，也要监听 playbackQueueStore 中的状态
     watch(
-      () => playbackQueueStores.removeChinese,
+      () => playbackQueueStore.removeChinese,
       (val) => {
-        if (playbackQueueStores.currentPlayingId) {
-          playbackQueueStores.setSongChineseState(playbackQueueStores.currentPlayingId, val)
+        if (playbackQueueStore.currentPlayingId) {
+          playbackQueueStore.setSongChineseState(playbackQueueStore.currentPlayingId, val)
         }
         parseLyrics(lyrics.value)
       },

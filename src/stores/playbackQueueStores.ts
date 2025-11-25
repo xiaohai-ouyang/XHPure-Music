@@ -79,7 +79,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
   /**
    * 播放列表是否为空
    */
-  const isplaybackQueueEmpty = computed(() => playbackQueue.value.length === 0)
+  const isPlaybackQueueEmpty = computed(() => playbackQueue.value.length === 0)
 
   /**
    * 当前播放的歌曲信息
@@ -161,7 +161,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
   /**
    * 清空播放列表
    */
-  function clearplaybackQueue() {
+  function clearPlaybackQueue() {
     playbackQueue.value = []
     currentPlayingId.value = null
     isPlaying.value = false
@@ -171,7 +171,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
    * 从播放列表中移除歌曲
    * @param musicId 要移除的歌曲ID
    */
-  function removeFromplaybackQueue(musicId: string) {
+  function removeFromPlaybackQueue(musicId: string) {
     const index = playbackQueue.value.findIndex((music) => music.id === musicId)
     if (index === -1) return
 
@@ -196,7 +196,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
    * @param isAutoPlayNext 是否为自动播放下一首（如歌曲播放结束触发）
    */
   function playNext(isAutoPlayNext = false) {
-    if (isplaybackQueueEmpty.value || !currentPlayingId.value) return
+    if (isPlaybackQueueEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playbackQueue.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
@@ -227,7 +227,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
    * @param isAutoPlayPrevious 是否为自动播放上一首
    */
   function playPrevious(isAutoPlayPrevious = false) {
-    if (isplaybackQueueEmpty.value || !currentPlayingId.value) return
+    if (isPlaybackQueueEmpty.value || !currentPlayingId.value) return
 
     const currentIndex = playbackQueue.value.findIndex((m) => m.id === currentPlayingId.value)
     if (currentIndex === -1) return
@@ -311,7 +311,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
     currentSongRemoveChinese,
 
     // getters
-    isplaybackQueueEmpty,
+    isPlaybackQueueEmpty,
     currentPlaying,
     playModeIcon,
     playModeLabel,
@@ -319,8 +319,8 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
     // actions
     addToPlaybackQueue,
     setCurrentPlaying,
-    removeFromplaybackQueue,
-    clearplaybackQueue,
+    removeFromPlaybackQueue,
+    clearPlaybackQueue,
     playNext,
     playPrevious,
     cyclePlayMode,

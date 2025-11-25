@@ -12,15 +12,15 @@ import EmptyMusicState from '@/components/MusicPage/EmptyMusicState.vue'
 
 const listContainer = ref<HTMLElement | null>(null)
 const headerRef = ref<HTMLElement | null>(null)
-const playbackQueueStores = usePlaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 const musicStore = useMusicMetaStore()
 const playlistStore = usePlaylistStore()
 const { pickMusic } = useMusicPicker()
-const currentPlayingId = computed(() => playbackQueueStores.currentPlayingId)
+const currentPlayingId = computed(() => playbackQueueStore.currentPlayingId)
 useScrollRestore({ containerRef: listContainer, key: 'music-list' })
 
 function handleMusicClick(music: MusicInfo) {
-  playbackQueueStores.addToPlaybackQueue(music)
+  playbackQueueStore.addToPlaybackQueue(music)
 }
 
 function handleAddToPlaylist(music: MusicInfo) {
@@ -35,7 +35,7 @@ interface MusicInfo {
 
 function pushAllToPlaylist() {
   musicStore.musicList.forEach((music) => {
-    playbackQueueStores.addToPlaybackQueue(music)
+    playbackQueueStore.addToPlaybackQueue(music)
   })
 }
 
