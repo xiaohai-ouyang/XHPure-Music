@@ -2,15 +2,9 @@ import { defineStore } from 'pinia'
 import { ref, computed, watchEffect } from 'vue'
 import { generateShortId } from '@/utils/idGenerator'
 
-export interface MusicInfo {
-  [key: string]: unknown
-  id?: string
-  url?: string
-  isBilingual?: boolean
-  languages?: string[]
-  duration?: number
-  md5?: string
-}
+import type { MusicInfo } from '@/types/musicTypes'
+
+export type { MusicInfo }
 
 export const useMusicMetaStore = defineStore('musicMeta', () => {
   const musicList = ref<MusicInfo[]>([])

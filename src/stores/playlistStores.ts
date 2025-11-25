@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { type MusicInfo } from './musicMetaStores'
 import type { Playlist, Track } from '@/types/fileSystem'
+import { useMessageStore } from '@/stores/messageStore'
+const messageStore = useMessageStore()
 
 // 从localStorage加载播放列表数据
 const loadPlaylistsFromLocalStorage = (): Playlist[] => {
@@ -10,6 +12,7 @@ const loadPlaylistsFromLocalStorage = (): Playlist[] => {
     try {
       return JSON.parse(stored)
     } catch (e) {
+      messageStore.showError('解析播放列表数据失败')
       console.error('Failed to parse playlists from localStorage', e)
     }
   }
@@ -30,6 +33,7 @@ const savePlaylistsToLocalStorage = (playlists: Playlist[]) => {
   try {
     localStorage.setItem('jiaoyan_playlists', JSON.stringify(playlists))
   } catch (e) {
+    messageStore.showError('保存播放列表数据失败')
     console.error('Failed to save playlists to localStorage', e)
   }
 }
@@ -88,7 +92,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
       const track: Track = {
         id: music.id,
         title: music.title,
-        duration: music.duration,
+        duration: typeof music.duration === 'number' ? music.duration : Number(music.duration),
         md5: music.md5,
       }
       pl.tracks.push(track)

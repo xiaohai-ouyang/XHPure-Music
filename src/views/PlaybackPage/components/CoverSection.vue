@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useLrcParser } from '@/composables/useLrcParser'
 import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
-const playbackQueueStores = useplaybackQueueStore()
+const playbackQueueStores = usePlaybackQueueStore()
 
 // 当前播放的音乐信息
 const currentPlaying = computed(
@@ -30,7 +30,9 @@ const { showRemoveChineseButton } = useLrcParser(
 )
 
 const shouldShowRemoveChinese = computed(() => showRemoveChineseButton.value)
-const translationTooltip = computed(() => (playbackQueueStores.removeChinese ? '显示中文' : '隐藏中文'))
+const translationTooltip = computed(() =>
+  playbackQueueStores.removeChinese ? '显示中文' : '隐藏中文',
+)
 
 /**
  * 切换中文显示状态

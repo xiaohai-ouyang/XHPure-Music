@@ -14,10 +14,10 @@
             type="text"
             placeholder="播放列表名称"
             v-model="playlistName"
-            @focus="inputing = true"
-            @blur="inputing = false"
+            @focus="isInputting = true"
+            @blur="isInputting = false"
           />
-          <span :class="{ inputing: inputing }"></span>
+          <span :class="{ inputting: isInputting }"></span>
         </div>
 
         <div v-if="coverPreview" class="cover-preview">
@@ -36,21 +36,23 @@ import { ref } from 'vue'
 import { generateShortId } from '@/utils/idGenerator'
 import { usePlaylistStore } from '@/stores/playlistStores'
 import { useCoverStorage } from '@/composables/useCoverStorage'
+import { useMessageStore } from '@/stores/messageStore'
 
 const emit = defineEmits(['false'])
 
 const playlistStore = usePlaylistStore()
+const messageStore = useMessageStore()
 const { saveCover } = useCoverStorage()
 
 const playlistName = ref('')
-const inputing = ref(false)
+const isInputting = ref(false)
 const coverFile = ref<File | null>(null)
 const coverPreview = ref<string | null>(null)
 
 async function createPlaylist() {
   // 检查输入
   if (!playlistName.value.trim()) {
-    alert('请输入播放列表名称')
+    messageStore.showError('请输入播放列表名称')
     return
   }
 
@@ -64,8 +66,9 @@ async function createPlaylist() {
     try {
       await saveCover(playlistId, coverFile.value)
       // 使用特殊标识符表示该播放列表有自定义封面
-      coverUrl = `indexeddb://${playlistId}`
+      coverUrl = `indexdb://${playlistId}`
     } catch (error) {
+      messageStore.showError('保存封面失败')
       console.error('Failed to save cover:', error)
     }
   }
@@ -78,19 +81,20 @@ async function createPlaylist() {
   })
 
   if (playlistStore.msg === '添加歌单成功') {
+    messageStore.showSuccess('播放列表创建成功')
     // 清空表单
     playlistName.value = ''
     coverFile.value = null
     coverPreview.value = null
     emit('false')
   } else {
-    alert(playlistStore.msg)
+    messageStore.showError(playlistStore.msg)
   }
 }
 </script>
 
 <style lang="less" scoped>
-@page-boder-radius: 10px;
+@page-border-radius: 10px;
 .my-dialog {
   position: fixed;
   height: 100vh;
@@ -102,16 +106,16 @@ async function createPlaylist() {
   .row-flex(@align: center, @justify: center);
 }
 
-.my-dialog-contant {
+.my-dialog-content {
   .col-flex(@gap: 20px);
   background-color: aliceblue;
   padding: 20px;
-  border-radius: @page-boder-radius;
+  border-radius: @page-border-radius;
   max-width: 500px;
   width: 90%;
 }
 
-.my-dialog-contant header {
+.my-dialog-content header {
   font-size: 20px;
   font-weight: bold;
 
@@ -122,7 +126,7 @@ async function createPlaylist() {
   }
 }
 
-.my-dialog-contant .inp-field {
+.my-dialog-content .inp-field {
   .row-flex(@align: center);
   font-size: 18px;
   position: relative;
@@ -147,7 +151,7 @@ async function createPlaylist() {
     transition: all 0.2s linear;
   }
 
-  .inputing {
+  .inputting {
     width: 300px;
   }
 
@@ -169,7 +173,7 @@ async function createPlaylist() {
   background-color: @lightMode-dominant-textColor;
   color: rgb(255, 255, 255);
   padding: 10px 20px;
-  border-radius: @page-boder-radius;
+  border-radius: @page-border-radius;
   align-self: flex-end;
   margin-top: 10px;
 }

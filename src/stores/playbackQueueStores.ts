@@ -29,10 +29,7 @@ const MODE_LABELS: Record<PlayMode, string> = {
   loop: '单曲循环',
 }
 
-export const useplaybackQueueStore = defineStore('playbackQueue', () => {
-  // ============
-  // 🔹 State
-  // ============
+export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
   /**
    * 播放列表
    */

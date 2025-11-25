@@ -1,4 +1,4 @@
-import { onMounted, nextTick, onBeforeUnmount, type Ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 interface Options {
@@ -8,31 +8,38 @@ interface Options {
 
 const scrollPositions = new Map<string, number>()
 
+function saveScrollPosition(container: HTMLElement | null, key: string) {
+  if (container) {
+    scrollPositions.set(key, container.scrollTop)
+  }
+}
+
+function restoreScrollPosition(container: HTMLElement | null, key: string) {
+  if (!container) return
+
+  const saved = scrollPositions.get(key)
+  if (saved !== undefined) {
+    container.scrollTop = saved
+  }
+}
+
 export function useScrollRestore({ containerRef, key }: Options) {
   const route = useRoute()
   const scrollKey = key || route.fullPath
 
   onMounted(() => {
     nextTick(() => {
-      const saved = scrollPositions.get(scrollKey)
-      if (containerRef.value && saved !== undefined) {
-        containerRef.value.scrollTop = saved
-      }
+      restoreScrollPosition(containerRef.value, scrollKey)
     })
   })
 
   onBeforeUnmount(() => {
-    if (containerRef.value) {
-      scrollPositions.set(scrollKey, containerRef.value.scrollTop)
-    }
+    saveScrollPosition(containerRef.value, scrollKey)
   })
 
   return {
     restoreScroll: () => {
-      if (containerRef.value) {
-        const saved = scrollPositions.get(scrollKey)
-        if (saved !== undefined) containerRef.value.scrollTop = saved
-      }
-    },
+      restoreScrollPosition(containerRef.value, scrollKey)
+    }
   }
 }

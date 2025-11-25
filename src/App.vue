@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, useTemplateRef, watch } from 'vue'
 import { useThemeStore } from './stores/themeStore'
 import { useGlobalShortcutKey } from './composables/useGlobalShortcutKey'
-import { useplaybackQueueStore } from './stores/playbackQueueStores'
+import { usePlaybackQueueStore } from './stores/playbackQueueStores'
+import { ElMessage } from 'element-plus'
+import { useMessageStore } from './stores/messageStore'
+const messageStore = useMessageStore()
 
-// --------- 初始化全局状态 ---------
-const playbackQueueStore = useplaybackQueueStore()
-const audioRef = ref<HTMLAudioElement | null>(null)
+const playbackQueueStore = usePlaybackQueueStore()
+const audioEl = useTemplateRef('audioRef')
 
 // 页面标题与快捷键
 document.title = '椒盐音乐'
@@ -17,56 +19,71 @@ onMounted(() => {
   useThemeStore().initTheme()
 })
 
-// --------- 监听歌曲变化，自动播放 ---------
 watch(
   () => playbackQueueStore.currentPlaying,
   async (newSong) => {
-    const audio = audioRef.value
-    if (!audio) return
+    if (!audioEl.value) return
 
     try {
-      audio.pause()
+      audioEl.value?.pause()
 
       // 没有歌曲或没有 URL，直接退出
       if (!newSong?.url) return
 
       // 设置音频源并加载
-      audio.src = newSong.url
-      audio.load()
+      audioEl.value.src = newSong.url
+      audioEl.value.load()
 
       // 等待音频可播放后再调用 play()
-      audio.addEventListener(
+      audioEl.value.addEventListener(
         'canplay',
         () => {
-          audio.play().catch((err) => {
+          audioEl.value?.play().catch((err) => {
             if (err.name !== 'AbortError') {
               console.error('播放音频时出错:', err)
+              messageStore.showError('播放音频时出错: ' + err.message)
             }
           })
         },
-        { once: true }
+        { once: true },
       )
     } catch (error: unknown) {
       if (error instanceof Error && error.name !== 'AbortError') {
         console.error('播放音频时出错:', error)
+        messageStore.showError('播放音频时出错: ' + error.message)
       }
     }
-  }
+  },
 )
 
-// --------- 事件处理函数 ---------
+watch(
+  () => messageStore.lastMessage,
+  (message) => {
+    if (message) {
+      ElMessage({
+        showClose: true,
+        message: message.content,
+        type: message.type,
+        duration: 4000,
+      })
+      messageStore.clearMessage()
+    }
+  },
+)
+
 const handleTimeUpdate = () => playbackQueueStore.updateCurrentPlayingTime()
 const handlePlay = () => (playbackQueueStore.isPlaying = true)
 const handlePause = () => (playbackQueueStore.isPlaying = false)
 
-// 处理播放结束
 const handleEnded = () => {
-  const audio = audioRef.value
-  if (!audio) return
+  if (!audioEl.value) return
 
   if (playbackQueueStore.playMode === 'loop' && playbackQueueStore.currentPlaying) {
-    audio.currentTime = 0
-    audio.play().catch(console.error)
+    audioEl.value.currentTime = 0
+    audioEl.value.play().catch((err) => {
+      messageStore.showError('播放音频时出错: ' + err.message)
+      console.error(err)
+    })
   } else {
     playbackQueueStore.playNext(true)
   }

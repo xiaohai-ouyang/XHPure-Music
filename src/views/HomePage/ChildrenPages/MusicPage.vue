@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useScrollRestore } from '@/composables/useScrollRestore'
 import { useMusicPicker } from '@/composables/useMusicPicker'
 import { formatTimeDetailed } from '@/utils/formatTime'
@@ -11,7 +11,7 @@ import MusicFunctionBar from '@/components/MusicPage/MusicFunctionBar.vue'
 import EmptyMusicState from '@/components/MusicPage/EmptyMusicState.vue'
 
 const listContainer = ref<HTMLElement | null>(null)
-const playbackQueueStores = useplaybackQueueStore()
+const playbackQueueStores = usePlaybackQueueStore()
 const musicStore = useMusicMetaStore()
 const playlistStore = usePlaylistStore()
 const { pickMusic } = useMusicPicker()

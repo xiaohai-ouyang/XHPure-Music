@@ -12,7 +12,7 @@ export const usePageStatusStore = defineStore('pageStatus', () => {
     isNavContracted.value = !isNavContracted.value
   }
 
-  function toggleisPlayQueueShow() {
+  function toggleIsPlayQueueShow() {
     isPlayQueueShow.value = !isPlayQueueShow.value
   }
 
@@ -23,6 +23,6 @@ export const usePageStatusStore = defineStore('pageStatus', () => {
     isPlayQueueShow,
     isPlayBackExpand,
     toggleNav,
-    toggleisPlayQueueShow,
+    toggleIsPlayQueueShow,
   }
 })
