@@ -145,7 +145,7 @@ function clearPlaylistTracks() {
 function handleCoverError(event: Event) {
   const imgElement = event.target as HTMLImageElement
   // 当封面加载失败时，使用默认封面
-  imgElement.src = '/src/assets/images/logo.png'
+  imgElement.src = '/src/assets/images/XHPureMusic.jpg'
 }
 </script>
 

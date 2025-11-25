@@ -7,6 +7,7 @@ import HeaderSection from './components/HeaderSection.vue'
 import CoverSection from './components/CoverSection.vue'
 import ControlSection from './components/ControlSection.vue'
 import { usePlaylistStore } from '@/stores/playlistStores'
+import ColorWheel from './components/ColorWheel.vue'
 
 // 播放列表和页面状态管理
 const playbackQueueStore = usePlaybackQueueStore()
@@ -26,6 +27,9 @@ const currentPlaying = computed(() => playbackQueueStore.currentPlaying || defau
 
 // 更多菜单显示状态
 const moreListShow = ref(false)
+
+// 色盘显示状态
+const isColorWheelHovered = ref(false)
 
 /**
  * 切换更多菜单显示状态
@@ -95,6 +99,12 @@ watch(
             :lyrics="(currentPlaying.lyrics as string) || ''"
             :current-time="playbackQueueStore.currentPlayingTime"
             :remove-chinese="playbackQueueStore.removeChinese"
+          />
+          <ColorWheel
+            class="floating-color-wheel"
+            :class="{ 'wheel-hide': !isColorWheelHovered }"
+            @mouseenter="isColorWheelHovered = true"
+            @mouseleave="isColorWheelHovered = false"
           />
         </div>
       </main>
@@ -168,15 +178,31 @@ main {
   width: 100%;
   height: 100%;
 
-  .left,
   .right {
+    flex: 1;
+    position: relative;
+    .row-flex(@align: center );
+  }
+
+  .floating-color-wheel {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .wheel-hide {
+    opacity: 0.5;
+    transform: translateY(-50%) translateX(65%);
+  }
+
+  .left {
     flex: 1;
     .col-flex(@align: center );
   }
 }
 
-.music-info,
-.controlers {
+.music-info {
   * {
     transition: all 0.3s linear;
   }

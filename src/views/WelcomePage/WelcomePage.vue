@@ -1,7 +1,7 @@
 <template>
   <div class="welcome-page">
     <div class="page-logo">
-      <img src="@/assets/images/logo.png" class="logo" />
+      <img src="@/assets/images/XHPureMusic.jpg" class="logo" />
     </div>
     <h1 class="title">欢迎使用 XHPure Music</h1>
     <p class="desc">一款基于 Vue3 + Vite 的音乐播放器</p>
@@ -11,7 +11,7 @@
         class="btn enter-btn"
         :class="{ hover: btnHover === 'btn1' }"
         @mouseenter="btnHover = 'btn1'"
-        >进入椒盐</router-link
+        >进入XHPure&nbsp;Music</router-link
       >
       <router-link
         to="/guide"
@@ -60,24 +60,24 @@ const btnHover = ref('btn1')
 }
 
 .next-btns {
-  .row-flex(@justify:center, @align:center);
+  .row-flex(@justify:center, @align:center, @gap:30px);
 
   .btn {
     color: #002fa7;
-    width: 90px;
-    height: 45px;
-    margin: 0 10px;
+    padding: 10px 15px;
+
     border-radius: 8px;
     background-color: @lightMode-secondary-bgColor;
     text-align: center;
-    transition: all 0.3s ease-in-out;
-    line-height: 45px;
+    transition: all 0.1s ease-in-out;
+
     text-decoration: unset;
   }
 }
 
 .hover {
   font-weight: 700;
-  width: 150px !important;
+  transform: scale(1.15);
+  box-shadow: 0px 0px 13px rgba(0, 0, 0, 0.1);
 }
 </style>
