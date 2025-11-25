@@ -31,8 +31,8 @@ defineProps<{
       position: absolute;
       top: 6px;
       right: 8px;
-      background: rgba(0, 0, 0, 0.5);
-      color: #fff;
+      background: @lightMode-overlay-bg;
+      color: @lightMode-text-on-primary;
       padding: 2px 6px;
       border-radius: 8px;
       font-size: 12px;
@@ -42,7 +42,7 @@ defineProps<{
   .name {
     margin-top: 6px;
 
-    color: #333;
+    color: @lightMode-text-main;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

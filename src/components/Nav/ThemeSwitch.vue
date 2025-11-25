@@ -59,5 +59,4 @@ const themeStore = useThemeStore()
 .active {
   color: @lightMode-nav-activeColor;
 }
-
 </style>

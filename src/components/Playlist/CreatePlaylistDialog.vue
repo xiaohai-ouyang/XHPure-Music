@@ -101,14 +101,14 @@ async function createPlaylist() {
   width: 100vw;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: @lightMode-overlay-bg;
   z-index: 999;
   .row-flex(@align: center, @justify: center);
 }
 
 .my-dialog-content {
   .col-flex(@gap: 20px);
-  background-color: aliceblue;
+  background-color: @lightMode-secondary-bgColor;
   padding: 20px;
   border-radius: @page-border-radius;
   max-width: 500px;
@@ -171,7 +171,7 @@ async function createPlaylist() {
 
 .create-btn {
   background-color: @lightMode-dominant-textColor;
-  color: rgb(255, 255, 255);
+  color: @lightMode-text-on-primary;
   padding: 10px 20px;
   border-radius: @page-border-radius;
   align-self: flex-end;

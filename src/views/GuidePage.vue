@@ -19,28 +19,28 @@ defineOptions({
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f0f2f5;
+  background-color: @lightMode-dominant-bgColor;
 
   h1 {
     margin-bottom: 20px;
-    color: #333;
+    color: @lightMode-text-main;
   }
 
   p {
     margin-bottom: 30px;
-    color: #666;
+    color: @lightMode-text-sub;
   }
 
   .back-btn {
     padding: 10px 20px;
-    background-color: #002fa7;
-    color: white;
+    background-color: @lightMode-dominant-textColor;
+    color: @lightMode-text-on-primary;
     border-radius: 4px;
     text-decoration: none;
     transition: background-color 0.3s;
 
     &:hover {
-      background-color: darken(#002fa7, 10%);
+      background-color: darken(@lightMode-dominant-textColor, 10%);
     }
   }
 }

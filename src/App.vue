@@ -149,7 +149,7 @@ img {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: @lightMode-overlay-bg;
   z-index: 9999;
 
   .modal-content {
@@ -157,7 +157,7 @@ img {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: white;
+    color: @lightMode-text-on-primary;
   }
 }
 </style>

@@ -129,7 +129,7 @@ onMounted(() => {
   background-color: @lightMode-secondary-bgColor;
   border-radius: 8px 8px 0 0;
   z-index: 1000;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  box-shadow: -5px 0 15px @lightMode-shadow-color;
 }
 
 .has-playlist {
@@ -140,7 +140,7 @@ onMounted(() => {
 .controls-btn {
   .row-flex(@justify:space-between, @align:center,@gap: 20px);
   padding: 10px 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid @lightMode-border-color;
   font-size: 16px;
 
   button {
@@ -153,28 +153,28 @@ onMounted(() => {
   .mode-switch {
     .row-flex(@align:center,@gap: 5px);
     padding: 5px 10px;
-    background-color: #f0f0f0;
+    background-color: @lightMode-button-bg;
     transition: all 0.3s ease;
 
     &.loop {
-      background-color: #ff5c5c;
-      color: white;
+      background-color: @lightMode-color-danger;
+      color: @lightMode-text-on-primary;
     }
 
     &.random {
-      background-color: #5c9dff;
-      color: white;
+      background-color: @lightMode-color-info;
+      color: @lightMode-text-on-primary;
     }
   }
 
   .clear-list {
     padding: 5px 10px;
-    background-color: #f0f0f0;
+    background-color: @lightMode-button-bg;
     transition: all 0.3s ease;
 
     &:hover {
-      background-color: #ff5c5c;
-      color: white;
+      background-color: @lightMode-color-danger;
+      color: @lightMode-text-on-primary;
     }
   }
 }
@@ -189,6 +189,6 @@ onMounted(() => {
 .empty-playlist {
   .col-flex(@align:center, @justify:center);
   height: 100px;
-  color: #999;
+  color: @lightMode-text-tertiary;
 }
 </style>

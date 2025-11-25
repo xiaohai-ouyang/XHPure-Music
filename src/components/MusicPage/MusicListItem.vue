@@ -98,9 +98,9 @@ const handleAddToPlaylist = (event: Event) => {
 
   button {
     padding: 10px;
-    background: #ff4b4b;
+    background: @lightMode-color-danger;
     border-radius: 10px;
-    color: white;
+    color: @lightMode-text-on-primary;
   }
 }
 </style>
