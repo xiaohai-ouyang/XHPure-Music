@@ -90,7 +90,7 @@ function playTrack(track: Track) {
   const music = getMusicById(track.id)
   if (music) {
     // 将歌曲添加到播放队列并播放
-    playbackQueueStore.addToplaybackQueue(music)
+    playbackQueueStore.addToPlaybackQueue(music)
   }
 }
 

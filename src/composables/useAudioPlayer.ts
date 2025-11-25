@@ -18,7 +18,12 @@ export function useAudioPlayer(): {
   const getAudioElement = (): HTMLAudioElement | null => {
     return document.querySelector('audio')
   }
-  const handleTimeUpdate = () => playbackQueueStore.updateCurrentPlayingTime()
+  const handleTimeUpdate = () => {
+    const audio = getAudioElement()
+    if (audio) {
+      playbackQueueStore.updateCurrentPlayingTime(audio.currentTime, audio.duration)
+    }
+  }
   const handlePlay = () => (playbackQueueStore.isPlaying = true)
   const handlePause = () => (playbackQueueStore.isPlaying = false)
   const handleEnded = () => {

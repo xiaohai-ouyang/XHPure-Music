@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watchEffect } from 'vue'
+import { ref, computed } from 'vue'
 import { generateShortId } from '@/utils/idGenerator'
 
 import type { MusicInfo } from '@/types/musicTypes'
@@ -15,6 +15,16 @@ export const useMusicMetaStore = defineStore('musicMeta', () => {
       info.id = generateShortId()
     }
     musicList.value.push(info)
+  }
+
+  function addMusicList(infos: MusicInfo[]) {
+    const newInfos = infos.map((info) => {
+      if (!info.id) {
+        info.id = generateShortId()
+      }
+      return info
+    })
+    musicList.value.push(...newInfos)
   }
 
   function clearMusic() {
@@ -34,6 +44,7 @@ export const useMusicMetaStore = defineStore('musicMeta', () => {
     isEmpty,
     totalDuration,
     addMusic,
+    addMusicList,
     clearMusic,
   }
 })
