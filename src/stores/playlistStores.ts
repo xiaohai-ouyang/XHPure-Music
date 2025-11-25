@@ -7,7 +7,7 @@ const messageStore = useMessageStore()
 
 // 从localStorage加载播放列表数据
 const loadPlaylistsFromLocalStorage = (): Playlist[] => {
-  const stored = localStorage.getItem('jiaoyan_playlists')
+  const stored = localStorage.getItem('xhpure_playlists')
   if (stored) {
     try {
       return JSON.parse(stored)
@@ -31,7 +31,7 @@ const loadPlaylistsFromLocalStorage = (): Playlist[] => {
 // 保存播放列表数据到localStorage
 const savePlaylistsToLocalStorage = (playlists: Playlist[]) => {
   try {
-    localStorage.setItem('jiaoyan_playlists', JSON.stringify(playlists))
+    localStorage.setItem('xhpure_playlists', JSON.stringify(playlists))
   } catch (e) {
     messageStore.showError('保存播放列表数据失败')
     console.error('Failed to save playlists to localStorage', e)

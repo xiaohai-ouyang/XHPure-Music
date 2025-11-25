@@ -1,21 +1,10 @@
-// 字体样式
+// 1. 引入变量、混合等上下文 (复用 global.less)
+@import './global.less';
+
+// 2. 引入全局基础样式 (产生实际 CSS)
 @import './Font/font.css';
-
-// 样式重置
 @import './reset.css';
-
-// 图标样式
 @import './Font/iconfont.css';
 
-// 混合样式
-@import './Mixins/_flex.less';
-
-// 主题样式
-@import './Themes/_dark.less';
-@import './Themes/_light.less';
-
-// 全局变量
-@import './variables.less';
-
-// 走马灯样式
+// 3. 引入其他全局样式
 @import './PluginStyle/XiaoHi_marquee.less';

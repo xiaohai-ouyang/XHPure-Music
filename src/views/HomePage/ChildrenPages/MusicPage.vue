@@ -40,7 +40,7 @@ function pushAllToPlaylist() {
 </script>
 
 <template>
-  <div class="jiaoyan-music" ref="listContainer">
+  <div class="xhpure-music" ref="listContainer">
     <EmptyMusicState v-if="musicStore.isEmpty" @pick-music="pickMusic" />
 
     <template v-else>

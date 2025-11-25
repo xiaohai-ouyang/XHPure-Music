@@ -164,7 +164,7 @@ interface Track {
 #### 1. 状态管理（Pinia + localStorage）
 
 - 使用 Pinia 管理全局播放列表状态。
-- 所有数据持久化存储于 `localStorage`，键名为：`jiaoyan_playlists`。
+- 所有数据持久化存储于 `localStorage`，键名为：`xhpure_playlists`。
 - 每次修改自动同步保存。
 
 #### 2. 封面图片存储（IndexedDB）
