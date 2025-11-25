@@ -1,6 +1,6 @@
-# JiaoYan Music
+# XHPure Music
 
-一个椒盐音乐网页版
+一个基于Vue3的本地音乐网站
 
 ## 项目启动
 
