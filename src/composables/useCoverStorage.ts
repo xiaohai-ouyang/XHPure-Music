@@ -1,5 +1,7 @@
 import { ref } from 'vue'
 import { coverStorage } from '@/utils/coverStorage'
+import { useMessageStore } from '@/stores/messageStore'
+const messageStore = useMessageStore()
 
 /**
  * 封面图片存储组合式函数
@@ -21,6 +23,7 @@ export const useCoverStorage = () => {
       await coverStorage.saveCover(id, coverBlob)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to save cover'
+      messageStore.showError('保存封面失败: ' + error.value)
       console.error('Error saving cover:', err)
     } finally {
       isLoading.value = false
@@ -41,6 +44,7 @@ export const useCoverStorage = () => {
       return cover
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to get cover'
+      messageStore.showError('获取封面失败: ' + error.value)
       console.error('Error getting cover:', err)
       return null
     } finally {
@@ -60,6 +64,7 @@ export const useCoverStorage = () => {
       await coverStorage.deleteCover(id)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to delete cover'
+      messageStore.showError('删除封面失败: ' + error.value)
       console.error('Error deleting cover:', err)
     } finally {
       isLoading.value = false
@@ -80,6 +85,7 @@ export const useCoverStorage = () => {
       return result
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to check cover'
+      messageStore.showError('检查封面失败: ' + error.value)
       console.error('Error checking cover:', err)
       return false
     } finally {
@@ -93,8 +99,13 @@ export const useCoverStorage = () => {
    * @returns 图片的Blob数据
    */
   const urlToBlob = async (url: string): Promise<Blob> => {
-    const response = await fetch(url)
-    return await response.blob()
+    try {
+      const response = await fetch(url)
+      return await response.blob()
+    } catch (err) {
+      messageStore.showError('获取图片失败')
+      throw err
+    }
   }
 
   return {

@@ -3,11 +3,11 @@ import defaultCover from '@assets/images/defaultCover-lightMode.png'
 import myPlaybackQueue from '@/components/PlayerBar/MyPlaybackQueue.vue'
 import { ref } from 'vue'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useRouter } from 'vue-router'
 
-const playbackQueueStores = useplaybackQueueStore()
+const playbackQueueStores = usePlaybackQueueStore()
 const pageStatusStore = usePageStatusStore()
 const infoRef = ref<HTMLElement | null>(null)
 const { togglePlayPause } = useAudioPlayer()
@@ -18,7 +18,6 @@ const router = useRouter()
  * @param event 点击事件
  */
 const goToPlayback = (event: Event) => {
-  // 阻止事件冒泡，避免与子元素的点击事件冲突
   event.stopPropagation()
   router.push('/playback')
 }
@@ -74,7 +73,7 @@ const goToPlayback = (event: Event) => {
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
-      <button class="playlist-btn" @click.stop="pageStatusStore.toggleisPlayQueueShow">
+      <button class="playlist-btn" @click.stop="pageStatusStore.toggleIsPlayQueueShow">
         <i class="iconfont">&#xe716;</i>
         <span class="playlist-count">播放列表</span>
       </button>

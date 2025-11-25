@@ -29,7 +29,7 @@
 
 ### 📦 安装依赖
 
-```bash
+```
 npm install vue3-marquee
 ```
 
@@ -39,7 +39,7 @@ npm install vue3-marquee
 
 #### 1. 基本用法（通过 `text` 属性）
 
-```vue
+```
 <template>
   <SmartMarquee
     :duration="20"
@@ -59,7 +59,7 @@ import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
 #### 2. 插槽方式（更灵活的内容渲染）
 
-```vue
+```
 <template>
   <SmartMarquee :duration="15">
     <span style="color: red;">自定义 HTML 内容</span>
@@ -105,7 +105,7 @@ import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
 ### 🎯 示例代码
 
-```vue
+```
 <template>
   <div class="demo" style="width: 300px;">
     <!-- 默认水平滚动 -->
@@ -137,7 +137,7 @@ import SmartMarquee from '@/components/Common/SmartMarquee.vue'
 
 #### `Playlist` 接口
 
-```ts
+```
 interface Playlist {
   id: string // 播放列表唯一 ID
   name: string // 名称
@@ -148,7 +148,7 @@ interface Playlist {
 
 #### `Track` 接口
 
-```ts
+```
 interface Track {
   id: string // 歌曲 ID（导入后填充）
   title: string // 标题
@@ -200,7 +200,7 @@ interface Track {
 
 ### 💬 使用示例（Vue 组件中）
 
-```vue
+```
 <template>
   <div>
     <div v-for="pl in playlistStore.playlist" :key="pl.id">
@@ -258,7 +258,7 @@ function clearTracks(id) {
 
 #### ✅ 导入与初始化
 
-```ts
+```
 import { useChineseToggle } from '@/composables/useChineseToggle'
 
 const { removeChinese, hasChinese, translationTooltip, toggleChinese } =
@@ -276,7 +276,7 @@ const { removeChinese, hasChinese, translationTooltip, toggleChinese } =
 
 #### 🖼️ 模板使用示例
 
-```vue
+```
 <template>
   <button v-if="hasChinese" @click="toggleChinese" :title="translationTooltip">
     {{ removeChinese ? '显示中文' : '隐藏中文' }}
@@ -294,7 +294,7 @@ const { removeChinese, hasChinese, translationTooltip, toggleChinese } =
 
 #### ✅ 导入与初始化
 
-```ts
+```
 import { useCoverStorage } from '@/composables/useCoverStorage'
 
 const { isLoading, error, saveCover, getCover, deleteCover, hasCover, urlToBlob } =
@@ -318,7 +318,7 @@ const { isLoading, error, saveCover, getCover, deleteCover, hasCover, urlToBlob 
 
 #### 💡 完整使用示例（上传 + 显示）
 
-```ts
+```
 const coverUrl = ref('')
 const selectedFile = ref<File | null>(null)
 
@@ -337,7 +337,7 @@ async function loadCoverFromStorage() {
 }
 ```
 
-```vue
+```
 <template>
   <input type="file" @change="handleFileChange" accept="image/*" />
   <img v-if="coverUrl" :src="coverUrl" alt="封面" />
@@ -352,12 +352,114 @@ async function loadCoverFromStorage() {
 
 ## ✅ 总结：关键设计思想
 
-|        模块        |                           设计亮点                           |
-| :----------------: | :----------------------------------------------------------: |
-|   `SmartMarquee`   |               **按需渲染**，节省资源，提升性能               |
+|        模块        |                            设计亮点                             |
+| :----------------: | :-------------------------------------------------------------: |
+|   `SmartMarquee`   |                **按需渲染**，节省资源，提升性能                 |
 |    播放列表系统    | **Pinia + localStorage + IndexedDB** 分层存储，兼顾性能与持久化 |
-| `useChineseToggle` |               解耦 UI 交互与业务逻辑，复用性强               |
-| `useCoverStorage`  |                抽象复杂存储细节，统一接口调用                |
+| `useChineseToggle` |                解耦 UI 交互与业务逻辑，复用性强                 |
+| `useCoverStorage`  |                 抽象复杂存储细节，统一接口调用                  |
+
+---
+
+## 四、工具类 Composable 使用指南（续）
+
+### 3. `useAudioPlayer` —— 音频播放控制
+
+#### 📌 功能
+
+处理音频播放的核心逻辑，包括播放/暂停、音频事件处理等。
+
+#### ✅ 导入与初始化
+
+```
+import { useAudioPlayer } from '@/composables/useAudioPlayer'
+
+const {
+  handleTimeUpdate,
+  handlePlay,
+  handlePause,
+  handleEnded,
+  togglePlayPause,
+  seekByClick,
+  startDrag,
+  progressBar,
+  isDragging
+} = useAudioPlayer()
+```
+
+#### 🔍 返回值说明
+
+| 变量/函数          | 类型               | 说明                                                    |
+| ------------------ | ------------------ | ------------------------------------------------------- |
+| `handleTimeUpdate` | `Function`         | 处理音频时间更新事件                                    |
+| `handlePlay`       | `Function`         | 处理音频播放事件                                        |
+| `handlePause`      | `Function`         | 处理音频暂停事件                                        |
+| `handleEnded`      | `Function`         | 处理音频播放结束事件                                    |
+| `togglePlayPause`  | `Function`         | 切换播放/暂停状态                                       |
+| `seekByClick`      | `Function`         | 处理点击进度条跳转（来自 useProgressBar）               |
+| `startDrag`        | `Function`         | 处理开始拖拽进度条（来自 useProgressBar）               |
+| `progressBar`      | `Ref<HTMLElement>` | 进度条元素的引用（来自 useProgressBar）                 |
+| `isDragging`       | `Ref<boolean>`     | 表示当前是否正在拖拽进度条的状态（来自 useProgressBar） |
+
+#### 🖼️ 模板使用示例
+
+```
+<template>
+  <audio
+    @timeupdate="handleTimeUpdate"
+    @play="handlePlay"
+    @pause="handlePause"
+    @ended="handleEnded"
+  />
+  <button @click="togglePlayPause">播放/暂停</button>
+  <div
+    ref="progressBar"
+    @click="seekByClick"
+    @mousedown="startDrag"
+  >
+    <!-- 进度条UI -->
+  </div>
+</template>
+```
+
+---
+
+### 4. `useProgressBar` —— 进度条交互控制
+
+#### 📌 功能
+
+专门处理进度条相关逻辑，包括点击跳转和拖拽功能。
+
+#### ✅ 导入与初始化
+
+```
+import { useProgressBar } from '@/composables/useProgressBar'
+
+const { progressBar, isDragging, seekByClick, startDrag } = useProgressBar()
+```
+
+#### 🔍 返回值说明
+
+| 变量/函数     | 类型               | 说明                             |
+| ------------- | ------------------ | -------------------------------- |
+| `progressBar` | `Ref<HTMLElement>` | 进度条元素的引用                 |
+| `isDragging`  | `Ref<boolean>`     | 表示当前是否正在拖拽进度条的状态 |
+| `seekByClick` | `Function`         | 处理点击进度条跳转功能           |
+| `startDrag`   | `Function`         | 处理开始拖拽进度条功能           |
+
+#### 🖼️ 模板使用示例
+
+```
+<template>
+  <div
+    ref="progressBar"
+    @click="seekByClick"
+    @mousedown="startDrag"
+  >
+    <!-- 进度条UI -->
+  </div>
+</template>
+```
 
 ---
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { formatTime, formatNegativeTime } from '@/utils/formatTime'
 
-const playbackQueueStores = useplaybackQueueStore()
+const playbackQueueStores = usePlaybackQueueStore()
 const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
 
 // 静音状态

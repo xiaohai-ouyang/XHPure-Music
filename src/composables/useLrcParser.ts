@@ -1,7 +1,7 @@
 import { ref, computed, watch, nextTick, onMounted, type Ref } from 'vue'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { detectLanguages } from '@/utils/lyricUtils'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 
 export interface LyricLine {
   time: number
@@ -23,7 +23,7 @@ export function useLrcParser(
   containerRef: Ref<HTMLElement | null>,
   removeChinese?: Ref<boolean>,
 ) {
-  const playbackQueueStores = useplaybackQueueStore()
+  const playbackQueueStores = usePlaybackQueueStore()
   const lyricLineRefs = ref<HTMLElement[]>([])
   const spacerHeight = ref(250)
   const parsedLyrics = ref<LyricLine[]>([])
