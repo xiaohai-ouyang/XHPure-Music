@@ -1,5 +1,5 @@
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useThemeStore } from '@/stores/themeStore'
 
 /**
@@ -7,7 +7,7 @@ import { useThemeStore } from '@/stores/themeStore'
  * 全面整合版：包含音频播放逻辑 + 交互控制逻辑（进度条拖动、点击跳转）
  */
 export function useAudioPlayer() {
-  const playbackQueueStore = useplaybackQueueStore()
+  const playbackQueueStore = usePlaybackQueueStore()
 
   // ======= 音频控制引用 =======
   const getAudioElement = (): HTMLAudioElement | null => {

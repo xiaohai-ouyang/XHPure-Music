@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { MusicInfo } from '@/stores/musicMetaStores'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 
 interface Props {
   music: MusicInfo
@@ -40,7 +40,7 @@ interface Props {
 defineProps<Props>()
 
 const itemRef = ref<HTMLElement | null>(null)
-const playbackQueueStore = useplaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 
 const setCurrentPlaying = (music: MusicInfo) => {
   playbackQueueStore.setCurrentPlaying(music)

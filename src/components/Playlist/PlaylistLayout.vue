@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
-import { useplaybackQueueStore } from '@/stores/playbackQueueStores'
+import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import type { MusicInfo } from '@/stores/musicMetaStores'
 import type { Track, Playlist } from '@/types/fileSystem'
 import { formatTime } from '@/utils/formatTime'
@@ -64,7 +64,7 @@ const props = defineProps<{
 const emit = defineEmits(['clear-tracks'])
 
 const musicStore = useMusicMetaStore()
-const playbackQueueStore = useplaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 
 /**
  * 检查歌曲是否已导入（通过检查track.id是否存在且能找到对应的音乐）

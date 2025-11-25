@@ -1,8 +1,7 @@
 // stores/playbackQueueStore.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-
-// 假设 MusicInfo 已定义
+import { generateUUID } from '@/utils/idGenerator'
 import type { MusicInfo } from './musicMetaStores'
 
 // 播放模式类型
@@ -29,7 +28,7 @@ const MODE_LABELS: Record<PlayMode, string> = {
   loop: '单曲循环',
 }
 
-export const useplaybackQueueStore = defineStore('playbackQueue', () => {
+export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
   // ============
   // 🔹 State
   // ============
@@ -287,18 +286,6 @@ export const useplaybackQueueStore = defineStore('playbackQueue', () => {
   function ensureMusicHasId(music: MusicInfo): MusicInfo {
     if (music.id) return music
     return { ...music, id: generateUUID() }
-  }
-
-  /**
-   * 生成 UUID
-   * @returns UUID字符串
-   */
-  function generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0
-      const v = c === 'x' ? r : (r & 0x3) | 0x8
-      return v.toString(16)
-    })
   }
 
   return {

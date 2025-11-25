@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { parseMusicFile } from '@/utils/getMusicMeta'
-import { useMusicMetaStore } from '@/stores/musicMetaStores'
+import { useMusicMetaStore, type MusicInfo } from '@/stores/musicMetaStores'
 import { isBilingualLyrics, detectLanguages } from '@/utils/lyricUtils'
 import { calcMusicMD5 } from '@/utils/getFilesMD5'
 import { usePlaylistStore } from '@/stores/playlistStores'
@@ -13,15 +13,6 @@ declare global {
   interface FileSystemDirectoryHandle {
     values(): AsyncIterableIterator<FileSystemHandle>
   }
-}
-
-interface MusicInfo {
-  [key: string]: unknown
-  id?: string
-  url?: string
-  isBilingual?: boolean
-  languages?: string[]
-  md5?: string
 }
 
 export function useMusicPicker() {
