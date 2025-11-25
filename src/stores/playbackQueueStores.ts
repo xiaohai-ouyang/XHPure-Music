@@ -110,8 +110,10 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
 
   /**
    * 更新当前播放时间和总时长（带节流）
+   * @param currentTime 当前播放时间
+   * @param duration 总时长
    */
-  function updateCurrentPlayingTime() {
+  function updateCurrentPlayingTime(currentTime: number, duration: number) {
     // 节流控制，避免过于频繁的更新
     const now = Date.now()
     if (now - lastUpdateTime.value < UPDATE_INTERVAL) {
@@ -120,11 +122,9 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
     lastUpdateTime.value = now
 
     if (!currentPlayingId.value) return
-    const audioElement = document.querySelector('audio')
-    if (!audioElement || isNaN(audioElement.duration)) return
 
-    currentPlayingTime.value = audioElement.currentTime
-    currentPlayingDuration.value = audioElement.duration
+    currentPlayingTime.value = currentTime
+    currentPlayingDuration.value = duration
   }
 
   /**

@@ -11,7 +11,7 @@ const playbackQueueStore = usePlaybackQueueStore()
 const audioEl = useTemplateRef('audioRef')
 
 // 页面标题与快捷键
-document.title = '椒盐音乐'
+document.title = 'XHPureMusic'
 useGlobalShortcutKey()
 
 // 初始化主题
@@ -71,7 +71,11 @@ watch(
   },
 )
 
-const handleTimeUpdate = () => playbackQueueStore.updateCurrentPlayingTime()
+const handleTimeUpdate = () => {
+  if (audioEl.value) {
+    playbackQueueStore.updateCurrentPlayingTime(audioEl.value.currentTime, audioEl.value.duration)
+  }
+}
 const handlePlay = () => (playbackQueueStore.isPlaying = true)
 const handlePause = () => (playbackQueueStore.isPlaying = false)
 

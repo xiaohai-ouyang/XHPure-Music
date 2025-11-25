@@ -3,7 +3,7 @@
     <div class="page-logo">
       <img src="@/assets/images/logo.png" class="logo" />
     </div>
-    <h1 class="title">欢迎使用 JiaoYan Music</h1>
+    <h1 class="title">欢迎使用 XHPure Music</h1>
     <p class="desc">一款基于 Vue3 + Vite 的音乐播放器</p>
     <div class="next-btns">
       <router-link

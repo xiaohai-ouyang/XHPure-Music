@@ -8,7 +8,7 @@ export type { MusicInfo }
 
 export const useMusicMetaStore = defineStore('musicMeta', () => {
   const musicList = ref<MusicInfo[]>([])
-  const isEmpty = ref(true)
+  const isEmpty = computed(() => musicList.value.length === 0)
 
   function addMusic(info: MusicInfo) {
     if (!info.id) {
@@ -21,9 +21,7 @@ export const useMusicMetaStore = defineStore('musicMeta', () => {
     musicList.value = []
   }
 
-  watchEffect(() => {
-    isEmpty.value = musicList.value.length === 0
-  })
+  // watchEffect removed as isEmpty is now a computed property
 
   const totalDuration = computed(() => {
     return musicList.value.reduce((total, music) => {

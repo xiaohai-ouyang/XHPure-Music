@@ -3,7 +3,7 @@
  */
 
 class CoverStorage {
-  private dbName: string = 'JiaoYanMusic'
+  private dbName: string = 'XHPureMusic'
   private storeName: string = 'covers'
   private version: number = 1
   private db: IDBDatabase | null = null
