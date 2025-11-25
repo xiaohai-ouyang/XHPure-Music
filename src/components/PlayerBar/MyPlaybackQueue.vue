@@ -5,11 +5,11 @@ import { usePageStatusStore } from '@/stores/pageStatusStores'
 import type { MusicInfo } from '@/stores/musicMetaStores'
 import PlaybackQueueItem from './PlaybackQueueItem.vue'
 
-const playbackQueueStores = usePlaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 const pageStatusStore = usePageStatusStore()
 const musicItemRefs = ref<InstanceType<typeof PlaybackQueueItem>[]>([])
 
-function clearplaybackQueue() {
+function clearPlaybackQueue() {
   // 获取页面中的audio元素
   const audio = document.querySelector('audio')
   if (audio) {
@@ -23,9 +23,9 @@ function clearplaybackQueue() {
     audio.load()
   }
   // 设置播放状态为停止
-  playbackQueueStores.isPlaying = false
+  playbackQueueStore.isPlaying = false
   // 清空播放列表
-  playbackQueueStores.clearplaybackQueue()
+  playbackQueueStore.clearPlaybackQueue()
 }
 
 function setMusicItemRef(el: InstanceType<typeof PlaybackQueueItem> | null, index: number) {
@@ -39,8 +39,8 @@ function setMusicItemRef(el: InstanceType<typeof PlaybackQueueItem> | null, inde
 
 function scrollToPlayingItem() {
   nextTick(() => {
-    const index = playbackQueueStores.playbackQueue.findIndex(
-      (music: MusicInfo) => music.id === playbackQueueStores.currentPlayingId,
+    const index = playbackQueueStore.playbackQueue.findIndex(
+      (music: MusicInfo) => music.id === playbackQueueStore.currentPlayingId,
     )
     const el = musicItemRefs.value[index]?.$el
     if (el) {
@@ -53,7 +53,7 @@ function scrollToPlayingItem() {
 }
 
 watch(
-  () => [playbackQueueStores.playbackQueue, playbackQueueStores.currentPlayingId],
+  () => [playbackQueueStore.playbackQueue, playbackQueueStore.currentPlayingId],
   () => {
     scrollToPlayingItem()
   },
@@ -80,37 +80,33 @@ onMounted(() => {
 
 <template>
   <div class="my-playback-queue" ref="playbackQueueRef" @click.stop>
-    <div v-show="playbackQueueStores.isplaybackQueueEmpty" class="empty-playlist">
+    <div v-show="playbackQueueStore.isPlaybackQueueEmpty" class="empty-playlist">
       <p>播放队列为空</p>
     </div>
 
-    <div v-show="!playbackQueueStores.isplaybackQueueEmpty" class="has-playlist">
+    <div v-show="!playbackQueueStore.isPlaybackQueueEmpty" class="has-playlist">
       <div class="controls-btn">
         <button
           class="mode-switch"
-          :class="playbackQueueStores.playMode"
-          @click.stop="playbackQueueStores.cyclePlayMode"
-          :aria-label="`${playbackQueueStores.playModeLabel}`"
+          :class="playbackQueueStore.playMode"
+          @click.stop="playbackQueueStore.cyclePlayMode"
+          :aria-label="`${playbackQueueStore.playModeLabel}`"
         >
-          <span
-            class="iconfont"
-            v-html="playbackQueueStores.playModeIcon"
-            aria-hidden="true"
-          ></span>
-          {{ playbackQueueStores.playModeLabel }}
+          <span class="iconfont" v-html="playbackQueueStore.playModeIcon" aria-hidden="true"></span>
+          {{ playbackQueueStore.playModeLabel }}
         </button>
 
-        <button class="clear-list" @click.stop="clearplaybackQueue" aria-label="清空播放队列">
+        <button class="clear-list" @click.stop="clearPlaybackQueue" aria-label="清空播放队列">
           清空队列
         </button>
       </div>
 
       <TransitionGroup name="fade" tag="div" class="my-playback-queue-container">
         <PlaybackQueueItem
-          v-for="(music, index) in playbackQueueStores.playbackQueue"
+          v-for="(music, index) in playbackQueueStore.playbackQueue"
           :key="music.id"
           :music="music"
-          :current-playing-id="playbackQueueStores.currentPlayingId"
+          :current-playing-id="playbackQueueStore.currentPlayingId"
           :ref="(el) => setMusicItemRef(el as InstanceType<typeof PlaybackQueueItem> | null, index)"
         />
       </TransitionGroup>

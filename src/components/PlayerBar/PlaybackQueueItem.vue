@@ -47,7 +47,7 @@ const setCurrentPlaying = (music: MusicInfo) => {
 }
 
 const handleRemove = (musicId: string) => {
-  playbackQueueStore.removeFromplaybackQueue(musicId)
+  playbackQueueStore.removeFromPlaybackQueue(musicId)
 }
 
 defineExpose({

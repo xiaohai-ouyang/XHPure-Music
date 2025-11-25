@@ -7,7 +7,7 @@ import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { useRouter } from 'vue-router'
 
-const playbackQueueStores = usePlaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 const pageStatusStore = usePageStatusStore()
 const infoRef = ref<HTMLElement | null>(null)
 const { togglePlayPause } = useAudioPlayer()
@@ -32,17 +32,17 @@ const goToPlayback = (event: Event) => {
     <div class="left">
       <div class="cover">
         <img
-          :src="(playbackQueueStores.currentPlaying?.cover as string) || defaultCover"
+          :src="(playbackQueueStore.currentPlaying?.cover as string) || defaultCover"
           alt="专辑封面"
           class="music-cover"
         />
       </div>
       <div class="info" ref="infoRef" @click.stop="pageStatusStore.isPlayBackExpand = true">
         <div class="title">
-          {{ playbackQueueStores.currentPlaying?.title || '暂无播放' }}
+          {{ playbackQueueStore.currentPlaying?.title || '暂无播放' }}
         </div>
         <div class="artist">
-          {{ playbackQueueStores.currentPlaying?.artist || '未知艺术家' }}
+          {{ playbackQueueStore.currentPlaying?.artist || '未知艺术家' }}
         </div>
       </div>
     </div>
@@ -51,7 +51,7 @@ const goToPlayback = (event: Event) => {
       <div class="controls">
         <button
           class="controls-btn"
-          @click.stop="() => playbackQueueStores.playPrevious()"
+          @click.stop="() => playbackQueueStore.playPrevious()"
           aria-label="上一首"
         >
           <i class="iconfont">&#xe722;</i>
@@ -59,15 +59,15 @@ const goToPlayback = (event: Event) => {
         <button
           class="controls-btn play-pause"
           @click.stop="togglePlayPause"
-          :disabled="playbackQueueStores.currentPlaying === null"
+          :disabled="playbackQueueStore.currentPlaying === null"
           aria-label="播放/暂停"
         >
-          <i class="iconfont" v-if="!playbackQueueStores.isPlaying">&#xe63d;</i>
+          <i class="iconfont" v-if="!playbackQueueStore.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
         <button
           class="controls-btn"
-          @click.stop="() => playbackQueueStores.playNext()"
+          @click.stop="() => playbackQueueStore.playNext()"
           aria-label="下一首"
         >
           <i class="iconfont">&#xe72a;</i>

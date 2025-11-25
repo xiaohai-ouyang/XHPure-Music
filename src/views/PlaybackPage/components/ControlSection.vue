@@ -4,7 +4,7 @@ import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import { useAudioPlayer } from '@/composables/useAudioPlayer'
 import { formatTime, formatNegativeTime } from '@/utils/formatTime'
 
-const playbackQueueStores = usePlaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 const { togglePlayPause, startDrag, seekByClick, progressBar } = useAudioPlayer()
 
 // 静音状态
@@ -35,8 +35,8 @@ const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
 
 // 计算进度条的比例值
 const progressRatio = computed(() => {
-  if (playbackQueueStores.currentPlayingDuration <= 0) return 0
-  return playbackQueueStores.currentPlayingTime / playbackQueueStores.currentPlayingDuration
+  if (playbackQueueStore.currentPlayingDuration <= 0) return 0
+  return playbackQueueStore.currentPlayingTime / playbackQueueStore.currentPlayingDuration
 })
 </script>
 
@@ -48,12 +48,12 @@ const progressRatio = computed(() => {
     </div>
 
     <div class="timer">
-      <span v-html="formatTime(playbackQueueStores.currentPlayingTime)"></span>
+      <span v-html="formatTime(playbackQueueStore.currentPlayingTime)"></span>
       <span
         v-html="
           formatNegativeTime(
-            playbackQueueStores.currentPlayingTime,
-            playbackQueueStores.currentPlayingDuration,
+            playbackQueueStore.currentPlayingTime,
+            playbackQueueStore.currentPlayingDuration,
           )
         "
       ></span>
@@ -62,14 +62,14 @@ const progressRatio = computed(() => {
     <!-- 控制按钮 -->
     <div class="ctl-btns">
       <div class="controls-btn">
-        <button class="prev-btn" @click="() => playbackQueueStores.playPrevious()">
+        <button class="prev-btn" @click="() => playbackQueueStore.playPrevious()">
           <i class="iconfont">&#xe722;</i>
         </button>
         <button class="play-pause" @click="togglePlayPause">
-          <i class="iconfont" v-if="!playbackQueueStores.isPlaying">&#xe63d;</i>
+          <i class="iconfont" v-if="!playbackQueueStore.isPlaying">&#xe63d;</i>
           <i class="iconfont" v-else>&#xe67b;</i>
         </button>
-        <button class="next-btn" @click="() => playbackQueueStores.playNext()">
+        <button class="next-btn" @click="() => playbackQueueStore.playNext()">
           <i class="iconfont">&#xe72a;</i>
         </button>
       </div>
@@ -77,11 +77,11 @@ const progressRatio = computed(() => {
       <div class="function-btn">
         <button
           class="mode-switch-btn"
-          :class="playbackQueueStores.playMode"
-          @click="playbackQueueStores.cyclePlayMode"
-          :aria-label="`${playbackQueueStores.playModeLabel}`"
+          :class="playbackQueueStore.playMode"
+          @click="playbackQueueStore.cyclePlayMode"
+          :aria-label="`${playbackQueueStore.playModeLabel}`"
         >
-          <i class="iconfont" v-html="playbackQueueStores.playModeIcon"></i>
+          <i class="iconfont" v-html="playbackQueueStore.playModeIcon"></i>
         </button>
 
         <button class="mute-btn iconfont" @click="toggleMute" :title="muteTitle">

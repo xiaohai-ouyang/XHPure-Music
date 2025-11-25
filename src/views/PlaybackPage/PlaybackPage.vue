@@ -9,7 +9,7 @@ import ControlSection from './components/ControlSection.vue'
 import { usePlaylistStore } from '@/stores/playlistStores'
 
 // 播放列表和页面状态管理
-const playbackQueueStores = usePlaybackQueueStore()
+const playbackQueueStore = usePlaybackQueueStore()
 const playlistStore = usePlaylistStore()
 
 // 创建默认的音乐信息对象，避免重复创建
@@ -22,7 +22,7 @@ const defaultMusicInfo = {
 }
 
 // 当前播放的音乐信息
-const currentPlaying = computed(() => playbackQueueStores.currentPlaying || defaultMusicInfo)
+const currentPlaying = computed(() => playbackQueueStore.currentPlaying || defaultMusicInfo)
 
 // 更多菜单显示状态
 const moreListShow = ref(false)
@@ -33,7 +33,7 @@ const moreListShow = ref(false)
 const toggleMoreList = () => (moreListShow.value = !moreListShow.value)
 
 // 播放状态
-const isPlaying = computed(() => playbackQueueStores.isPlaying)
+const isPlaying = computed(() => playbackQueueStore.isPlaying)
 
 // 主题颜色相关功能
 const { pageStyle, setCover, backgroundStyle, coverUrl, textColors, selectedColorIndex } =
@@ -93,8 +93,8 @@ watch(
           <LrcParser
             :dominantTextColor="textColors[selectedColorIndex]"
             :lyrics="(currentPlaying.lyrics as string) || ''"
-            :current-time="playbackQueueStores.currentPlayingTime"
-            :remove-chinese="playbackQueueStores.removeChinese"
+            :current-time="playbackQueueStore.currentPlayingTime"
+            :remove-chinese="playbackQueueStore.removeChinese"
           />
         </div>
       </main>
