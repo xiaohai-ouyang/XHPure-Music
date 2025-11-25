@@ -148,6 +148,42 @@ export const usePlaylistStore = defineStore('playlist', () => {
   }
 
   /**
+   * 批量根据歌曲的md5和duration更新歌单中track的id
+   * @param musicList 歌曲信息列表
+   */
+  function updateTrackIdsByMusicList(musicList: MusicInfo[]) {
+    let hasChanges = false
+    // 创建一个查找映射以提高性能
+    // key: `${md5}-${duration}`, value: id
+    const musicMap = new Map<string, string>()
+
+    for (const music of musicList) {
+      if (music.md5 && music.duration && music.id) {
+        musicMap.set(`${music.md5}-${music.duration}`, music.id)
+      }
+    }
+
+    if (musicMap.size === 0) return
+
+    for (const pl of playlist.value) {
+      for (const track of pl.tracks) {
+        const key = `${track.md5}-${track.duration}`
+        if (musicMap.has(key)) {
+          const newId = musicMap.get(key)
+          if (newId && track.id !== newId) {
+            track.id = newId
+            hasChanges = true
+          }
+        }
+      }
+    }
+
+    if (hasChanges) {
+      savePlaylistsToLocalStorage(playlist.value)
+    }
+  }
+
+  /**
    * 根据歌曲ID获取歌曲在歌单中的track信息
    * @param musicId 歌曲ID
    * @returns 匹配的track列表
@@ -175,6 +211,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     getPlaylists,
     updatePlaylists,
     updateTrackIdByMusic,
+    updateTrackIdsByMusicList,
     getTracksByMusicId,
   }
 })

@@ -62,20 +62,7 @@ async function processMusicFile(entry: FileSystemFileHandle): Promise<MusicInfo 
 }
 
 // 处理目录中的所有文件
-async function processDirectory(dirHandle: FileSystemDirectoryHandle): Promise<MusicInfo[]> {
-  const musicInfos: MusicInfo[] = []
-
-  for await (const handle of dirHandle.values()) {
-    if (handle.kind === 'file') {
-      const musicInfo = await processMusicFile(handle as FileSystemFileHandle)
-      if (musicInfo) {
-        musicInfos.push(musicInfo)
-      }
-    }
-  }
-
-  return musicInfos
-}
+// 移除 processDirectory 函数，逻辑移至 pickMusic 中
 
 export function useMusicPicker() {
   const loading = ref(false)
@@ -94,13 +81,49 @@ export function useMusicPicker() {
     loading.value = true
     try {
       const dirHandle = await window.showDirectoryPicker()
-      const musicInfos = await processDirectory(dirHandle)
 
-      // 批量添加音乐和更新歌单
-      musicInfos.forEach((musicInfo) => {
-        musicStore.addMusic(musicInfo)
-        playlistStore.updateTrackIdByMusic(musicInfo)
-      })
+      // 1. 收集所有文件
+      const files: FileSystemFileHandle[] = []
+      for await (const handle of dirHandle.values()) {
+        if (handle.kind === 'file') {
+          files.push(handle as FileSystemFileHandle)
+        }
+      }
+
+      if (files.length === 0) {
+        messageStore.setMessage('info', '未找到音乐文件')
+        return
+      }
+
+      // 2. 分批处理
+      const BATCH_SIZE = 5 // 并发数
+      const UPDATE_CHUNK_SIZE = 20 // 每处理多少个更新一次 Store
+
+      let processedResults: MusicInfo[] = []
+
+      for (let i = 0; i < files.length; i += BATCH_SIZE) {
+        const batch = files.slice(i, i + BATCH_SIZE)
+        const results = await Promise.all(batch.map(processMusicFile))
+
+        const validResults = results.filter((r): r is MusicInfo => r !== null)
+        processedResults.push(...validResults)
+
+        // 批量更新 Store
+        if (processedResults.length >= UPDATE_CHUNK_SIZE) {
+          musicStore.addMusicList(processedResults)
+          playlistStore.updateTrackIdsByMusicList(processedResults)
+          processedResults = [] // 清空已处理缓冲区
+
+          // 让出主线程，避免 UI 卡死
+          await new Promise((resolve) => setTimeout(resolve, 0))
+        }
+      }
+
+      // 处理剩余的
+      if (processedResults.length > 0) {
+        musicStore.addMusicList(processedResults)
+        playlistStore.updateTrackIdsByMusicList(processedResults)
+      }
 
       messageStore.setMessage('success', '音乐添加完成')
     } catch (err: unknown) {

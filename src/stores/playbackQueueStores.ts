@@ -131,7 +131,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
    * 添加歌曲到播放列表（去重）
    * @param music 要添加的歌曲信息
    */
-  function addToplaybackQueue(music: MusicInfo) {
+  function addToPlaybackQueue(music: MusicInfo) {
     const musicWithId = ensureMusicHasId(music)
     const existsIndex = playbackQueue.value.findIndex((item) => item.url === musicWithId.url)
 
@@ -317,7 +317,7 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
     playModeLabel,
 
     // actions
-    addToplaybackQueue,
+    addToPlaybackQueue,
     setCurrentPlaying,
     removeFromplaybackQueue,
     clearplaybackQueue,

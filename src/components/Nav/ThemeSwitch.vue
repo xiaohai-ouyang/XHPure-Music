@@ -10,7 +10,7 @@
     </button>
 
     <button
-      class="floow-system"
+      class="follow-system"
       :class="{ active: themeStore.colorMode === 'system' }"
       title="跟随系统"
       @click="themeStore.setColorMode('system')"
