@@ -52,7 +52,7 @@ function goDetail(id: string) {
     span {
       margin-right: 10px;
       cursor: pointer;
-      color: #666;
+      color: @lightMode-text-sub;
       &.active {
         color: #d33;
         font-weight: bold;
@@ -71,7 +71,7 @@ function goDetail(id: string) {
   .col-flex(@justify: center, @align: center);
 
   .img-wrap {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: @lightMode-hover-bg;
     margin-top: auto;
     padding: 40px;
     border-radius: 10px;

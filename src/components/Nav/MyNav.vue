@@ -26,7 +26,7 @@ const pageStatusStore = usePageStatusStore()
   width: 200px;
   transition: width 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   overflow: hidden;
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 0 @lightMode-shadow-color;
   background: @lightMode-nav-bgColor;
 }
 

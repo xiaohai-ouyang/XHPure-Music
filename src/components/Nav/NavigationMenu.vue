@@ -34,14 +34,13 @@ defineProps<{
   .nav-item-name {
     font-weight: 600;
   }
-
 }
 
 .navigator {
   margin-top: 20px;
   width: 100%;
   border-radius: @nav-borderRadius;
-  background: white;
+  background: @lightMode-nav-bgItemColor;
 }
 
 .navItem-container {
@@ -53,7 +52,7 @@ defineProps<{
 .nav-item {
   .row-flex(@align: center);
   height: 40px;
-  color: #333;
+  color: @lightMode-text-main;
   text-decoration: none;
   padding: 5px 30px;
   width: 100%;
@@ -65,7 +64,8 @@ defineProps<{
     background: @lightMode-nav-hoverColor;
   }
 
-  i, p {
+  i,
+  p {
     flex: 1;
     text-align: center;
   }

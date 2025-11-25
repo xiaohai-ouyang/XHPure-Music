@@ -65,7 +65,7 @@ defineExpose({
   width: 100%;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: @lightMode-hover-bg;
 
     .title {
       color: @lightMode-dominant-textColor;
@@ -92,11 +92,11 @@ defineExpose({
 
   button {
     font-size: 24px;
-    color: #999;
+    color: @lightMode-text-tertiary;
     transition: color 0.2s;
 
     &:hover {
-      color: #f00;
+      color: @lightMode-text-danger;
     }
   }
 }
@@ -109,7 +109,7 @@ defineExpose({
   .title {
     font-size: 15px;
     font-weight: 400;
-    color: #333;
+    color: @lightMode-text-main;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -118,7 +118,7 @@ defineExpose({
 
   .artist {
     font-size: 13px;
-    color: #666;
+    color: @lightMode-text-sub;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -126,7 +126,7 @@ defineExpose({
 }
 
 .playing {
-  background-color: rgba(133, 133, 133, 0.24);
+  background-color: @lightMode-item-active-bg;
 
   .title,
   .artist {

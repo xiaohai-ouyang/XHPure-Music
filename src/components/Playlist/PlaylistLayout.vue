@@ -164,7 +164,7 @@ function handleCoverError(event: Event) {
     border-radius: 8px;
     margin-right: 20px;
     object-fit: cover;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px @lightMode-shadow-color;
   }
 
   .playlist-info {
@@ -179,9 +179,9 @@ function handleCoverError(event: Event) {
   .playlist-detail {
     .row-flex(@align: center,@gap: 10px);
     font-size: 15px;
-    color: #666;
+    color: @lightMode-text-sub;
     .num {
-      color: #333;
+      color: @lightMode-text-main;
     }
     margin-bottom: 10px;
   }
@@ -193,7 +193,7 @@ function handleCoverError(event: Event) {
   button {
     padding: 5px 15px;
     border-radius: 20px;
-    color: rgb(255, 255, 255);
+    color: @lightMode-text-on-primary;
     background: @lightMode-dominant-textColor;
   }
 }
@@ -203,7 +203,7 @@ function handleCoverError(event: Event) {
   padding: 0 10px;
   font-size: 18px;
   height: 28px;
-  color: #666;
+  color: @lightMode-text-sub;
 
   .bar-title {
     width: 500px;
@@ -222,12 +222,12 @@ function handleCoverError(event: Event) {
 .playlist-tracks .track-item {
   .row-flex(@align: flex-start,@gap: 10px);
   padding: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid @lightMode-border-color;
   border-radius: 10px;
   cursor: pointer;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: @lightMode-hover-bg;
   }
 
   .track-artist,
