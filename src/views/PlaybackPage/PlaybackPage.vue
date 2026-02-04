@@ -125,6 +125,10 @@ watch(
   will-change: background-position, filter, color;
   color: inherit;
 
+  * {
+    user-select: none;
+  }
+
   .title,
   .artist,
   .more-menu-item,
@@ -209,12 +213,12 @@ main {
 }
 
 .more-menu {
-  .col-flex(@align: flex-start,@justify: center);
+  .col-flex(@align: flex-start,@justify: center ,@gap: 5px);
   position: absolute;
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  bottom: 30px;
-  right: -125px;
+  bottom: 52%;
+  right: -32%;
   padding: 0 8px;
   border-radius: 5px;
   z-index: 999;
@@ -232,11 +236,11 @@ main {
   }
 
   .more-menu-item {
-    .row-flex(@align: center,@justify: flex-start);
+    .row-flex(@align: center,@justify: flex-start,@gap: 5px  );
     width: 100%;
     height: 40px;
     cursor: pointer;
-    padding: 3px 0;
+
     user-select: none;
   }
 
