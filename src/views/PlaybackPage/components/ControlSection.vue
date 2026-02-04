@@ -94,12 +94,12 @@ const progressRatio = computed(() => {
 
 <style scoped lang="less">
 .controlers {
-  width: 400px;
+  width: 40vmin;
 
   .ctl-btns {
-    .row-flex(@justify: center, @align: center, @gap: 20px);
-    margin-top: 15px;
-    height: 30px;
+    .row-flex(@justify: center, @align: center, @gap: 2vmin);
+    margin-top: 2vmin;
+    height: 3vmin;
     overflow: hidden;
 
     button,
@@ -113,35 +113,35 @@ const progressRatio = computed(() => {
     margin-right: auto;
 
     .iconfont {
-      font-size: 34px;
+      font-size: 3.4vmin;
     }
   }
 
   .function-btn {
     .iconfont {
-      font-size: 28px;
+      font-size: 2.8vmin;
     }
   }
 
   .controls-btn,
   .function-btn {
-    .row-flex(@align: center, @justify: center, @gap: 15px);
+    .row-flex(@align: center, @justify: center, @gap: 1.5vmin);
   }
 }
 
 .timer {
-  width: 400px;
-  font-size: 12px;
+  width: 100%;
+  font-size: 1.2vmin;
   .row-flex(@align: center, @justify: space-between);
-  margin-bottom: 12px;
+  margin-bottom: 1.2vmin;
 }
 
 .progress-line {
   width: 100%;
-  height: 6px;
+  height: 0.6vmin;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-  margin-bottom: 5px;
+  border-radius: 0.3vmin;
+  margin-bottom: 0.5vmin;
   cursor: pointer;
   position: relative;
   transform-origin: left center;
@@ -149,7 +149,7 @@ const progressRatio = computed(() => {
   .progress-filled {
     height: 100%;
     background: currentColor;
-    border-radius: 3px;
+    border-radius: 0.3vmin;
     width: 100%;
     transform-origin: left center;
     transform: scaleX(0);

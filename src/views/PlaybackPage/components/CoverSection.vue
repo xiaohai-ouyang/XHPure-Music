@@ -94,9 +94,10 @@ const onToggleMoreList = () => {
 </template>
 
 <style scoped lang="less">
+@size: 40vmin;
 .music-cover {
-  width: 380px;
-  height: 380px;
+  width: @size;
+  height: @size;
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
@@ -109,34 +110,34 @@ const onToggleMoreList = () => {
 
 .music-info {
   .row-flex(@align: center, @justify: space-between);
-  width: 400px;
+  width: @size;
   font-weight: 400;
-  margin: 20px 0;
+  margin: 2vmin 0;
   white-space: nowrap;
   transition: all 0.25s ease;
   position: relative;
 
   .music-info-main {
-    max-width: 280px;
+    max-width: 26vmin;
     overflow: hidden;
   }
 
   .title {
-    font-size: 22px;
+    font-size: 2.2vmin;
     font-weight: 600;
   }
 
   .artist {
-    font-size: 16px;
+    font-size: 1.6vmin;
     opacity: 0.8;
   }
 }
 
 .music-info .music-info-actions {
-  .row-flex(@align: center, @gap: 10px);
+  .row-flex(@align: center, @gap: 1vmin);
 
   .iconfont {
-    font-size: 32px;
+    font-size: 3vmin;
   }
 }
 
@@ -156,7 +157,7 @@ const onToggleMoreList = () => {
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.1);
   transition: 0.3s;
-  @size: 32px;
+  @size: 3.2vmin;
   width: @size;
   height: @size;
 

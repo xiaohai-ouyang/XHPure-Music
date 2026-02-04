@@ -56,11 +56,12 @@ onUnmounted(() => {
 header {
   .row-flex(@justify: space-between,@align: center);
   position: relative;
+  height: 6vmin;
 
   .back-btn,
   .full-screen-btn {
     .row-flex(@justify:center,@align:center);
-    padding: 10px;
+    padding: 1vmin;
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
   }
@@ -68,13 +69,13 @@ header {
 
 header .back-btn,
 header .full-screen-btn {
-  height: 43px;
-  width: 43px;
-  border-radius: 10px;
+  height: 4.3vmin;
+  width: 4.3vmin;
+  border-radius: 1vmin;
   transition: all 0.3s ease;
 
   .iconfont {
-    font-size: 25px;
+    font-size: 2.5vmin;
   }
 
   &,
