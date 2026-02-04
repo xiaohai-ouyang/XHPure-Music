@@ -7,7 +7,31 @@ export interface LyricLine {
   time: number
   text: string // 原始文本
   displayText: string // 显示文本（根据removeChinese决定是否移除中文）
+  originalText?: string // 原文（不含翻译）
+  translation?: string // 翻译文本（中文部分）
   languages?: string[]
+}
+
+/**
+ * 分离中文翻译和其他语言原文
+ * @param text 歌词文本
+ * @returns { original, translation } 原文和翻译
+ */
+function separateTranslation(text: string): { original: string; translation: string } {
+  const chineseMatch = text.match(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef\s]+/g)
+  if (!chineseMatch) return { original: text, translation: '' }
+
+  const chineseParts = chineseMatch.map((part) => part.trim()).filter(Boolean)
+  if (chineseParts.length === 0) return { original: text, translation: '' }
+
+  // 使用中文正则表达式替换所有中文部分
+  const original = text
+    .replace(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  const translation = chineseParts.join(' ')
+
+  return { original, translation }
 }
 
 /**
@@ -63,6 +87,15 @@ export function useLrcParser(
 
         const originalText = line.replace(/\[\d+:\d+(?:\.\d+)?\]/g, '').trim()
 
+        // 只对正文歌词进行翻译分离（介绍信息行不分离）
+        let original = originalText
+        let translation: string | undefined
+        if (index > lastColonLineIndex) {
+          const separated = separateTranslation(originalText)
+          original = separated.original
+          translation = separated.translation
+        }
+
         // 根据removeChinese决定显示文本
         let displayText = originalText
         if (shouldRemoveChinese && index > lastColonLineIndex) {
@@ -74,6 +107,8 @@ export function useLrcParser(
           time,
           text: originalText, // 始终保存原始文本
           displayText, // 根据条件决定显示的文本
+          originalText: original || undefined, // 原文（不含翻译）
+          translation: translation, // 翻译文本
           languages: detectLanguages(originalText),
         })
       }

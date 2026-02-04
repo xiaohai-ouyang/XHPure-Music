@@ -38,7 +38,7 @@ function hideColorWheel() {
 
 <style scoped lang="less">
 .color-wheel {
-  .col-flex(@justify: center, @align: center,@gap: 15px);
+  .flex-col-center(@gap: 15px);
   padding: 10px;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);

@@ -78,7 +78,13 @@ function isActiveLine(index: number) {
           :style="isActiveLine(index) ? { color: effectiveColor } : { color: inactiveColor }"
           :ref="(el) => setLyricLineRef(el as Element, index)"
         >
-          {{ line.displayText }}
+          <template v-if="line.translation && !removeChinese">
+            <div class="lyric-original">{{ line.originalText }}</div>
+            <div class="lyric-translation">{{ line.translation }}</div>
+          </template>
+          <template v-else>
+            {{ line.displayText }}
+          </template>
         </div>
       </div>
       <!-- 下方间隔元素，用于居中歌词 -->
@@ -123,12 +129,21 @@ function isActiveLine(index: number) {
       transform 0.5s cubic-bezier(0.65, 0.05, 0.36, 1),
       font-weight 0.5s linear;
 
+    .lyric-translation {
+      font-size: 0.8em;
+      opacity: 0.8;
+    }
+
     &.active {
       opacity: 1;
       font-weight: 700;
       font-size: 25px;
       transform: scale(1.06);
       color: inherit;
+
+      .lyric-translation {
+        opacity: 0.9;
+      }
     }
   }
 }
