@@ -213,32 +213,32 @@ main {
 }
 
 .more-menu {
-  .col-flex(@align: flex-start,@justify: center ,@gap: 5px);
+  .col-flex(@align: flex-start,@justify: center ,@gap: 0.5vmin);
   position: absolute;
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   bottom: 52%;
   right: -32%;
-  padding: 0 8px;
-  border-radius: 5px;
+  padding: 0 0.8vmin;
+  border-radius: 0.5vmin;
   z-index: 999;
   overflow: hidden;
 
   .iconfont {
     .row-flex(@align: center,@justify: center);
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
+    font-size: 2.8vmin;
+    width: 2.8vmin;
+    height: 2.8vmin;
   }
 
   .add {
-    font-size: 32px;
+    font-size: 3.2vmin;
   }
 
   .more-menu-item {
-    .row-flex(@align: center,@justify: flex-start,@gap: 5px  );
+    .row-flex(@align: center,@justify: flex-start,@gap: 0.5vmin);
     width: 100%;
-    height: 40px;
+    height: 4vmin;
     cursor: pointer;
 
     user-select: none;
@@ -247,6 +247,7 @@ main {
   span {
     margin: auto;
     text-align: center;
+    font-size: 1.4vmin;
   }
 }
 

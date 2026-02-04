@@ -38,17 +38,17 @@ function hideColorWheel() {
 
 <style scoped lang="less">
 .color-wheel {
-  .flex-col-center(@gap: 15px);
-  padding: 10px;
+  .flex-col-center(@gap: 1.5vmin);
+  padding: 1vmin;
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  border-radius: 20px;
+  border-radius: 2vmin;
   transition: all 0.3s ease;
   z-index: 100;
 
   .color-item {
-    width: 25px;
-    height: 25px;
+    width: 2.5vmin;
+    height: 2.5vmin;
     border-radius: 50%;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -56,7 +56,7 @@ function hideColorWheel() {
 
   .selected {
     transform: scale(1.4);
-    border: 1px solid #fff;
+    border: 0.1vmin solid #fff;
     pointer-events: none;
   }
 }

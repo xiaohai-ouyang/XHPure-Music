@@ -95,10 +95,10 @@ function isActiveLine(index: number) {
 
 <style scoped lang="less">
 .lrc-parser {
-  height: 500px;
+  height: 50vmin;
   width: 100%;
   overflow-y: auto;
-  padding: 20px;
+  padding: 2vmin;
   scroll-behavior: smooth;
   position: relative;
 
@@ -112,15 +112,15 @@ function isActiveLine(index: number) {
   }
 
   .lyrics-container {
-    gap: 10px;
+    gap: 1vmin;
     width: 100%;
   }
 
   .lyric-line {
-    max-width: calc(100% - 70px);
+    max-width: calc(100% - 7vmin);
     white-space: wrap;
     text-align: center;
-    font-size: 18px;
+    font-size: 2.5vmin;
     opacity: 0.5;
     transition:
       color 0.3s ease,
@@ -137,7 +137,7 @@ function isActiveLine(index: number) {
     &.active {
       opacity: 1;
       font-weight: 700;
-      font-size: 25px;
+      font-size: 2.8vmin;
       transform: scale(1.06);
       color: inherit;
 
