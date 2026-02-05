@@ -1,10 +1,11 @@
 import { ref } from 'vue'
-import { parseMusicFile } from '@/utils/getMusicMeta'
 import { useMusicMetaStore } from '@/stores/musicMetaStores'
 import { detectLanguages, isBilingualLyrics } from '@/utils/lyricUtils'
-import { calcMusicMD5 } from '@/utils/getFilesMD5'
 import { usePlaylistStore } from '@/stores/playlistStores'
 import { useMessageStore } from '@/stores/messageStore'
+import type { MusicInfo } from '@/types/musicTypes'
+import { generateShortId } from '@/utils/idGenerator'
+
 const messageStore = useMessageStore()
 
 declare global {
@@ -17,17 +18,6 @@ declare global {
   }
 }
 
-interface MusicInfo {
-  id?: string
-  url?: string
-  isBilingual?: boolean
-  languages?: string[]
-  md5?: string
-
-  [key: string]: unknown
-}
-
-// 处理音乐文件的歌词信息
 function processLyricsInfo(musicInfo: MusicInfo): void {
   if (musicInfo.lyrics && typeof musicInfo.lyrics === 'string') {
     const lyricsWithoutTimestamps = musicInfo.lyrics
@@ -41,33 +31,16 @@ function processLyricsInfo(musicInfo: MusicInfo): void {
   }
 }
 
-// 处理单个音乐文件的函数
-async function processMusicFile(entry: FileSystemFileHandle): Promise<MusicInfo | null> {
-  const name = entry.name
-  if (!/\.(flac|mp3|wav)$/i.test(name)) return null
-
-  try {
-    const file = await entry.getFile()
-    const md5 = await calcMusicMD5(file)
-    const musicInfo = (await parseMusicFile(file)) as MusicInfo
-    musicInfo.url = URL.createObjectURL(file)
-    musicInfo.md5 = md5
-    processLyricsInfo(musicInfo)
-    return musicInfo
-  } catch (fileError) {
-    messageStore.setMessage('error', `无法解析文件 ${name}`)
-    console.error(`解析文件 ${name} 时出错，请检查文件格式`, fileError)
-    return null
-  }
+function filterMusicFiles(files: FileSystemFileHandle[]): FileSystemFileHandle[] {
+  return files.filter((file) => /\.(flac|mp3|wav)$/i.test(file.name))
 }
-
-// 处理目录中的所有文件
-// 移除 processDirectory 函数，逻辑移至 pickMusic 中
 
 export function useMusicPicker() {
   const loading = ref(false)
   const musicStore = useMusicMetaStore()
   const playlistStore = usePlaylistStore()
+
+  let worker: Worker | null = null
 
   async function pickMusic() {
     if (!window.showDirectoryPicker) {
@@ -82,7 +55,6 @@ export function useMusicPicker() {
     try {
       const dirHandle = await window.showDirectoryPicker()
 
-      // 1. 收集所有文件
       const files: FileSystemFileHandle[] = []
       for await (const handle of dirHandle.values()) {
         if (handle.kind === 'file') {
@@ -90,40 +62,76 @@ export function useMusicPicker() {
         }
       }
 
-      if (files.length === 0) {
+      const musicFiles = filterMusicFiles(files)
+
+      if (musicFiles.length === 0) {
         messageStore.setMessage('info', '未找到音乐文件')
         return
       }
 
-      // 2. 分批处理
-      const BATCH_SIZE = 5 // 并发数
-      const UPDATE_CHUNK_SIZE = 20 // 每处理多少个更新一次 Store
+      worker = new Worker(new URL('@/workers/musicProcessor.ts', import.meta.url), {
+        type: 'module',
+      })
 
-      let processedResults: MusicInfo[] = []
+      const processedResults: MusicInfo[] = []
+      let pendingCount = 0
 
-      for (let i = 0; i < files.length; i += BATCH_SIZE) {
-        const batch = files.slice(i, i + BATCH_SIZE)
-        const results = await Promise.all(batch.map(processMusicFile))
+      const processFile = (fileHandle: FileSystemFileHandle): Promise<void> => {
+        return new Promise((resolve) => {
+          const messageId = crypto.randomUUID()
 
-        const validResults = results.filter((r): r is MusicInfo => r !== null)
-        processedResults.push(...validResults)
+          fileHandle.getFile().then((file) => {
+            const handler = (e: MessageEvent) => {
+              if (e.data.id === messageId) {
+                worker?.removeEventListener('message', handler)
+                pendingCount--
 
-        // 批量更新 Store
+                if (e.data.data) {
+                  const { coverData, coverFormat, ...rest } = e.data.data
+                  if (coverData) {
+                    const blob = new Blob([coverData], { type: coverFormat || 'image/jpeg' })
+                    ;(rest as MusicInfo).cover = URL.createObjectURL(blob)
+                  }
+                  ;(rest as MusicInfo).url = URL.createObjectURL(file)
+                  processLyricsInfo(rest as MusicInfo)
+                  processedResults.push(rest as MusicInfo)
+                } else if (e.data.error) {
+                  messageStore.setMessage('error', `无法解析文件 ${fileHandle.name}`)
+                }
+
+                resolve()
+              }
+            }
+
+            worker?.addEventListener('message', handler)
+            worker?.postMessage({ file, id: messageId })
+            pendingCount++
+          })
+        })
+      }
+
+      const BATCH_SIZE = 3
+      const UPDATE_CHUNK_SIZE = 10
+
+      for (let i = 0; i < musicFiles.length; i += BATCH_SIZE) {
+        const batch = musicFiles.slice(i, i + BATCH_SIZE)
+        await Promise.all(batch.map(processFile))
+
         if (processedResults.length >= UPDATE_CHUNK_SIZE) {
           musicStore.addMusicList(processedResults)
           playlistStore.updateTrackIdsByMusicList(processedResults)
-          processedResults = [] // 清空已处理缓冲区
-
-          // 让出主线程，避免 UI 卡死
+          processedResults.length = 0
           await new Promise((resolve) => setTimeout(resolve, 0))
         }
       }
 
-      // 处理剩余的
       if (processedResults.length > 0) {
         musicStore.addMusicList(processedResults)
         playlistStore.updateTrackIdsByMusicList(processedResults)
       }
+
+      worker.terminate()
+      worker = null
 
       messageStore.setMessage('success', '音乐添加完成')
     } catch (err: unknown) {
