@@ -1,6 +1,6 @@
 <template>
   <div class="navigator">
-    <div class="navItem-container">
+    <div class="nav-item-container">
       <router-link
         class="nav-item"
         :class="{ active: currentPageTitle === '歌曲' }"
@@ -43,10 +43,9 @@ defineProps<{
   background: @lightMode-nav-bgItemColor;
 }
 
-.navItem-container {
+.nav-item-container {
   .col-flex(@justify: flex-start);
-  width: 100%;
-  padding: 2px;
+  padding: 5px;
 }
 
 .nav-item {
@@ -59,15 +58,10 @@ defineProps<{
   transition: all 0.2s ease;
   border-radius: @nav-borderRadius;
   white-space: nowrap;
+  overflow: hidden;
 
   &:hover {
     background: @lightMode-nav-hoverColor;
-  }
-
-  i,
-  p {
-    flex: 1;
-    text-align: center;
   }
 }
 

@@ -64,23 +64,19 @@ header {
     padding: 1vmin;
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-  }
-}
+    height: 4.3vmin;
+    width: 4.3vmin;
+    border-radius: 1vmin;
+    transition: all 0.3s ease;
 
-header .back-btn,
-header .full-screen-btn {
-  height: 4.3vmin;
-  width: 4.3vmin;
-  border-radius: 1vmin;
-  transition: all 0.3s ease;
+    .iconfont {
+      font-size: 2.5vmin;
+    }
 
-  .iconfont {
-    font-size: 2.5vmin;
-  }
-
-  &,
-  .iconfont {
-    color: inherit;
+    &,
+    .iconfont {
+      color: inherit;
+    }
   }
 }
 </style>

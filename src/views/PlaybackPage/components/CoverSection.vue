@@ -94,7 +94,7 @@ const onToggleMoreList = () => {
 </template>
 
 <style scoped lang="less">
-@size: 40vmin;
+@size: 43vmin;
 .music-cover {
   width: @size;
   height: @size;

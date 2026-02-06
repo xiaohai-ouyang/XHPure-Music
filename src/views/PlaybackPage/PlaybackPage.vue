@@ -63,26 +63,28 @@ watch(
 
       <main>
         <div class="left">
-          <CoverSection @toggle-more-list="toggleMoreList">
-            <template #more-menu>
-              <!-- 更多操作菜单 -->
-              <transition name="fade-slide">
-                <div class="more-menu" v-show="moreListShow">
-                  <button
-                    class="more-menu-item"
-                    @click="playlistStore.addInPlaylist('favorite', currentPlaying)"
-                  >
-                    <i class="iconfont">&#xe761;</i><span>我喜欢</span>
-                  </button>
-                  <button class="more-menu-item">
-                    <i class="iconfont add">&#xe730;</i><span>添加到歌单</span>
-                  </button>
-                </div>
-              </transition>
-            </template>
-          </CoverSection>
+          <div class="left-content">
+            <CoverSection @toggle-more-list="toggleMoreList">
+              <template #more-menu>
+                <!-- 更多操作菜单 -->
+                <transition name="fade-slide">
+                  <div class="more-menu" v-show="moreListShow">
+                    <button
+                      class="more-menu-item"
+                      @click="playlistStore.addInPlaylist('favorite', currentPlaying)"
+                    >
+                      <i class="iconfont">&#xe761;</i><span>我喜欢</span>
+                    </button>
+                    <button class="more-menu-item">
+                      <i class="iconfont add">&#xe730;</i><span>添加到歌单</span>
+                    </button>
+                  </div>
+                </transition>
+              </template>
+            </CoverSection>
 
-          <ControlSection />
+            <ControlSection />
+          </div>
         </div>
 
         <!-- 歌词显示区域 -->
@@ -142,10 +144,6 @@ watch(
   animation-play-state: paused;
 }
 
-.progress-line .progress-filled {
-  background: currentColor;
-}
-
 .background-blur {
   position: absolute;
   inset: 0;
@@ -203,6 +201,10 @@ main {
   .left {
     flex: 1;
     .col-flex(@align: center );
+
+    .left-content {
+      width: 43vmin;
+    }
   }
 }
 

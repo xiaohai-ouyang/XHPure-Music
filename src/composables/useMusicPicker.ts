@@ -4,7 +4,6 @@ import { detectLanguages, isBilingualLyrics } from '@/utils/lyricUtils'
 import { usePlaylistStore } from '@/stores/playlistStores'
 import { useMessageStore } from '@/stores/messageStore'
 import type { MusicInfo } from '@/types/musicTypes'
-import { generateShortId } from '@/utils/idGenerator'
 
 const messageStore = useMessageStore()
 
@@ -74,7 +73,6 @@ export function useMusicPicker() {
       })
 
       const processedResults: MusicInfo[] = []
-      let pendingCount = 0
 
       const processFile = (fileHandle: FileSystemFileHandle): Promise<void> => {
         return new Promise((resolve) => {
@@ -84,7 +82,6 @@ export function useMusicPicker() {
             const handler = (e: MessageEvent) => {
               if (e.data.id === messageId) {
                 worker?.removeEventListener('message', handler)
-                pendingCount--
 
                 if (e.data.data) {
                   const { coverData, coverFormat, ...rest } = e.data.data
@@ -105,7 +102,6 @@ export function useMusicPicker() {
 
             worker?.addEventListener('message', handler)
             worker?.postMessage({ file, id: messageId })
-            pendingCount++
           })
         })
       }
