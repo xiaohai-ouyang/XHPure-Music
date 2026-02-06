@@ -3,9 +3,11 @@ import { onMounted, useTemplateRef, watch } from 'vue'
 import { useThemeStore } from './stores/themeStore'
 import { useGlobalShortcutKey } from './composables/useGlobalShortcutKey'
 import { usePlaybackQueueStore } from './stores/playbackQueueStores'
-import { ElMessage } from 'element-plus'
+import { useToastStore } from './stores/toastStore'
+import XhToast from '@/components/Common/XhToast.vue'
 import { useMessageStore } from './stores/messageStore'
 const messageStore = useMessageStore()
+const toastStore = useToastStore()
 
 const playbackQueueStore = usePlaybackQueueStore()
 const audioEl = useTemplateRef('audioRef')
@@ -60,12 +62,7 @@ watch(
   () => messageStore.lastMessage,
   (message) => {
     if (message) {
-      ElMessage({
-        showClose: true,
-        message: message.content,
-        type: message.type,
-        duration: 4000,
-      })
+      toastStore.showToast(message.content, message.type, 4000)
       messageStore.clearMessage()
     }
   },
@@ -95,6 +92,9 @@ const handleEnded = () => {
 </script>
 
 <template>
+  <!-- Toast 提示组件 -->
+  <XhToast />
+
   <!-- 全局唯一音频播放器 -->
   <audio
     ref="audioRef"
