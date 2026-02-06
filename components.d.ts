@@ -28,6 +28,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SmartMarquee: typeof import('./src/components/Common/SmartMarquee.vue')['default']
     ThemeSwitch: typeof import('./src/components/Nav/ThemeSwitch.vue')['default']
+    Toast: typeof import('./src/components/Common/Toast.vue')['default']
     UserPlaylists: typeof import('./src/components/Nav/UserPlaylists.vue')['default']
   }
 }
