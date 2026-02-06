@@ -1,6 +1,6 @@
 <template>
   <div class="function-bar">
-    <button class="addAll-btn" @click="onPushAllToPlaylist">全部播放</button>
+    <button class="add-all-btn" @click="onPushAllToPlaylist">全部播放</button>
     <div class="music-num">•音乐库中有<span class="num" v-html="musicCount"></span>首歌</div>
     <div class="music-time"><span class="num" v-html="totalMinutes"></span>分钟</div>
   </div>
@@ -33,7 +33,7 @@ const onPushAllToPlaylist = () => {
   top: 0;
   z-index: 10;
 
-  .addAll-btn {
+  .add-all-btn {
     background-color: @lightMode-dominant-textColor;
     color: white;
     padding: 10px;

@@ -1,6 +1,6 @@
 <template>
   <div class="my-dialog">
-    <div class="my-dialog-contant">
+    <div class="my-dialog-content">
       <header class="dialog-header">
         <p>新建播放列表</p>
         <button @click="$emit('false')">

@@ -94,13 +94,12 @@ const progressRatio = computed(() => {
 
 <style scoped lang="less">
 .controlers {
-  width: 40vmin;
+  width: 100%;
 
   .ctl-btns {
-    .row-flex(@justify: center, @align: center, @gap: 2vmin);
+    .row-flex(@justify: space-between, @align: center);
     margin-top: 2vmin;
-    height: 3vmin;
-    overflow: hidden;
+    width: 100%;
 
     button,
     .iconfont {
@@ -109,23 +108,12 @@ const progressRatio = computed(() => {
     }
   }
 
-  .controls-btn {
-    margin-right: auto;
-
+  .controls-btn,
+  .function-btn {
+    .flex-x-center(@gap: 1.5vmin);
     .iconfont {
       font-size: 3.4vmin;
     }
-  }
-
-  .function-btn {
-    .iconfont {
-      font-size: 2.8vmin;
-    }
-  }
-
-  .controls-btn,
-  .function-btn {
-    .row-flex(@align: center, @justify: center, @gap: 1.5vmin);
   }
 }
 
@@ -154,9 +142,5 @@ const progressRatio = computed(() => {
     transform-origin: left center;
     transform: scaleX(0);
   }
-}
-
-.progress-line .progress-filled {
-  background: currentColor;
 }
 </style>

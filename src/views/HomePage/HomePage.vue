@@ -1,5 +1,5 @@
 <template>
-  <div class="homePage">
+  <div class="home-page">
     <MyNav />
     <div class="main-container" ref="mainContainer">
       <MyHeader />
@@ -47,7 +47,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="less" scoped>
-.homePage {
+.home-page {
   .row-flex();
   background-color: @lightMode-dominant-bgColor;
 }

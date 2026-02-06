@@ -1,7 +1,7 @@
 <template>
   <div
-    class="myNav"
-    :class="{ myNavContracted: pageStatusStore.isNavContracted }"
+    class="my-nav"
+    :class="{ 'my-nav-contracted': pageStatusStore.isNavContracted }"
     @click="pageStatusStore.isPlayQueueShow = false"
   >
     <nav>
@@ -22,7 +22,7 @@ const pageStatusStore = usePageStatusStore()
 </script>
 
 <style scoped lang="less">
-.myNav {
+.my-nav {
   width: 200px;
   transition: width 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   overflow: hidden;
@@ -41,7 +41,7 @@ nav {
   font-size: 35px;
 }
 
-.myNavContracted {
+.my-nav-contracted {
   width: 0;
 }
 </style>
