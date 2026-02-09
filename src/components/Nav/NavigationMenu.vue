@@ -2,28 +2,29 @@
   <div class="navigator">
     <div class="nav-item-container">
       <router-link
+        v-for="item in navItems"
+        :key="item.name"
         class="nav-item"
-        :class="{ active: currentPageTitle === '歌曲' }"
-        to="/page/music"
+        :class="{ active: currentPageTitle === item.name }"
+        :to="item.path"
       >
-        <i class="iconfont">&#xe725;</i>
-        <p class="nav-item-name">歌曲</p>
-      </router-link>
-      <router-link
-        class="nav-item"
-        :class="{ active: currentPageTitle === '歌单' }"
-        to="/page/playlists"
-      >
-        <i class="iconfont">&#xe71f;</i>
-        <p class="nav-item-name">歌单</p>
+        <i class="iconfont" v-html="item.icon"></i>
+        <span class="nav-item-name">{{ item.name }}</span>
       </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+interface NavItem {
+  name: string
+  path: string
+  icon: string
+}
+
 defineProps<{
   currentPageTitle: string
+  navItems: NavItem[]
 }>()
 </script>
 
@@ -62,6 +63,10 @@ defineProps<{
 
   &:hover {
     background: @lightMode-nav-hoverColor;
+  }
+
+  * {
+    flex: 1;
   }
 }
 

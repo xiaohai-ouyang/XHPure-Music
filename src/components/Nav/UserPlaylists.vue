@@ -14,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { usePlaylistStore } from '@/stores/playlistStores'
 import { useRouter } from 'vue-router'
 
