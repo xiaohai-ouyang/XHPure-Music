@@ -6,7 +6,10 @@
   >
     <nav>
       <ThemeSwitch />
-      <NavigationMenu :current-page-title="pageStatusStore.currentPageTitle" />
+      <NavigationMenu
+        :current-page-title="pageStatusStore.currentPageTitle"
+        :nav-items="navigationItems"
+      />
       <UserPlaylists />
     </nav>
   </div>
@@ -19,6 +22,11 @@ import NavigationMenu from './NavigationMenu.vue'
 import UserPlaylists from './UserPlaylists.vue'
 
 const pageStatusStore = usePageStatusStore()
+
+const navigationItems = [
+  { name: '歌曲', path: '/page/music', icon: '&#xe725;' },
+  { name: '歌单', path: '/page/playlists', icon: '&#xe71f;' },
+]
 </script>
 
 <style scoped lang="less">

@@ -7,6 +7,136 @@ import tinycolor from 'tinycolor2'
  */
 type DominantColorState = ReturnType<typeof createDominantColor>
 
+/**
+ * RGB颜色类型
+ */
+type RGB = { r: number; g: number; b: number }
+
+/**
+ * HSL颜色类型
+ */
+type HSL = { h: number; s: number; l: number }
+
+/**
+ * RGB转HSL
+ */
+function rgbToHsl(rgb: RGB): HSL {
+  const r = rgb.r / 255
+  const g = rgb.g / 255
+  const b = rgb.b / 255
+
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  let h = 0
+  let s = 0
+  const l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0
+  } else {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+    switch (max) {
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0)) / 6
+        break
+      case g:
+        h = ((b - r) / d + 2) / 6
+        break
+      case b:
+        h = ((r - g) / d + 4) / 6
+        break
+    }
+  }
+
+  return { h, s, l }
+}
+
+/**
+ * 颜色质量得分
+ */
+type ColorScore = {
+  color: RGB
+  score: number
+}
+
+/**
+ * 计算两个RGB颜色之间的对比度（基于WCAG 2.1标准）
+ * @param fg 前景色
+ * @param bg 背景色
+ * @returns 对比度比值 (1-21)
+ */
+function calculateContrast(fg: RGB, bg: RGB): number {
+  function luminance(rgb: RGB): number {
+    const a = [rgb.r, rgb.g, rgb.b].map((v) => {
+      v /= 255
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+    })
+    return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722
+  }
+
+  const lum1 = luminance(fg)
+  const lum2 = luminance(bg)
+  const brighter = Math.max(lum1, lum2)
+  const darker = Math.min(lum1, lum2)
+  return (brighter + 0.05) / (darker + 0.05)
+}
+
+/**
+ * 计算饱和度得分 (0-100)
+ * 0.3-0.7 为最佳区间，使用正态分布得分
+ */
+function calculateSaturationScore(hsl: { h: number; s: number; l: number }): number {
+  const s = hsl.s
+  const ideal = 0.5
+  const stdDev = 0.2
+
+  const diff = s - ideal
+  const score = Math.exp(-(diff * diff) / (2 * stdDev * stdDev)) * 100
+  return Math.min(100, Math.max(0, score))
+}
+
+/**
+ * 计算亮度适合度得分 (0-100)
+ * 0.2-0.8 为最佳区间，避免过亮或过暗
+ */
+function calculateLightnessScore(hsl: { h: number; s: number; l: number }): number {
+  const l = hsl.l
+  if (l < 0.2 || l > 0.8) return 0
+  if (l >= 0.3 && l <= 0.7) return 100
+
+  const idealRange = 0.23
+  const nearestBoundary = l < 0.3 ? 0.2 : 0.8
+  const score =
+    100 - (Math.abs(l - nearestBoundary) / (idealRange - Math.abs(l - nearestBoundary))) * 100
+  return Math.max(0, score)
+}
+
+/**
+ * 计算颜色综合质量得分
+ * @param color RGB颜色
+ * @param backgroundColors 背景颜色数组（用于计算对比度）
+ * @returns 颜色得分对象
+ */
+function calculateColorScore(color: RGB, backgroundColors: RGB[]): ColorScore {
+  const hsl = rgbToHsl(color)
+
+  const contrastScore = Math.min(
+    100,
+    ((calculateContrast(color, backgroundColors[0] || { r: 34, g: 34, b: 34 }) - 1) / 6) * 100,
+  )
+  const saturationScore = calculateSaturationScore(hsl)
+  const lightnessScore = calculateLightnessScore(hsl)
+
+  const score = contrastScore * 0.5 + saturationScore * 0.3 + lightnessScore * 0.2
+
+  return {
+    color,
+    score,
+  }
+}
+
 // 单例模式，确保整个应用中只创建一次
 let singleton: DominantColorState | null = null
 
@@ -55,8 +185,8 @@ function createDominantColor() {
     img.onload = () => {
       const colorThief = new ColorThief()
       try {
-        // 从图片中提取调色板（7种主要颜色）
-        const palette = colorThief.getPalette(img, 7)
+        // 从图片中提取调色板（12种主要颜色，比之前更多）
+        const palette = colorThief.getPalette(img, 12)
 
         // 调整颜色亮度以确保良好的可读性
         const adjusted = palette.map((c) => {
@@ -65,28 +195,28 @@ function createDominantColor() {
           return color.toRgb()
         })
 
-        // 构造背景渐变色字符串
-        dominantColor.value = `linear-gradient(135deg, ${adjusted
+        // 构造背景渐变色字符串（使用前7个颜色）
+        const gradientColors = adjusted.slice(0, 7)
+        dominantColor.value = `linear-gradient(135deg, ${gradientColors
           .map((c) => `rgb(${c.r},${c.g},${c.b})`)
           .join(', ')})`
 
-        // 计算主文本颜色
-        const mainColor = adjusted[0]
-        let textColor = tinycolor(mainColor)
-        textColor = textColor.isLight() ? textColor.darken(10) : textColor.lighten(15)
+        // 为所有颜色计算质量得分
+        const colorScores = adjusted.map((c) => calculateColorScore(c, gradientColors))
 
-        // 从调色板中随机选择4种颜色作为备选文本颜色
-        const paletteColors = [...adjusted]
+        // 按得分排序，选择得分最高的颜色（最佳质量）
+        const sortedColors = colorScores.sort((a, b) => b.score - a.score)
+
+        // 选择前4个最佳颜色作为备选文本颜色
         const selectedColors: string[] = []
-        for (let i = 0; i < 4; i++) {
-          const randomIndex = Math.floor(Math.random() * paletteColors.length)
-          const color = paletteColors.splice(randomIndex, 1)[0]
+        for (let i = 0; i < Math.min(4, sortedColors.length); i++) {
+          const color = sortedColors[i].color
           const tColor = tinycolor(color)
           selectedColors.push(tColor.toString())
         }
 
-        // 设置主文本颜色和备选颜色，添加默认的白色选项
-        dominantTextColor.value = [textColor.toString(), ...selectedColors, '#fff']
+        // 设置备选颜色，添加默认的白色选项
+        dominantTextColor.value = [...selectedColors, '#fff']
 
         // 将计算结果缓存起来
         colorCache.set(coverUrl, {
