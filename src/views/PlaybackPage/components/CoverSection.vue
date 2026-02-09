@@ -80,12 +80,12 @@ const onToggleMoreList = () => {
         @click="onToggleChinese"
         :title="translationTooltip"
       >
-        <i class="iconfont">&#xe644;</i>
+        <icon-ph-translate :size="20" />
       </button>
 
       <!-- 更多操作按钮 -->
       <button class="more-btn" @click="onToggleMoreList" title="更多">
-        <i class="iconfont">&#xe71a;</i>
+        <icon-ph-dots-three :size="20" />
       </button>
 
       <slot name="more-menu"></slot>
@@ -135,18 +135,11 @@ const onToggleMoreList = () => {
 
 .music-info .music-info-actions {
   .row-flex(@align: center, @gap: 1vmin);
-
-  .iconfont {
-    font-size: 3vmin;
-  }
 }
 
 .remove-chinese-btn {
   transition: color 0.2s ease;
-  &,
-  .iconfont {
-    color: inherit;
-  }
+  color: inherit;
 
   &:hover {
     color: #ffffff;
@@ -160,11 +153,7 @@ const onToggleMoreList = () => {
   @size: 3.2vmin;
   width: @size;
   height: @size;
-
-  &,
-  .iconfont {
-    color: inherit;
-  }
+  color: inherit;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.2);

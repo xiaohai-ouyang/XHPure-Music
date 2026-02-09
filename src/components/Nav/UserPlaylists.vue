@@ -7,7 +7,7 @@
         class="user-playlist-item"
         @click="goToPlaylist(playlist.id)"
       >
-        <i class="iconfont">&#xe761;</i>{{ playlist.name }}
+        <icon-ph-heart :size="24" />{{ playlist.name }}
       </div>
     </div>
   </div>
@@ -56,9 +56,5 @@ function goToPlaylist(id: string) {
   &:hover {
     background: @lightMode-nav-hoverColor;
   }
-}
-
-i {
-  font-size: 28px;
 }
 </style>

@@ -31,7 +31,6 @@ const toggleMute = () => {
 }
 
 const muteTitle = computed(() => (isMuted.value ? '取消静音' : '静音'))
-const muteIcon = computed(() => (isMuted.value ? '&#xeca9;' : '&#xeca6;'))
 
 // 计算进度条的比例值
 const progressRatio = computed(() => {
@@ -63,14 +62,14 @@ const progressRatio = computed(() => {
     <div class="ctl-btns">
       <div class="controls-btn">
         <button class="prev-btn" @click="() => playbackQueueStore.playPrevious()">
-          <i class="iconfont">&#xe722;</i>
+          <icon-ph-skip-back :size="32" />
         </button>
         <button class="play-pause" @click="togglePlayPause">
-          <i class="iconfont" v-if="!playbackQueueStore.isPlaying">&#xe63d;</i>
-          <i class="iconfont" v-else>&#xe67b;</i>
+          <icon-ph-play v-if="!playbackQueueStore.isPlaying" :size="32" />
+          <icon-ph-pause v-else :size="32" />
         </button>
         <button class="next-btn" @click="() => playbackQueueStore.playNext()">
-          <i class="iconfont">&#xe72a;</i>
+          <icon-ph-skip-forward :size="32" />
         </button>
       </div>
 
@@ -81,11 +80,14 @@ const progressRatio = computed(() => {
           @click="playbackQueueStore.cyclePlayMode"
           :aria-label="`${playbackQueueStore.playModeLabel}`"
         >
-          <i class="iconfont" v-html="playbackQueueStore.playModeIcon"></i>
+          <icon-ph-repeat v-if="playbackQueueStore.playMode === 'loop'" :size="20" />
+          <icon-ph-shuffle v-else-if="playbackQueueStore.playMode === 'random'" :size="20" />
+          <icon-ph-list-numbers v-else :size="20" />
         </button>
 
-        <button class="mute-btn iconfont" @click="toggleMute" :title="muteTitle">
-          <i class="iconfont" v-html="muteIcon"></i>
+        <button class="mute-btn" @click="toggleMute" :title="muteTitle">
+          <icon-ph-speaker-x v-if="isMuted" :size="20" />
+          <icon-ph-speaker-high v-else :size="20" />
         </button>
       </div>
     </div>
@@ -101,8 +103,7 @@ const progressRatio = computed(() => {
     margin-top: 2vmin;
     width: 100%;
 
-    button,
-    .iconfont {
+    button {
       .col-flex(@align:center);
       color: inherit;
     }
@@ -111,9 +112,6 @@ const progressRatio = computed(() => {
   .controls-btn,
   .function-btn {
     .flex-x-center(@gap: 1.5vmin);
-    .iconfont {
-      font-size: 3.4vmin;
-    }
   }
 }
 

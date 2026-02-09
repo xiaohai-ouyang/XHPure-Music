@@ -4,7 +4,7 @@
       <header class="dialog-header">
         <p>新建播放列表</p>
         <button @click="$emit('false')">
-          <i class="iconfont">&#xe603;</i>
+          <icon-ph-x :size="20" />
         </button>
       </header>
       <div class="dialog-body">

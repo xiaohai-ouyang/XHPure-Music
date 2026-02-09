@@ -12,15 +12,6 @@ export type PlayMode = 'list' | 'loop' | 'random'
 const PLAY_MODES: PlayMode[] = ['list', 'random', 'loop']
 
 /**
- * 播放模式对应的图标
- */
-const MODE_ICONS: Record<PlayMode, string> = {
-  list: '&#xea22;', // 列表循环
-  random: '&#xe734;', // 随机播放
-  loop: '&#xe602;', // 单曲循环
-}
-
-/**
  * 播放模式对应的标签文本
  */
 const MODE_LABELS: Record<PlayMode, string> = {
@@ -97,11 +88,6 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
     if (!currentPlayingId.value) return false
     return songChineseStates.value[currentPlayingId.value] ?? false
   })
-
-  /**
-   * 当前播放模式的图标
-   */
-  const playModeIcon = computed(() => MODE_ICONS[playMode.value])
 
   /**
    * 当前播放模式的标签文本
@@ -313,7 +299,6 @@ export const usePlaybackQueueStore = defineStore('playbackQueue', () => {
     // getters
     isPlaybackQueueEmpty,
     currentPlaying,
-    playModeIcon,
     playModeLabel,
 
     // actions
