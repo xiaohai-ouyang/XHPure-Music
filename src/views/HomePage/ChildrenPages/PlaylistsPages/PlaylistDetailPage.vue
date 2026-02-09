@@ -78,7 +78,7 @@ watch(
 <template>
   <div v-if="playlist" class="playlist-detail-page">
     <RouterLink to="/page/playlists" class="back-btn">
-      <i class="iconfont">&#xe79c;</i>
+      <icon-ph-arrow-left :size="24" />
     </RouterLink>
 
     <PlaylistLayout
@@ -97,9 +97,6 @@ watch(
   height: 40px;
   overflow: hidden;
   text-decoration: none;
-
-  i {
-    font-size: 30px;
-  }
+  color: inherit;
 }
 </style>

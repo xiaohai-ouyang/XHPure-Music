@@ -8,7 +8,7 @@
         :class="{ active: currentPageTitle === item.name }"
         :to="item.path"
       >
-        <i class="iconfont" v-html="item.icon"></i>
+        <component :is="item.iconComponent" :size="24" />
         <span class="nav-item-name">{{ item.name }}</span>
       </router-link>
     </div>
@@ -16,10 +16,12 @@
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 interface NavItem {
   name: string
   path: string
-  icon: string
+  iconComponent: Component
 }
 
 defineProps<{
@@ -65,6 +67,12 @@ defineProps<{
     background: @lightMode-nav-hoverColor;
   }
 
+  svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
   * {
     flex: 1;
   }
@@ -72,9 +80,5 @@ defineProps<{
 
 .nav-item-name {
   white-space: nowrap;
-}
-
-i {
-  font-size: 30px;
 }
 </style>

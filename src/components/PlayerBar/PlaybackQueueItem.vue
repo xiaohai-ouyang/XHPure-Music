@@ -15,13 +15,8 @@
     </div>
 
     <div class="remove-btn">
-      <button
-        v-if="music.id"
-        class="iconfont"
-        @click.stop="handleRemove(music.id)"
-        :aria-label="`${music.id}`"
-      >
-        &#xe721;
+      <button v-if="music.id" @click.stop="handleRemove(music.id)" :aria-label="`${music.id}`">
+        <icon-ph-trash :size="20" />
       </button>
     </div>
   </div>
@@ -91,9 +86,11 @@ defineExpose({
   margin-right: 8px;
 
   button {
-    font-size: 24px;
     color: @lightMode-text-tertiary;
     transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
       color: @lightMode-text-danger;

@@ -6,7 +6,7 @@
       title="暗色模式"
       @click="themeStore.setColorMode('dark')"
     >
-      <i class="iconfont">&#xe620;</i>
+      <icon-ph-moon :size="24" />
     </button>
 
     <button
@@ -15,7 +15,7 @@
       title="跟随系统"
       @click="themeStore.setColorMode('system')"
     >
-      <i class="iconfont">&#xe799;</i>
+      <icon-ph-monitor :size="24" />
     </button>
 
     <button
@@ -24,7 +24,7 @@
       title="亮色模式"
       @click="themeStore.setColorMode('light')"
     >
-      <i class="iconfont">&#xe61b;</i>
+      <icon-ph-sun :size="24" />
     </button>
   </div>
 </template>
@@ -43,16 +43,18 @@ const themeStore = useThemeStore()
   background-color: white;
   border-radius: @nav-borderRadius;
 
-  i {
-    font-size: 25px;
-  }
-
   button {
     .row-flex(@justify: center, @align: center);
     border-radius: 50%;
     width: 32px;
     height: 32px;
     cursor: pointer;
+    color: inherit;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
   }
 }
 

@@ -20,12 +20,14 @@ import { usePageStatusStore } from '@/stores/pageStatusStores'
 import ThemeSwitch from './ThemeSwitch.vue'
 import NavigationMenu from './NavigationMenu.vue'
 import UserPlaylists from './UserPlaylists.vue'
+import IconPhMusicNotes from '~icons/ph/music-notes'
+import IconPhStack from '~icons/ph/stack'
 
 const pageStatusStore = usePageStatusStore()
 
 const navigationItems = [
-  { name: '歌曲', path: '/page/music', icon: '&#xe725;' },
-  { name: '歌单', path: '/page/playlists', icon: '&#xe71f;' },
+  { name: '歌曲', path: '/page/music', iconComponent: IconPhMusicNotes },
+  { name: '歌单', path: '/page/playlists', iconComponent: IconPhStack },
 ]
 </script>
 
@@ -43,10 +45,6 @@ nav {
   padding: 20px 10px;
   height: 100vh;
   width: 200px;
-}
-
-.iconfont {
-  font-size: 35px;
 }
 
 .my-nav-contracted {

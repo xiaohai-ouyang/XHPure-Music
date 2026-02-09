@@ -73,10 +73,10 @@ watch(
                       class="more-menu-item"
                       @click="playlistStore.addInPlaylist('favorite', currentPlaying)"
                     >
-                      <i class="iconfont">&#xe761;</i><span>我喜欢</span>
+                      <icon-ph-heart :size="20" /><span>我喜欢</span>
                     </button>
                     <button class="more-menu-item">
-                      <i class="iconfont add">&#xe730;</i><span>添加到歌单</span>
+                      <icon-ph-plus :size="24" /><span>添加到歌单</span>
                     </button>
                   </div>
                 </transition>
@@ -134,7 +134,6 @@ watch(
   .title,
   .artist,
   .more-menu-item,
-  .iconfont,
   button {
     color: inherit;
   }
@@ -225,17 +224,6 @@ main {
   border-radius: 0.5vmin;
   z-index: 999;
   overflow: hidden;
-
-  .iconfont {
-    .row-flex(@align: center,@justify: center);
-    font-size: 2.8vmin;
-    width: 2.8vmin;
-    height: 2.8vmin;
-  }
-
-  .add {
-    font-size: 3.2vmin;
-  }
 
   .more-menu-item {
     .row-flex(@align: center,@justify: flex-start,@gap: 0.5vmin);

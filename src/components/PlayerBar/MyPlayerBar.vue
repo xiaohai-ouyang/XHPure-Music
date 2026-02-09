@@ -54,7 +54,7 @@ const goToPlayback = (event: Event) => {
           @click.stop="() => playbackQueueStore.playPrevious()"
           aria-label="上一首"
         >
-          <i class="iconfont">&#xe722;</i>
+          <icon-ph-skip-back :size="24" />
         </button>
         <button
           class="controls-btn play-pause"
@@ -62,19 +62,19 @@ const goToPlayback = (event: Event) => {
           :disabled="playbackQueueStore.currentPlaying === null"
           aria-label="播放/暂停"
         >
-          <i class="iconfont" v-if="!playbackQueueStore.isPlaying">&#xe63d;</i>
-          <i class="iconfont" v-else>&#xe67b;</i>
+          <icon-ph-play v-if="!playbackQueueStore.isPlaying" :size="24" />
+          <icon-ph-pause v-else :size="24" />
         </button>
         <button
           class="controls-btn"
           @click.stop="() => playbackQueueStore.playNext()"
           aria-label="下一首"
         >
-          <i class="iconfont">&#xe72a;</i>
+          <icon-ph-skip-forward :size="24" />
         </button>
       </div>
       <button class="playlist-btn" @click.stop="pageStatusStore.toggleIsPlayQueueShow">
-        <i class="iconfont">&#xe716;</i>
+        <icon-ph-queue :size="24" />
         <span class="playlist-count">播放列表</span>
       </button>
     </div>
@@ -88,10 +88,6 @@ const goToPlayback = (event: Event) => {
 .controls-btn,
 .playlist-btn {
   .row-flex(@align: center);
-}
-
-i {
-  font-size: 23px;
 }
 
 .player-bar {
