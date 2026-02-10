@@ -1,29 +1,32 @@
 <template>
   <div class="navigator">
-    <div class="navItem-container">
+    <div class="nav-item-container">
       <router-link
+        v-for="item in navItems"
+        :key="item.name"
         class="nav-item"
-        :class="{ active: currentPageTitle === '歌曲' }"
-        to="/page/music"
+        :class="{ active: currentPageTitle === item.name }"
+        :to="item.path"
       >
-        <i class="iconfont">&#xe725;</i>
-        <p class="nav-item-name">歌曲</p>
-      </router-link>
-      <router-link
-        class="nav-item"
-        :class="{ active: currentPageTitle === '歌单' }"
-        to="/page/playlists"
-      >
-        <i class="iconfont">&#xe71f;</i>
-        <p class="nav-item-name">歌单</p>
+        <component :is="item.iconComponent" :size="24" />
+        <span class="nav-item-name">{{ item.name }}</span>
       </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue'
+
+interface NavItem {
+  name: string
+  path: string
+  iconComponent: Component
+}
+
 defineProps<{
   currentPageTitle: string
+  navItems: NavItem[]
 }>()
 </script>
 
@@ -43,10 +46,9 @@ defineProps<{
   background: @lightMode-nav-bgItemColor;
 }
 
-.navItem-container {
+.nav-item-container {
   .col-flex(@justify: flex-start);
-  width: 100%;
-  padding: 2px;
+  padding: 5px;
 }
 
 .nav-item {
@@ -59,23 +61,24 @@ defineProps<{
   transition: all 0.2s ease;
   border-radius: @nav-borderRadius;
   white-space: nowrap;
+  overflow: hidden;
 
   &:hover {
     background: @lightMode-nav-hoverColor;
   }
 
-  i,
-  p {
+  svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  * {
     flex: 1;
-    text-align: center;
   }
 }
 
 .nav-item-name {
   white-space: nowrap;
-}
-
-i {
-  font-size: 30px;
 }
 </style>

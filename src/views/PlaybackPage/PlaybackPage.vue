@@ -63,26 +63,28 @@ watch(
 
       <main>
         <div class="left">
-          <CoverSection @toggle-more-list="toggleMoreList">
-            <template #more-menu>
-              <!-- 更多操作菜单 -->
-              <transition name="fade-slide">
-                <div class="more-menu" v-show="moreListShow">
-                  <button
-                    class="more-menu-item"
-                    @click="playlistStore.addInPlaylist('favorite', currentPlaying)"
-                  >
-                    <i class="iconfont">&#xe761;</i><span>我喜欢</span>
-                  </button>
-                  <button class="more-menu-item">
-                    <i class="iconfont add">&#xe730;</i><span>添加到歌单</span>
-                  </button>
-                </div>
-              </transition>
-            </template>
-          </CoverSection>
+          <div class="left-content">
+            <CoverSection @toggle-more-list="toggleMoreList">
+              <template #more-menu>
+                <!-- 更多操作菜单 -->
+                <transition name="fade-slide">
+                  <div class="more-menu" v-show="moreListShow">
+                    <button
+                      class="more-menu-item"
+                      @click="playlistStore.addInPlaylist('favorite', currentPlaying)"
+                    >
+                      <icon-ph-heart :size="20" /><span>我喜欢</span>
+                    </button>
+                    <button class="more-menu-item">
+                      <icon-ph-plus :size="24" /><span>添加到歌单</span>
+                    </button>
+                  </div>
+                </transition>
+              </template>
+            </CoverSection>
 
-          <ControlSection />
+            <ControlSection />
+          </div>
         </div>
 
         <!-- 歌词显示区域 -->
@@ -132,7 +134,6 @@ watch(
   .title,
   .artist,
   .more-menu-item,
-  .iconfont,
   button {
     color: inherit;
   }
@@ -140,10 +141,6 @@ watch(
 
 .playback-page.paused {
   animation-play-state: paused;
-}
-
-.progress-line .progress-filled {
-  background: currentColor;
 }
 
 .background-blur {
@@ -203,6 +200,10 @@ main {
   .left {
     flex: 1;
     .col-flex(@align: center );
+
+    .left-content {
+      width: 43vmin;
+    }
   }
 }
 
@@ -223,17 +224,6 @@ main {
   border-radius: 0.5vmin;
   z-index: 999;
   overflow: hidden;
-
-  .iconfont {
-    .row-flex(@align: center,@justify: center);
-    font-size: 2.8vmin;
-    width: 2.8vmin;
-    height: 2.8vmin;
-  }
-
-  .add {
-    font-size: 3.2vmin;
-  }
 
   .more-menu-item {
     .row-flex(@align: center,@justify: flex-start,@gap: 0.5vmin);

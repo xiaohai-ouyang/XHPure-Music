@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { usePageStatusStore } from '@/stores/pageStatusStores'
 import { ref, onMounted, onUnmounted } from 'vue'
+
 const router = useRouter()
 const pageStatusStore = usePageStatusStore()
 
@@ -43,11 +44,11 @@ onUnmounted(() => {
 <template>
   <header>
     <!-- 返回按钮 -->
-    <button @click="back" class="back-btn"><i class="iconfont">&#xe79c;</i></button>
+    <button @click="back" class="back-btn"><icon-ph-arrow-left :size="20" /></button>
 
     <button class="full-screen-btn" @click="toggleFullScreen">
-      <i class="iconfont" v-if="isFullScreen">&#xe6e8;</i>
-      <i class="iconfont" v-else>&#xe6d9;</i>
+      <icon-ph-corners-out v-if="isFullScreen" :size="20" />
+      <icon-ph-corners-in v-else :size="20" />
     </button>
   </header>
 </template>
@@ -64,22 +65,10 @@ header {
     padding: 1vmin;
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-  }
-}
-
-header .back-btn,
-header .full-screen-btn {
-  height: 4.3vmin;
-  width: 4.3vmin;
-  border-radius: 1vmin;
-  transition: all 0.3s ease;
-
-  .iconfont {
-    font-size: 2.5vmin;
-  }
-
-  &,
-  .iconfont {
+    height: 4.3vmin;
+    width: 4.3vmin;
+    border-radius: 1vmin;
+    transition: all 0.3s ease;
     color: inherit;
   }
 }

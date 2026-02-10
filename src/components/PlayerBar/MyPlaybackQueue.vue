@@ -92,7 +92,9 @@ onMounted(() => {
           @click.stop="playbackQueueStore.cyclePlayMode"
           :aria-label="`${playbackQueueStore.playModeLabel}`"
         >
-          <span class="iconfont" v-html="playbackQueueStore.playModeIcon" aria-hidden="true"></span>
+          <icon-ph-repeat v-if="playbackQueueStore.playMode === 'loop'" :size="16" />
+          <icon-ph-shuffle v-else-if="playbackQueueStore.playMode === 'random'" :size="16" />
+          <icon-ph-list-numbers v-else :size="16" />
           {{ playbackQueueStore.playModeLabel }}
         </button>
 

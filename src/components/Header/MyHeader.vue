@@ -2,7 +2,7 @@
   <div class="MyHeader" @click="pageStatusStore.isPlayQueueShow = false">
     <header :style="{ width: pageStatusStore.pageWidth + 'px' }">
       <button class="toggle-nav-btn" @click="pageStatusStore.toggleNav">
-        <i class="iconfont">&#xe62b;</i>
+        <icon-ph-list :size="24" />
       </button>
       <h3>{{ usePageStatusStore().currentPageTitle }}</h3>
     </header>
@@ -10,6 +10,7 @@
 </template>
 <script setup lang="ts">
 import { usePageStatusStore } from '@/stores/pageStatusStores'
+
 const pageStatusStore = usePageStatusStore()
 </script>
 
@@ -34,9 +35,5 @@ header {
   background-color: transparent;
   position: fixed;
   top: 2px;
-}
-
-.iconfont {
-  font-size: 25px;
 }
 </style>
