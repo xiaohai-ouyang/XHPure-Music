@@ -1,27 +1,45 @@
 # XHPure Music
 
-一个基于Vue3的本地音乐网站
+基于 Vue 3、Vite 和 Electron 的本地音乐播放器。
 
-## 项目启动
+## 安装依赖
 
 ```sh
-npm install
+pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+## Electron 开发
 
 ```sh
-npm run dev
+pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Web 开发
 
 ```sh
-npm run build
+pnpm dev:web
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+## 构建 Web 版本
 
 ```sh
-npm run lint
+pnpm build:web
+```
+
+## 构建 Windows 桌面包
+
+```sh
+pnpm build
+```
+
+## 类型检查
+
+```sh
+pnpm type-check
+```
+
+## Lint
+
+```sh
+pnpm lint
 ```

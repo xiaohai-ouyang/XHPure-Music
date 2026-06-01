@@ -15,12 +15,14 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   size?: number | string
 }>()
 
 const sizeValue = computed(() => {
-  if (typeof size === 'number') return size
-  return parseInt(size as string) || 24
+  if (typeof props.size === 'number') return props.size
+  return parseInt(props.size as string) || 24
 })
 </script>

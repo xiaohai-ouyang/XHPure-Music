@@ -5,6 +5,7 @@ import PlaylistLayout from '@/components/Playlist/PlaylistLayout.vue'
 import { usePlaylistStore } from '@/stores/playlistStores'
 import { useCoverStorage } from '@/composables/useCoverStorage'
 import type { Playlist } from '@/types/fileSystem'
+import favoriteCover from '@/assets/images/favorite.png'
 
 const route = useRoute()
 const playlistStore = usePlaylistStore()
@@ -35,7 +36,7 @@ async function loadPlaylist() {
         playlist.value = {
           id: foundPlaylist.id,
           name: foundPlaylist.name,
-          cover: '/src/assets/images/favorite.png',
+          cover: favoriteCover,
           tracks: foundPlaylist.tracks,
         }
       }
@@ -58,9 +59,9 @@ async function loadPlaylist() {
 }
 
 // 清空播放列表
-function clearPlaylistTracks(playlistId: string) {
-  playlistStore.clearPlaylistTracks(playlistId)
-  loadPlaylist()
+async function clearPlaylistTracks(playlistId: string) {
+  await playlistStore.clearPlaylistTracks(playlistId)
+  await loadPlaylist()
 }
 
 onMounted(() => {
@@ -72,6 +73,14 @@ watch(
   () => {
     loadPlaylist()
   },
+)
+
+watch(
+  () => playlistStore.playlist,
+  () => {
+    loadPlaylist()
+  },
+  { deep: true },
 )
 </script>
 

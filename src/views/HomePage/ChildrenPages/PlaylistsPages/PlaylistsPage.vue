@@ -3,13 +3,13 @@
     <div class="playlist-grid">
       <div class="add-playlist-card" @click="isCreating = true">
         <div class="img-wrap">
-          <img src="/src/assets/images/add.png" alt="新建播放列表" />
+          <img :src="addIcon" alt="新建播放列表" />
         </div>
         <p>创建播放列表</p>
       </div>
 
       <PlaylistCard
-        v-for="item in playlistStore.getPlaylists()"
+        v-for="item in playlistStore.playlist"
         :key="item.id"
         :playlist="item"
         @click="goDetail(item.id)"
@@ -26,6 +26,7 @@ import { ref } from 'vue'
 import { usePlaylistStore } from '@/stores/playlistStores'
 import PlaylistCard from '@/components/Playlist/PlaylistCard.vue'
 import CreatePlaylistDialog from '@/components/Playlist/CreatePlaylistDialog.vue'
+import addIcon from '@/assets/images/add.png'
 
 const router = useRouter()
 const playlistStore = usePlaylistStore()

@@ -7,6 +7,9 @@ import IconsResolver from 'unplugin-icons/resolver'
 
 // https://vite.dev/config/
 export default defineConfig({
+  worker: {
+    format: 'es',
+  },
   css: {
     preprocessorOptions: {
       less: {

@@ -41,7 +41,6 @@ declare module 'vue' {
     MusicFunctionBar: typeof import('./src/components/MusicPage/MusicFunctionBar.vue')['default']
     MusicListItem: typeof import('./src/components/MusicPage/MusicListItem.vue')['default']
     MyHeader: typeof import('./src/components/Header/MyHeader.vue')['default']
-    MyIcon: typeof import('./src/components/Common/MyIcon.vue')['default']
     MyNav: typeof import('./src/components/Nav/MyNav.vue')['default']
     MyPlaybackQueue: typeof import('./src/components/PlayerBar/MyPlaybackQueue.vue')['default']
     MyPlayerBar: typeof import('./src/components/PlayerBar/MyPlayerBar.vue')['default']
@@ -54,7 +53,6 @@ declare module 'vue' {
     SmartMarquee: typeof import('./src/components/Common/SmartMarquee.vue')['default']
     SvgIcon: typeof import('./src/components/Common/SvgIcon.vue')['default']
     ThemeSwitch: typeof import('./src/components/Nav/ThemeSwitch.vue')['default']
-    Toast: typeof import('./src/components/Common/Toast.vue')['default']
     UserPlaylists: typeof import('./src/components/Nav/UserPlaylists.vue')['default']
     XhToast: typeof import('./src/components/Common/XhToast.vue')['default']
   }

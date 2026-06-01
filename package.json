@@ -3,14 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "out/main/main.js",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "dev": "electron-vite dev",
+    "dev:web": "vite",
+    "build": "run-s type-check build:electron pack:win",
+    "build:web": "vite build",
     "preview": "vite preview",
     "build-only": "vite build",
+    "build:electron": "electron-vite build",
+    "pack:win": "electron-builder --win --dir",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
@@ -34,6 +40,9 @@
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/tsconfig": "^0.7.0",
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1",
+    "electron-vite": "^5.0.0",
     "eslint": "^9.31.0",
     "eslint-plugin-vue": "~10.3.0",
     "jiti": "^2.4.2",
@@ -49,5 +58,21 @@
     "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0",
     "vue-tsc": "^3.0.4"
+  },
+  "build": {
+    "appId": "com.xhpure.music",
+    "productName": "XHPure Music",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "public/favicon.ico",
+      "signAndEditExecutable": false
+    }
   }
 }

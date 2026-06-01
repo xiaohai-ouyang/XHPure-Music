@@ -2,7 +2,7 @@
   <div class="user-playlist">
     <div class="user-playlist-container">
       <div
-        v-for="playlist in playlists.slice(0, 5)"
+        v-for="playlist in playlistStore.playlist.slice(0, 5)"
         :key="playlist.id"
         class="user-playlist-item"
         @click="goToPlaylist(playlist.id)"
@@ -18,7 +18,6 @@ import { usePlaylistStore } from '@/stores/playlistStores'
 import { useRouter } from 'vue-router'
 
 const playlistStore = usePlaylistStore()
-const playlists = playlistStore.getPlaylists()
 const router = useRouter()
 
 function goToPlaylist(id: string) {

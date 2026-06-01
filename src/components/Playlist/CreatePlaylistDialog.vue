@@ -37,6 +37,7 @@ import { generateShortId } from '@/utils/idGenerator'
 import { usePlaylistStore } from '@/stores/playlistStores'
 import { useCoverStorage } from '@/composables/useCoverStorage'
 import { useMessageStore } from '@/stores/messageStore'
+import defaultPlaylistCover from '@/assets/images/XHPureMusic.jpg'
 
 const emit = defineEmits(['false'])
 
@@ -60,7 +61,7 @@ async function createPlaylist() {
   const playlistId = generateShortId()
 
   // 处理封面
-  let coverUrl = '/src/assets/images/XHPureMusic.jpg'
+  let coverUrl = defaultPlaylistCover
   if (coverFile.value) {
     // 保存到IndexedDB
     try {
@@ -73,7 +74,7 @@ async function createPlaylist() {
     }
   }
 
-  playlistStore.createPlaylist({
+  await playlistStore.createPlaylist({
     id: playlistId,
     name: playlistName.value,
     cover: coverUrl,

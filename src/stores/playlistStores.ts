@@ -3,55 +3,125 @@ import { ref } from 'vue'
 import { type MusicInfo } from './musicMetaStores'
 import type { Playlist, Track } from '@/types/fileSystem'
 import { useMessageStore } from '@/stores/messageStore'
-const messageStore = useMessageStore()
+import favoriteCover from '@/assets/images/favorite.png'
 
-// 从localStorage加载播放列表数据
-const loadPlaylistsFromLocalStorage = (): Playlist[] => {
-  const stored = localStorage.getItem('xhpure_playlists')
-  if (stored) {
-    try {
-      return JSON.parse(stored)
-    } catch (e) {
-      messageStore.showError('解析播放列表数据失败')
-      console.error('Failed to parse playlists from localStorage', e)
-    }
+const PLAYLIST_STORAGE_KEY = 'xhpure_playlists'
+
+const createDefaultPlaylists = (): Playlist[] => [
+  {
+    id: 'favorite',
+    name: '我最喜欢的',
+    cover: favoriteCover,
+    tracks: [],
+  },
+]
+
+const loadPlaylistsFromLocalStorage = (): Playlist[] | null => {
+  const stored = localStorage.getItem(PLAYLIST_STORAGE_KEY)
+  if (!stored) return null
+
+  try {
+    const parsed = JSON.parse(stored)
+    return Array.isArray(parsed) ? parsed : null
+  } catch (e) {
+    console.error('Failed to parse playlists from localStorage', e)
+    return null
   }
-
-  // 默认播放列表
-  return [
-    {
-      id: 'favorite',
-      name: '我最喜欢的',
-      cover: '/src/assets/images/favorite.png',
-      tracks: [],
-    },
-  ]
 }
 
-// 保存播放列表数据到localStorage
 const savePlaylistsToLocalStorage = (playlists: Playlist[]) => {
-  try {
-    localStorage.setItem('xhpure_playlists', JSON.stringify(playlists))
-  } catch (e) {
-    messageStore.showError('保存播放列表数据失败')
-    console.error('Failed to save playlists to localStorage', e)
-  }
+  localStorage.setItem(PLAYLIST_STORAGE_KEY, JSON.stringify(playlists))
 }
 
 export const usePlaylistStore = defineStore('playlist', () => {
-  // 初始化时确保有一个"我最喜欢的"歌单
-  const initialPlaylists = loadPlaylistsFromLocalStorage()
-  const playlist = ref<Playlist[]>(initialPlaylists)
+  const messageStore = useMessageStore()
+  const playlist = ref<Playlist[]>(
+    window.xhElectron
+      ? createDefaultPlaylists()
+      : (loadPlaylistsFromLocalStorage() ?? createDefaultPlaylists()),
+  )
   const msg = ref('')
+  const isLoaded = ref(!window.xhElectron)
+  const hasPlaylistLoadError = ref(false)
+
+  let initializationPromise: Promise<void> | null = null
+
+  async function persistPlaylists(playlists = playlist.value): Promise<boolean> {
+    try {
+      if (window.xhElectron) {
+        if (hasPlaylistLoadError.value) {
+          messageStore.showError('歌单数据库读取失败，已停止写入以避免覆盖原文件')
+          return false
+        }
+
+        await window.xhElectron.savePlaylists(playlists)
+      } else {
+        savePlaylistsToLocalStorage(playlists)
+      }
+
+      return true
+    } catch (e) {
+      messageStore.showError('保存歌单数据失败')
+      console.error('Failed to save playlists', e)
+      return false
+    }
+  }
+
+  async function initializePlaylists() {
+    if (!window.xhElectron) {
+      isLoaded.value = true
+      return
+    }
+
+    try {
+      hasPlaylistLoadError.value = false
+      const dbPlaylists = await window.xhElectron.loadPlaylists()
+
+      if (dbPlaylists.length > 0) {
+        playlist.value = dbPlaylists
+        return
+      }
+
+      const legacyPlaylists = loadPlaylistsFromLocalStorage()
+      if (legacyPlaylists && legacyPlaylists.length > 0) {
+        playlist.value = legacyPlaylists
+        if (await persistPlaylists(legacyPlaylists)) {
+          localStorage.removeItem(PLAYLIST_STORAGE_KEY)
+        }
+        return
+      }
+
+      playlist.value = createDefaultPlaylists()
+      await persistPlaylists()
+    } catch (e) {
+      hasPlaylistLoadError.value = true
+      messageStore.showError('加载歌单数据失败')
+      console.error('Failed to load playlists', e)
+    } finally {
+      isLoaded.value = true
+    }
+  }
+
+  function ensureInitialized() {
+    if (!initializationPromise) {
+      initializationPromise = initializePlaylists()
+    }
+
+    return initializationPromise
+  }
+
+  void ensureInitialized()
 
   /**
    * 添加新歌单
    * @param newPlaylist 新歌单对象
    */
-  function createPlaylist(newPlaylist: Playlist) {
+  async function createPlaylist(newPlaylist: Playlist) {
+    await ensureInitialized()
+
     if (!newPlaylist.name) return (msg.value = '歌单名称不能为空')
 
-    // 歌单名称校检
+    // 歌单名称校验
     if (playlist.value.find((pl: Playlist) => pl.name === newPlaylist.name)) {
       return (msg.value = '歌单名称已存在，请更换名称')
     }
@@ -61,8 +131,11 @@ export const usePlaylistStore = defineStore('playlist', () => {
     }
 
     playlist.value.push(newPlaylist)
-    savePlaylistsToLocalStorage(playlist.value)
-    msg.value = '添加歌单成功'
+    if (await persistPlaylists()) {
+      msg.value = '添加歌单成功'
+    } else {
+      msg.value = '保存歌单数据失败'
+    }
   }
 
   /**
@@ -70,7 +143,9 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * @param id 歌单ID
    * @param music 歌曲信息
    */
-  function addInPlaylist(id: string, music: MusicInfo) {
+  async function addInPlaylist(id: string, music: MusicInfo) {
+    await ensureInitialized()
+
     const pl = playlist.value.find((pl: Playlist) => pl.id === id)
     if (
       pl &&
@@ -96,7 +171,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
         md5: music.md5,
       }
       pl.tracks.push(track)
-      savePlaylistsToLocalStorage(playlist.value)
+      await persistPlaylists()
     }
   }
 
@@ -104,11 +179,13 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * 清空指定歌单中的所有歌曲
    * @param id 歌单ID
    */
-  function clearPlaylistTracks(id: string) {
+  async function clearPlaylistTracks(id: string) {
+    await ensureInitialized()
+
     const pl = playlist.value.find((pl: Playlist) => pl.id === id)
     if (pl) {
       pl.tracks = []
-      savePlaylistsToLocalStorage(playlist.value)
+      await persistPlaylists()
       msg.value = '已清空歌单'
     }
   }
@@ -125,16 +202,20 @@ export const usePlaylistStore = defineStore('playlist', () => {
    * 更新播放列表（用于从外部更新整个播放列表）
    * @param playlists 新的播放列表
    */
-  function updatePlaylists(playlists: Playlist[]) {
+  async function updatePlaylists(playlists: Playlist[]) {
+    await ensureInitialized()
+
     playlist.value = playlists
-    savePlaylistsToLocalStorage(playlists)
+    await persistPlaylists(playlists)
   }
 
   /**
    * 根据歌曲的md5和duration更新歌单中track的id
    * @param music 歌曲信息
    */
-  function updateTrackIdByMusic(music: MusicInfo) {
+  async function updateTrackIdByMusic(music: MusicInfo) {
+    await ensureInitialized()
+
     if (!music.md5 || !music.duration || !music.id) return
 
     for (const pl of playlist.value) {
@@ -144,14 +225,16 @@ export const usePlaylistStore = defineStore('playlist', () => {
         }
       }
     }
-    savePlaylistsToLocalStorage(playlist.value)
+    await persistPlaylists()
   }
 
   /**
    * 批量根据歌曲的md5和duration更新歌单中track的id
    * @param musicList 歌曲信息列表
    */
-  function updateTrackIdsByMusicList(musicList: MusicInfo[]) {
+  async function updateTrackIdsByMusicList(musicList: MusicInfo[]) {
+    await ensureInitialized()
+
     let hasChanges = false
     // 创建一个查找映射以提高性能
     // key: `${md5}-${duration}`, value: id
@@ -179,7 +262,7 @@ export const usePlaylistStore = defineStore('playlist', () => {
     }
 
     if (hasChanges) {
-      savePlaylistsToLocalStorage(playlist.value)
+      await persistPlaylists()
     }
   }
 
@@ -205,6 +288,8 @@ export const usePlaylistStore = defineStore('playlist', () => {
   return {
     playlist,
     msg,
+    isLoaded,
+    initializePlaylists,
     createPlaylist,
     addInPlaylist,
     clearPlaylistTracks,

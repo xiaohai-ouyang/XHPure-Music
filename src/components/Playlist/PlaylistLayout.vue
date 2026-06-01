@@ -55,6 +55,7 @@ import { usePlaybackQueueStore } from '@/stores/playbackQueueStores'
 import type { MusicInfo } from '@/stores/musicMetaStores'
 import type { Track, Playlist } from '@/types/fileSystem'
 import { formatTime } from '@/utils/formatTime'
+import defaultPlaylistCover from '@/assets/images/XHPureMusic.jpg'
 
 const props = defineProps<{
   playlist: Playlist
@@ -145,7 +146,7 @@ function clearPlaylistTracks() {
 function handleCoverError(event: Event) {
   const imgElement = event.target as HTMLImageElement
   // 当封面加载失败时，使用默认封面
-  imgElement.src = '/src/assets/images/XHPureMusic.jpg'
+  imgElement.src = defaultPlaylistCover
 }
 </script>
 
