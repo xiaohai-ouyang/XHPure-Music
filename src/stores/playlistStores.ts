@@ -33,6 +33,20 @@ const savePlaylistsToLocalStorage = (playlists: Playlist[]) => {
   localStorage.setItem(PLAYLIST_STORAGE_KEY, JSON.stringify(playlists))
 }
 
+const toSerializablePlaylists = (playlists: Playlist[]): Playlist[] => {
+  return playlists.map((pl) => ({
+    id: pl.id,
+    name: pl.name,
+    cover: pl.cover,
+    tracks: pl.tracks.map((track) => ({
+      id: track.id,
+      title: track.title,
+      duration: track.duration,
+      md5: track.md5,
+    })),
+  }))
+}
+
 export const usePlaylistStore = defineStore('playlist', () => {
   const messageStore = useMessageStore()
   const playlist = ref<Playlist[]>(
@@ -48,15 +62,17 @@ export const usePlaylistStore = defineStore('playlist', () => {
 
   async function persistPlaylists(playlists = playlist.value): Promise<boolean> {
     try {
+      const serializablePlaylists = toSerializablePlaylists(playlists)
+
       if (window.xhElectron) {
         if (hasPlaylistLoadError.value) {
           messageStore.showError('歌单数据库读取失败，已停止写入以避免覆盖原文件')
           return false
         }
 
-        await window.xhElectron.savePlaylists(playlists)
+        await window.xhElectron.savePlaylists(serializablePlaylists)
       } else {
-        savePlaylistsToLocalStorage(playlists)
+        savePlaylistsToLocalStorage(serializablePlaylists)
       }
 
       return true
